@@ -2,18 +2,23 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Data;
+using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
+using SocialNetworkingApp.Repositories;
 
 namespace SocialNetworkingApp
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<IPostRepository, PostRepository>();
+            builder.Services.AddScoped<ILikeRepository, LikeRepository>();
+            builder.Services.AddScoped<IFriendRepository, FriendRepository>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -35,10 +40,15 @@ namespace SocialNetworkingApp
 
             var app = builder.Build();
 
+            if (args.Length == 1 && args[0].ToLower() == "seeddata")
+            {
+                await Seed.SeedUsersAndRolesAsync(app);
+            }
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Feed/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -52,7 +62,7 @@ namespace SocialNetworkingApp
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Feed}/{action=Index}/{id?}");
 
             app.Run();
         }

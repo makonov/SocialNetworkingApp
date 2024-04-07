@@ -4,14 +4,14 @@ namespace SocialNetworkingApp.Models
 {
     public class User : IdentityUser
     {
-        string? FirstName { get; set; }
-        string? LastName { get; set; }
-        string? Education {  get; set; }
-        DateTime BirthDate { get; set; }
-        string? City { get; set; }
-        string? Gender { get; set; }
-        string? Status { get; set; }
-        DateTime LastLogin {  get; set; }
-        string? ProfilePicture {  get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Education {  get; set; }
+        public DateTime BirthDate { get; set; }
+        public string? City { get; set; }
+        public bool? IsMale { get; set; }
+        public string? Status { get; set; }
+        public DateTime LastLogin {  get; set; }
+        public string? ProfilePicture {  get; set; }
     }
 }

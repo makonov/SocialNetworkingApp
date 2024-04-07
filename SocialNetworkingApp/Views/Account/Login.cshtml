@@ -1,0 +1,43 @@
+﻿@using SocialNetworkingApp.ViewModels
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Авторизация";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-3">
+        <h1 class="text-center">Авторизация</h1>
+        <p>
+            <h4 class="text-center">Ввойдите в свою учетную запись</h4>
+        </p>
+        @if(TempData["Error"] != null)
+        {
+            <div class="col-md-12 alert alert-danger">
+                <span><b>Извините!</b> - @TempData["Error"]</span>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-8 offset-2">
+                <form asp-action="Login">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Login" class="control-label">Логин</label>
+                        <input asp-for="Login" class="form-control">
+                        <span asp-validation-for="Login" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label">Пароль</label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <input class="btn btn-outline-success float right" type="submit" value="Войти" />
+                        <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Register">Нет аккаунта?</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

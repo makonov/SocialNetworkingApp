@@ -1,0 +1,29 @@
+﻿@model SocialNetworkingApp.ViewModels.FeedViewModel
+<div class="col-md-8">
+    @foreach (var post in Model.Posts.OrderByDescending(p => p.data.CreatedAt))
+    {
+        <div class="card mb-3" data-id="@post.data.Id">
+            <div class="card-body">
+                <h5 class="card-title">@post.data.User.FirstName @post.data.User.LastName</h5>
+                <p class="card-text">@post.data.Text</p>
+                @if (!string.IsNullOrEmpty(post.data.Image))
+                {
+                    <img src="@post.data.Image" class="card-img-top" alt="Post Image">
+                }
+                <span class="card-text"><small class="text-muted">Опубликовано: @post.data.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                @if (post.data.UserId == Model.CurrentUserId)
+                {
+                    <a asp-route-id="@post.data.Id" class="btn btn-light btn-sm delete-btn" style="float: right;" data-id="@post.data.Id"><i class="bi bi-trash-fill"></i></a>
+                    <a asp-route-id="@post.data.Id" class="btn btn-light btn-sm edit-btn" style="float: right;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>
+                }
+                <div style="margin-top: 5px;">
+                    <span><strong class="likes-count">@post.data.Likes</strong></span>
+                    <a asp-route-id="@post.data.Id" class="btn btn-light btn-sm like-btn" style="margin-left: 7px;" data-id="@post.data.Id" data-is-liked="@(post.isLiked ? "true" : "false")">
+                        <i class="bi bi-hand-thumbs-up@(post.isLiked ? "-fill" : "")"></i>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    }
+</div>
