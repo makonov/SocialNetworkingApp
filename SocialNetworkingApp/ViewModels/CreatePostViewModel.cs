@@ -3,6 +3,7 @@
     public class CreatePostViewModel
     {
         public string? Text { get; set; }
-        public IFormFile? Image { get; set; }
+        public IFormFile? Gif { get; set; }
+        public string? GifPath { get; set; }
     }
 }

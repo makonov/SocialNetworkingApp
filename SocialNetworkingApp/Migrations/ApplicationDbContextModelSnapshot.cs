@@ -233,6 +233,57 @@ namespace SocialNetworkingApp.Migrations
                     b.ToTable("FriendRequests");
                 });
 
+            modelBuilder.Entity("SocialNetworkingApp.Models.Gif", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GifAlbumId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GifPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GifAlbumId");
+
+                    b.ToTable("Gifs");
+                });
+
+            modelBuilder.Entity("SocialNetworkingApp.Models.GifAlbum", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("GifPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GifAlbums");
+                });
+
             modelBuilder.Entity("SocialNetworkingApp.Models.Like", b =>
                 {
                     b.Property<int>("Id")
@@ -266,6 +317,9 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
@@ -281,48 +335,6 @@ namespace SocialNetworkingApp.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("SocialNetworkingApp.Models.Photo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PhotoAlbumId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PhotoAlbumId");
-
-                    b.ToTable("Photos");
-                });
-
-            modelBuilder.Entity("SocialNetworkingApp.Models.PhotoAlbum", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PhotoAlbums");
-                });
-
             modelBuilder.Entity("SocialNetworkingApp.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -334,7 +346,7 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Image")
+                    b.Property<string>("Gif")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Likes")
@@ -549,6 +561,26 @@ namespace SocialNetworkingApp.Migrations
                     b.Navigation("ToUser");
                 });
 
+            modelBuilder.Entity("SocialNetworkingApp.Models.Gif", b =>
+                {
+                    b.HasOne("SocialNetworkingApp.Models.GifAlbum", "Album")
+                        .WithMany()
+                        .HasForeignKey("GifAlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Album");
+                });
+
+            modelBuilder.Entity("SocialNetworkingApp.Models.GifAlbum", b =>
+                {
+                    b.HasOne("SocialNetworkingApp.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SocialNetworkingApp.Models.Message", b =>
                 {
                     b.HasOne("SocialNetworkingApp.Models.User", "FromUser")
@@ -562,26 +594,6 @@ namespace SocialNetworkingApp.Migrations
                     b.Navigation("FromUser");
 
                     b.Navigation("ToUser");
-                });
-
-            modelBuilder.Entity("SocialNetworkingApp.Models.Photo", b =>
-                {
-                    b.HasOne("SocialNetworkingApp.Models.PhotoAlbum", "Album")
-                        .WithMany()
-                        .HasForeignKey("PhotoAlbumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Album");
-                });
-
-            modelBuilder.Entity("SocialNetworkingApp.Models.PhotoAlbum", b =>
-                {
-                    b.HasOne("SocialNetworkingApp.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Post", b =>

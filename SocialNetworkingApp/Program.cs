@@ -5,6 +5,7 @@ using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
+using SocialNetworkingApp.Services;
 
 namespace SocialNetworkingApp
 {
@@ -19,6 +20,9 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddScoped<ILikeRepository, LikeRepository>();
             builder.Services.AddScoped<IFriendRepository, FriendRepository>();
+            builder.Services.AddScoped<IGifRepository, GifRepository>();
+            builder.Services.AddScoped<IGifAlbumRepository, GifAlbumRepository>();
+            builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

@@ -1,9 +1,7 @@
 ﻿$(document).ready(function () {
-    $(document).on('click', '.delete-btn', function (event) {
-        event.preventDefault();
+    $(document).on('click', '.delete-btn', function () {
         var postId = $(this).data('id');
         var post = $(this).closest('.card');
-        console.log("postId:", postId);
         $.ajax({
             type: 'POST',
             url: '/Feed/DeletePost',
@@ -18,4 +16,6 @@
             }
         });
     });
+
+
 });

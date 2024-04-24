@@ -8,21 +8,42 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     
-    <script src="/js/imagepreview.js"></script>
     <script src="/js/loadposts.js"></script>
     <script src="/js/likepost.js"></script>
     <script src="/js/deletepost.js"></script>
+    <script src="/js/editpost.js"></script>
+    <script src="/js/imagepreview.js"></script>
 }
 
 <div class="container">
     @Html.AntiForgeryToken()
     <div class="row">
-        @Html.Partial("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel())
+        @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel())
     </div>
     <br />
     <div id="postsContainer" class="row">
-        @Html.Partial("_FeedPartial", Model)
+        @await Html.PartialAsync("_FeedPartial", Model)
+    </div>
+    <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog" aria-labelledby="editWarningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWarningModalLabel">Предупреждение</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Нельзя перейти к редактированию поста, пока другой пост находится в режиме редактирования.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="scrollToTop">
         <button class="btn btn-primary">Наверх</button>

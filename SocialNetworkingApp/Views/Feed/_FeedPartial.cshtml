@@ -5,16 +5,30 @@
         <div class="card mb-3" data-id="@post.data.Id">
             <div class="card-body">
                 <h5 class="card-title">@post.data.User.FirstName @post.data.User.LastName</h5>
-                <p class="card-text">@post.data.Text</p>
-                @if (!string.IsNullOrEmpty(post.data.Image))
+                
+                @if (!string.IsNullOrEmpty(post.data.Gif))
                 {
-                    <img src="@post.data.Image" class="card-img-top" alt="Post Image">
+                    <div class="image-preview-@post.data.Id">
+                        <span id="imagePreview-@post.data.Id">
+                            <img src="@post.data.Gif" class="card-img-top" alt="Post Image">
+                        </span>
+                        <button type="button" class="btn btn-light btn-sm" id="clear-image-@post.data.Id" style="display:none;"><i class="bi bi-x"></i></button>
+                    </div>
                 }
-                <span class="card-text"><small class="text-muted">Опубликовано: @post.data.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                <p class="card-text post-text">@post.data.Text</p>
+                @if (post.data.UpdatedAt == null)
+                {
+                    <span class="card-text"><small class="text-muted">Опубликовано: @post.data.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                }
+                else
+                {
+                    <span class="card-text"><small class="text-muted">Изменено: @post.data.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                }
+                
                 @if (post.data.UserId == Model.CurrentUserId)
                 {
-                    <a asp-route-id="@post.data.Id" class="btn btn-light btn-sm delete-btn" style="float: right;" data-id="@post.data.Id"><i class="bi bi-trash-fill"></i></a>
-                    <a asp-route-id="@post.data.Id" class="btn btn-light btn-sm edit-btn" style="float: right;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>
+                    <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-trash-fill"></i></a>
+                    <a class="btn btn-light btn-sm edit-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>
                 }
                 <div style="margin-top: 5px;">
                     <span><strong class="likes-count">@post.data.Likes</strong></span>
@@ -22,7 +36,6 @@
                         <i class="bi bi-hand-thumbs-up@(post.isLiked ? "-fill" : "")"></i>
                     </a>
                 </div>
-                
             </div>
         </div>
     }

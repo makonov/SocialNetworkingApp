@@ -8,14 +8,17 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\js\DeletePost.js" />
+    <Content Remove="wwwroot\js\EditPost.js" />
   </ItemGroup>
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\js\DeletePost.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\js\EditPost.js" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\js\DeletePost.js" />
+    <None Include="wwwroot\js\EditPost.js" />
   </ItemGroup>
 
   <ItemGroup>

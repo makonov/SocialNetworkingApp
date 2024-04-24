@@ -13,8 +13,8 @@ namespace SocialNetworkingApp.Data
         public DbSet<Friend> Friends { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<Photo> Photos { get; set; }
-        public DbSet<PhotoAlbum> PhotoAlbums { get; set;}
+        public DbSet<Gif> Gifs { get; set; }
+        public DbSet<GifAlbum> GifAlbums { get; set;}
         public DbSet<Post> Posts { get; set; }
         public DbSet<Like> Likes { get; set; }
     }

@@ -5,21 +5,32 @@
             <form asp-action="CreatePost" id="newPostForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label asp-for="Text" class="control-label">Что у вас нового?</label>
-                    <div class="image-preview">
-                        <span id="imagePreview"></span>
-                        <button type="button" class="btn btn-light btn-sm" id="clearImage" style="display:none;"><i class="bi bi-x"></i></button>
+                    <div class="image-preview-0">
+                        <span id="imagePreview-0"></span>
+                        <button type="button" class="btn btn-light btn-sm" id ="clear-image-0" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>
                     <textarea asp-for="Text" class="form-control" rows="4" style="resize: none;"></textarea>
                     <span asp-validation-for="Text" class="text-danger"></span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <button type="submit" class="btn btn-primary">Опубликовать</button>
-                    
-                    <label for="inputGroupFile" class="btn btn-light btn-sm">
+                    <a class="btn btn-light btn-sm" data-toggle="collapse" href="#collapse-0" role="button" aria-expanded="false" aria-controls="collapse-0">
                         <i class="fas fa-camera"></i>
-                        <input asp-for="Image" hidden id="inputGroupFile" accept="image/*" style="display:none">
-                    </label>
+                    </a>
                     
+                    
+                    @* <label for="input-image-0" class="btn btn-light btn-sm">
+                        <i class="fas fa-camera"></i>
+                        <input asp-for="Image" hidden id="input-image-0" accept="image/*" style="display:none">
+                    </label> *@
+                    
+                </div>
+                <div class="collapse" id="collapse-0">
+                    <label for="input-image-0" class="btn btn-light btn-sm" style="margin-top: 5px;">
+                        Загрузить фото с устройства
+                        <input asp-for="Gif" hidden id="input-image-0" accept=".gif" style="display:none">
+                    </label>
+                    <label class="btn btn-light btn-sm" style="margin-top: 5px;">Выбрать фото из альбома</label>
                 </div>
             </form>
         </div>
@@ -27,25 +38,26 @@
 </div>
 
 <style>
-    .image-preview {
+    [class*="image-preview"] {
         text-align: center;
         margin-bottom: 10px;
         position: relative;
     }
 
-    .image-preview button {
+    [class*="image-preview"] button {
         position: absolute;
         top: 0;
         right: 0;
     }
 
-    .image-preview img {
+    [class*="image-preview"] img {
         max-width: 100%;
-        max-height: 400px; 
+        max-height: 400px;
         width: auto;
         height: auto;
     }
 </style>
+
 
 
 

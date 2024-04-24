@@ -15,6 +15,6 @@ namespace SocialNetworkingApp.Models
         public User? ToUser { get; set; }
         public string? Text { get; set; }
         public bool IsRead { get; set; }
-        DateTime SentAt { get; set; }
+        public DateTime SentAt { get; set; }
     }
 }

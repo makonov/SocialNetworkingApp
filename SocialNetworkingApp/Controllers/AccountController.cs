@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetworkingApp.Data;
+using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.ViewModels;
 
@@ -11,11 +12,13 @@ namespace SocialNetworkingApp.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IGifAlbumRepository _albumRepository;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IGifAlbumRepository albumRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _albumRepository = albumRepository;
         }
 
         public IActionResult Login()
@@ -97,6 +100,29 @@ namespace SocialNetworkingApp.Controllers
 
             await _userManager.AddToRoleAsync(newUser, UserRoles.User);
             await _signInManager.SignInAsync(newUser, isPersistent: false);
+
+            var savedGifsAlbum = new GifAlbum
+            {
+                UserId = newUser.Id,
+                Name = "Сохраненные Gif"
+            };
+
+            var postGifs = new GifAlbum
+            {
+                UserId = newUser.Id,
+                Name = "Gif на стене"
+            };
+
+            var profileGifs = new GifAlbum
+            {
+                UserId = newUser.Id,
+                Name = "Gif профиля"
+            };
+
+            _albumRepository.Add(savedGifsAlbum);
+            _albumRepository.Add(postGifs);
+            _albumRepository.Add(profileGifs);
+
             return RedirectToAction("Index", "Feed");
         }
 

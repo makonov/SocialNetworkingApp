@@ -10,7 +10,6 @@
     });
 
     function loadMore() {
-        console.log(lastPostId);
         if (!isLoading) {
             isLoading = true;
             lastPostId = $('#postsContainer .card').last().data('id')

@@ -2,9 +2,9 @@
 {
     public interface IPhotoService
     {
-        Task<(bool IsUploadedAndExtensionValid, string FileName)> UploadPhotoAsync(IFormFile file, string targetFolder);
+        Task<(bool IsAttachedAndExtensionValid, string FileName)> UploadPhotoAsync(IFormFile file, string targetFolder);
         Task<(bool IsReplacementSuccess, string NewFileName)> ReplacePhotoAsync(IFormFile file, string targetFolder, string existingFilePath);
-        Task<bool> DeletePhotoAsync(string filePath);
-        bool IsFileUploadedAndExtensionAllowed(IFormFile file, string[] allowedExtensions);
+        bool DeletePhoto(string filePath);
+        bool IsFileAttachedAndExtensionAllowed(IFormFile file, string[] allowedExtensions);
     }
 }
