@@ -26,7 +26,9 @@
         const $text = $card.find('.post-text').val();
         var inputFile = $card.find('input[type=file]');
         var file = inputFile[0].files[0];
-        editPost(postId, $card, $text, file);
+        /*var gifPathValue = $('#take-image-' + postId).val();*/
+        var gifPathValue = $('#imagePreview-' + postId + ' img').attr('src');
+        editPost(postId, $card, $text, file, gifPathValue);
     });
 
     $(document).on('click', '[data-dismiss="modal"]', function () {
@@ -40,10 +42,19 @@
 
         const $editPanel = $('<div class="d-flex justify-content-between align-items-center edit-panel">'
             + '<button class="btn-sm btn-primary save-btn" style="margin-top: 5px;">Сохранить</button>'
-            + '<label for="input-image-' + postId + '" class="btn btn-light btn-sm" style="margin-top: 5px;">'
-            + '<i class="fas fa-camera"></i>'
-            + '<input type="file" hidden id="input-image-' + postId + '" accept="image/*" style="display:none;">'
+            + '<a class="btn btn-light btn-sm" data-toggle="collapse" href="#collapse-' + postId + '" role="button" aria-expanded="false" aria-controls="collapse-' + postId + '">'
+            + '<i class="fas fa-camera" ></i>'
+            + '</a>'
+            + '<div class="collapse" id="collapse-' + postId + '">'
+            + '<label for="input-image-' + postId + '" class="btn btn-light btn-sm" style="margin-top:5px; ">'
+            + 'Загрузить фото с устройства'
+            + '<input asp-for="Gif" type="file" hidden id="input-image-' + postId + '" accept=".gif" style="display: none">'
             + '</label>'
+            + '<label for="take-image-' + postId + '" class="btn btn-light btn-sm" style="margin-top:5px;" data-bs-toggle="modal" data-bs-target="#modalToggle-post-' + postId + '">'
+            + '<input asp-for="GifPath" hidden id="take-image-' + postId + '" accept=".gif" style="display: none">'
+            + 'Выбрать фото из альбома'
+            + '</label>'
+            + '</div>'
             + '</div>');
         $textarea.after($editPanel);
 
@@ -65,7 +76,7 @@
         originalText = $textElement.text();
     }
 
-    function exitEditMode($textElement, $card, postId) {
+    function exitEditMode($textElement, $card, postId, time) {
         const $textParagraph = $('<p class="card-text post-text"></p>').text(originalText);
         $textElement.replaceWith($textParagraph);
 
@@ -89,13 +100,15 @@
             $imagePreview.remove();
         }
 
+        $card.find('.time-change').text('Изменено: ' + time);
+
         isEditMode = false;
         currentPostId = 0;
         originalText = '';
         $imagePath = '';
     }
 
-    function editPost(postId, card, text, file) {
+    function editPost(postId, card, text, file, gifPathValue) {
         var formData = new FormData();
         formData.append('text', text);
         formData.append('postId', postId);
@@ -103,7 +116,11 @@
             formData.append('inputFile', file);
         }
 
-        if (text.trim().length > 0  || file != null) {
+        if (gifPathValue) {
+            formData.append('existingGif', gifPathValue);
+        }
+
+        if (text.trim().length > 0 || file != null || gifPathValue != null) {
             $.ajax({
                 type: 'POST',
                 url: '/Feed/EditPost',
@@ -114,7 +131,7 @@
                     const $textElement = card.find('.post-text');
                     originalText = text;
                     $imagePath = response.imagePath;
-                    exitEditMode($textElement, card, postId);
+                    exitEditMode($textElement, card, postId, response.time);
                 },
                 error: function () {
                     console.error('Ошибка при редактировании поста')

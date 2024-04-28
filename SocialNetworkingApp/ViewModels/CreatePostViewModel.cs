@@ -1,4 +1,6 @@
-﻿namespace SocialNetworkingApp.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SocialNetworkingApp.ViewModels
 {
     public class CreatePostViewModel
     {

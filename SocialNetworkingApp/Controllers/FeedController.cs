@@ -19,6 +19,8 @@ namespace SocialNetworkingApp.Controllers
         private readonly ILikeRepository _likeRepository;
         private readonly IFriendRepository _friendRepository;
         private readonly IPhotoService _photoService;
+        private readonly IGifAlbumRepository _albumRepository;
+        private readonly IGifRepository _gifRepository;
         private readonly UserManager<User> _userManager;
         private const int pageSize = 10;
 
@@ -26,12 +28,16 @@ namespace SocialNetworkingApp.Controllers
             ILikeRepository likeRepository,
             IFriendRepository friendRepository,
             IPhotoService photoService,
+            IGifAlbumRepository albumRepository,
+            IGifRepository gifRepository,
             UserManager<User> userManager)
         {
             _postRepository = postRepository;
             _likeRepository = likeRepository;
             _friendRepository = friendRepository;
             _photoService = photoService;
+            _gifRepository = gifRepository;
+            _albumRepository = albumRepository;
             _userManager = userManager;
         }
 
@@ -75,14 +81,25 @@ namespace SocialNetworkingApp.Controllers
                 Likes = 0,
                 Name = $"{user.LastName} {user.FirstName}",
                 CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = default
             };
 
             if (viewModel.Gif != null)
             {
                 string imageDirectory = $"data\\photo\\{user.UserName}";
                 var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, imageDirectory);
-                post.Gif = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
+                string gifPath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
+                post.Gif = gifPath;
+
+                var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
+                var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
+                Gif gif = new Gif
+                {
+                    GifAlbumId = album.Id,
+                    GifPath = gifPath,
+                    CreatedAt = DateTime.Now
+                };
+                _gifRepository.Add(gif);
             }
 
             if (viewModel.GifPath != null)
@@ -136,18 +153,18 @@ namespace SocialNetworkingApp.Controllers
         public async Task<IActionResult> DeletePost(int postId)
         {
             var post = await _postRepository.GetByIdAsync(postId);
-            if (post.Gif != null)
-            {
-                _photoService.DeletePhoto(post.Gif);
-            }
+            //if (post.Gif != null)
+            //{
+            //    _photoService.DeletePhoto(post.Gif);
+            //}
             var result = _postRepository.Delete(post);
             return result ? Json(new { success = true}) : Json(new {success = false});
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditPost(int postId, string text, IFormFile inputFile = null)
+        public async Task<IActionResult> EditPost(int postId, string text, string existingGif = null, IFormFile inputFile = null)
         {
-            if (text == null && inputFile == null)
+            if (text == null && inputFile == null && existingGif == null)
             {
                 return Json(new { succsess = false, error = "Пост не может быть пустым" });
             }
@@ -157,24 +174,50 @@ namespace SocialNetworkingApp.Controllers
             var post = await _postRepository.GetByIdAsync(postId);
             if (user.Id == post.UserId)
             {   
-                post.UpdatedAt = DateTime.UtcNow;
+                post.UpdatedAt = DateTime.Now;
                 post.Text = text;
                 
                 if (inputFile != null)
                 {
                     string imageDirectory = $"data\\photo\\{user.UserName}";
                     var imageUploadResult = await _photoService.ReplacePhotoAsync(inputFile, imageDirectory, post.Gif);
-                    post.Gif = imageUploadResult.IsReplacementSuccess ? imageDirectory + "\\" + imageUploadResult.NewFileName : null;
+                    string gifPath = imageUploadResult.IsReplacementSuccess ? imageDirectory + "\\" + imageUploadResult.NewFileName : null;
+                    post.Gif = gifPath;
+
+                    var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
+                    var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
+                    Gif gif = new Gif
+                    {
+                        GifAlbumId = album.Id,
+                        GifPath = gifPath,
+                        CreatedAt = DateTime.Now
+                    };
+                    _gifRepository.Add(gif);
                 }
-                else
+                else if (existingGif != null)
                 {
-                    _photoService.DeletePhoto(post.Gif);
+                    post.Gif = existingGif;
+                }
+                else if (post.Gif != null)
+                {
                     post.Gif = null;
                 }
                 _postRepository.Update(post);
-                return Json(new { success = true, imagePath = post.Gif  });
+                return Json(new { success = true, imagePath = post.Gif, time = post.UpdatedAt.ToString("dd.MM.yyyy HH:mm") });
             }
-            return Json(new { success = false, error = "Отказано в доступе" });
+            return Json(new { success = false, error = "Отказано в доступе"});
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadGifs()
+        {
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+            var albums = await _albumRepository.GetAllByUserAsync(user.Id);
+            List<int> albumIds = albums.Select(a => a.Id).ToList();
+            var gifs = await _gifRepository.GetAllAsync();
+            var gifPaths = gifs.Where(g => albumIds.Contains(g.GifAlbumId)).Select(g => g.GifPath).ToList();
+            return Json(new { success = true, data = gifPaths });
         }
 
         public IActionResult Privacy()

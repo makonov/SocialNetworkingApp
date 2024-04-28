@@ -37,6 +37,7 @@ namespace SocialNetworkingApp.Data
 
                     await userManager.CreateAsync(newAppUser, "252609Mm!");
                     await userManager.AddToRoleAsync(newAppUser, UserRoles.User);
+
                 }
             }
         }

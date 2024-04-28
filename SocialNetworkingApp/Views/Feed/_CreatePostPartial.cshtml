@@ -17,21 +17,39 @@
                     <a class="btn btn-light btn-sm" data-toggle="collapse" href="#collapse-0" role="button" aria-expanded="false" aria-controls="collapse-0">
                         <i class="fas fa-camera"></i>
                     </a>
-                    
-                    
-                    @* <label for="input-image-0" class="btn btn-light btn-sm">
-                        <i class="fas fa-camera"></i>
-                        <input asp-for="Image" hidden id="input-image-0" accept="image/*" style="display:none">
-                    </label> *@
-                    
                 </div>
                 <div class="collapse" id="collapse-0">
                     <label for="input-image-0" class="btn btn-light btn-sm" style="margin-top: 5px;">
                         Загрузить фото с устройства
                         <input asp-for="Gif" hidden id="input-image-0" accept=".gif" style="display:none">
                     </label>
-                    <label class="btn btn-light btn-sm" style="margin-top: 5px;">Выбрать фото из альбома</label>
+                    <label for="take-image-0" class="btn btn-light btn-sm" style="margin-top: 5px;" data-bs-toggle="modal" data-bs-target="#modalToggle-post-0">
+                        <input asp-for="GifPath" hidden id="take-image-0" accept=".gif" style="display:none">
+                        Выбрать фото из альбома
+                    </label>
                 </div>
+
+                <!-- Модальное окно -->
+                <div class="modal fade" id="modalToggle-post-0" tabindex="-1" role="dialog" aria-labelledby="modalToggleLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalToggleLabel">Гифки пользователя</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row" id="gifContainer-0">
+                                    <!-- Здесь будут отображаться гифки -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+
             </form>
         </div>
     </div>

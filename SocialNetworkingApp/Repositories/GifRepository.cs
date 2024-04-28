@@ -1,4 +1,6 @@
-﻿using SocialNetworkingApp.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 
@@ -23,6 +25,21 @@ namespace SocialNetworkingApp.Repositories
         {
             _context.Remove(gif);
             return Save();
+        }
+
+        public async Task<Gif> GetByIdAsync(int id)
+        {
+            return await _context.Gifs.FindAsync(id);
+        } 
+
+        public async Task<List<Gif>> GetAllAsync()
+        {
+            return await _context.Gifs.ToListAsync();
+        }
+
+        public async Task<List<Gif>> GetByAlbumIdAsync(int id)
+        {
+            return await _context.Gifs.Where(g => g.GifAlbumId == id).ToListAsync();
         }
 
         public bool Save()

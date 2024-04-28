@@ -1,39 +1,55 @@
 ﻿$(document).ready(function () {
-    // Обработчик изменения выбранного файла для элементов с идентификаторами, начинающимися с "input-image-"
     $(document).on('change', '[id^="input-image-"]', function (e) {
-        var postId = this.id.split('-').pop(); // Получаем номер поста из идентификатора элемента
+        var postId = this.id.split('-').pop(); 
         var file = e.target.files[0];
         var $imagePreview = $('#imagePreview-' + postId);
         var $clearImage = $('#clear-image-' + postId);
+        $('#take-image-' + postId).val('');
 
         if (file) {
             var reader = new FileReader();
             reader.onload = function (e) {
-                $imagePreview.empty(); // Очищаем содержимое предварительного просмотра
+                $imagePreview.empty();
 
-                // Создаем новый элемент <img> с атрибутами
                 $('<img>').attr({
                     'src': e.target.result,
                     'class': 'img-fluid'
                 }).appendTo($imagePreview);
 
-                // Показываем кнопку "Сбросить"
                 $clearImage.css('display', 'inline-block');
             };
-            reader.readAsDataURL(file); // Читаем файл как URL-адрес данных
+            reader.readAsDataURL(file); 
         } else {
-            // Скрываем кнопку "Сбросить", если файл сброшен
             $clearImage.css('display', 'none');
         }
     });
 
-    // Обработчик нажатия кнопки "Сбросить" для элементов с идентификаторами, начинающимися с "clear-image-"
     $(document).on('click', '[id^="clear-image-"]', function (e) {
-        var postId = this.id.split('-').pop(); // Получаем номер поста из идентификатора элемента
-        $('#imagePreview-' + postId).empty(); // Очищаем содержимое предварительного просмотра
-        $('#input-image-' + postId).val(''); // Очищаем значение в input файле
+        var postId = this.id.split('-').pop(); 
+        $('#imagePreview-' + postId).empty();
+        $('#input-image-' + postId).val('');
 
-        // Скрываем кнопку "Сбросить"
         $(this).css('display', 'none');
+    });
+
+
+    $(document).on('change', '[id^="take-image-"]', function () {
+        var postId = this.id.split('-').pop(); 
+        var $imagePreview = $('#imagePreview-' + postId);
+        var $clearImage = $('#clear-image-' + postId);
+        var gifPath = $('#take-image-' + postId).val();
+        $('#input-image-' + postId).val('');
+        if (gifPath) {
+            $imagePreview.empty();
+
+            $('<img>').attr({
+                'src': gifPath,
+                'class': 'img-fluid'
+            }).appendTo($imagePreview);
+
+            $clearImage.css('display', 'inline-block');
+        } else {
+            $clearImage.css('display', 'none');
+        }
     });
 });

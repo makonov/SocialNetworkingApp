@@ -13,5 +13,6 @@ namespace SocialNetworkingApp.Models
         public User? User { get; set; }
         public string? Name { get; set; }
         public string? GifPath {  get; set; }
+        public string? Description { get; set; }
     }
 }
