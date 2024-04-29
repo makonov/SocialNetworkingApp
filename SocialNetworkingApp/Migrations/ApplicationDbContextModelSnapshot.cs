@@ -349,8 +349,8 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Gif")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("GifId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Likes")
                         .HasColumnType("int");
@@ -368,6 +368,8 @@ namespace SocialNetworkingApp.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GifId");
 
                     b.HasIndex("UserId");
 
@@ -601,9 +603,17 @@ namespace SocialNetworkingApp.Migrations
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Post", b =>
                 {
+                    b.HasOne("SocialNetworkingApp.Models.Gif", "Gif")
+                        .WithMany()
+                        .HasForeignKey("GifId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SocialNetworkingApp.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Gif");
 
                     b.Navigation("User");
                 });

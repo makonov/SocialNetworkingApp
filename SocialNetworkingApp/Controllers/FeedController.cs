@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetworkingApp.Interfaces;
@@ -41,10 +42,9 @@ namespace SocialNetworkingApp.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             var currentUser = HttpContext.User;
-            int page = 1;
             var user = await _userManager.GetUserAsync(currentUser);
             var friendIds = await _friendRepository.GetAllIdsByUserAsync(user.Id);
             var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, page, pageSize);
@@ -89,7 +89,6 @@ namespace SocialNetworkingApp.Controllers
                 string imageDirectory = $"data\\photo\\{user.UserName}";
                 var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, imageDirectory);
                 string gifPath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
-                post.Gif = gifPath;
 
                 var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
                 var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
@@ -99,12 +98,16 @@ namespace SocialNetworkingApp.Controllers
                     GifPath = gifPath,
                     CreatedAt = DateTime.Now
                 };
+
+                
                 _gifRepository.Add(gif);
+                post.Gif = gif;
             }
 
             if (viewModel.GifPath != null)
             {
-                post.Gif = viewModel.GifPath;
+                Gif gif = await _gifRepository.GetByPathAsync(viewModel.GifPath);
+                post.Gif = gif;
             }
 
             _postRepository.Add(post);
@@ -153,10 +156,6 @@ namespace SocialNetworkingApp.Controllers
         public async Task<IActionResult> DeletePost(int postId)
         {
             var post = await _postRepository.GetByIdAsync(postId);
-            //if (post.Gif != null)
-            //{
-            //    _photoService.DeletePhoto(post.Gif);
-            //}
             var result = _postRepository.Delete(post);
             return result ? Json(new { success = true}) : Json(new {success = false});
         }
@@ -180,9 +179,9 @@ namespace SocialNetworkingApp.Controllers
                 if (inputFile != null)
                 {
                     string imageDirectory = $"data\\photo\\{user.UserName}";
-                    var imageUploadResult = await _photoService.ReplacePhotoAsync(inputFile, imageDirectory, post.Gif);
+                    var imageUploadResult = await _photoService.ReplacePhotoAsync(inputFile, imageDirectory, post.Gif.GifPath);
                     string gifPath = imageUploadResult.IsReplacementSuccess ? imageDirectory + "\\" + imageUploadResult.NewFileName : null;
-                    post.Gif = gifPath;
+                    
 
                     var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
                     var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
@@ -193,17 +192,19 @@ namespace SocialNetworkingApp.Controllers
                         CreatedAt = DateTime.Now
                     };
                     _gifRepository.Add(gif);
+                    post.Gif = gif;
                 }
                 else if (existingGif != null)
                 {
-                    post.Gif = existingGif;
+                    Gif gif = await _gifRepository.GetByPathAsync(existingGif);
+                    post.Gif = gif;
                 }
                 else if (post.Gif != null)
                 {
                     post.Gif = null;
                 }
                 _postRepository.Update(post);
-                return Json(new { success = true, imagePath = post.Gif, time = post.UpdatedAt.ToString("dd.MM.yyyy HH:mm") });
+                return Json(new { success = true, imagePath = post.Gif.GifPath, time = post.UpdatedAt.ToString("dd.MM.yyyy HH:mm") });
             }
             return Json(new { success = false, error = "Отказано в доступе"});
         }
@@ -218,6 +219,12 @@ namespace SocialNetworkingApp.Controllers
             var gifs = await _gifRepository.GetAllAsync();
             var gifPaths = gifs.Where(g => albumIds.Contains(g.GifAlbumId)).Select(g => g.GifPath).ToList();
             return Json(new { success = true, data = gifPaths });
+        }
+
+        public IActionResult ShowComments(int page)
+        {
+            // Здесь вы можете обработать открытие комментариев для поста postId
+            return View(page);
         }
 
         public IActionResult Privacy()

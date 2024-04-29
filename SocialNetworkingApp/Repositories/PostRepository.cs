@@ -45,6 +45,7 @@ namespace SocialNetworkingApp.Repositories
             var query = _context.Posts
                .OrderByDescending(p => p.CreatedAt)
                .Include(p => p.User)
+               .Include(p => p.Gif)
                .Where(p => friendIds.Contains(p.UserId));
 
             int postsToSkip = (page - 1) * pageSize;
@@ -62,7 +63,12 @@ namespace SocialNetworkingApp.Repositories
 
         public async Task<Post> GetByIdAsync(int id)
         {
-            return await _context.Posts.FindAsync(id);
+            return await _context.Posts.Include(p => p.Gif).FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<List<Post>> GetAllEmptyAsync()
+        {
+            return await _context.Posts.Where(p => p.Text == null && p.GifId == null).ToListAsync();
         }
     }
 }

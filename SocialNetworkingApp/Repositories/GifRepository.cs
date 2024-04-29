@@ -53,5 +53,10 @@ namespace SocialNetworkingApp.Repositories
             _context.Update(gif);
             return Save();
         }
+
+        public async Task<Gif> GetByPathAsync(string path)
+        {
+            return await _context.Gifs.FirstOrDefaultAsync(g => g.GifPath == path);
+        }
     }
 }

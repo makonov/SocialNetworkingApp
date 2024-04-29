@@ -6,11 +6,11 @@
             <div class="card-body">
                 <h5 class="card-title">@post.data.User.FirstName @post.data.User.LastName</h5>
                 
-                @if (!string.IsNullOrEmpty(post.data.Gif))
+                @if (post.data.Gif != null)
                 {
                     <div class="image-preview-@post.data.Id">
                         <span id="imagePreview-@post.data.Id">
-                            <img src="@post.data.Gif" class="card-img-top" alt="Post Image">
+                            <img src="@post.data.Gif.GifPath" class="card-img-top" alt="Post Image">
                         </span>
                         <button type="button" class="btn btn-light btn-sm" id="clear-image-@post.data.Id" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>
@@ -27,6 +27,7 @@
                 
                 @if (post.data.UserId == Model.CurrentUserId)
                 {
+                    <a class="comment" asp-action="ShowComments" asp-controller="Feed" asp-route-page="@ViewBag.Page" fragment="comments">Показать комментарии</a>
                     <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-trash-fill"></i></a>
                     <a class="btn btn-light btn-sm edit-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>
                 }

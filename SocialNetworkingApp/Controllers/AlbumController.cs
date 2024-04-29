@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
@@ -14,16 +15,19 @@ namespace SocialNetworkingApp.Controllers
         private readonly IGifRepository _gifRepository;
         private readonly UserManager<User> _userManager;
         private readonly IPhotoService _photoService;
+        private readonly IPostRepository _postRepository;
 
         public AlbumController(IGifAlbumRepository albumRepository, 
             IGifRepository gifRepository, 
             UserManager<User> userManager,
-            IPhotoService photoService)
+            IPhotoService photoService,
+            IPostRepository postRepository)
         {
             _albumRepository = albumRepository;
             _gifRepository = gifRepository;
             _userManager = userManager;
             _photoService = photoService;
+            _postRepository = postRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -55,7 +59,6 @@ namespace SocialNetworkingApp.Controllers
                 return RedirectToAction("Detail", new { id = viewModel.GifAlbumId });
             }
           
-
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
             string imageDirectory = $"data\\photo\\{user.UserName}";
@@ -79,7 +82,6 @@ namespace SocialNetworkingApp.Controllers
             {
                 var gif = await _gifRepository.GetByIdAsync(gifId);
 
-
                 if (gif == null)
                 {
                     return NotFound();
@@ -88,9 +90,10 @@ namespace SocialNetworkingApp.Controllers
                 _photoService.DeletePhoto(gif.GifPath);
                 _gifRepository.Delete(gif);
             }
-            catch
+            finally
             {
-
+                var emptyPosts = await _postRepository.GetAllEmptyAsync();
+                emptyPosts.ForEach(p => _postRepository.Delete(p));
             }
 
             return RedirectToAction("Detail", new { id = albumId });

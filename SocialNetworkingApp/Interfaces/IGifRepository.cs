@@ -5,6 +5,7 @@ namespace SocialNetworkingApp.Interfaces
 {
     public interface IGifRepository
     {
+        Task<Gif> GetByPathAsync(string path);
         Task<Gif> GetByIdAsync(int id);
         Task<List<Gif>> GetAllAsync();
         Task<List<Gif>> GetByAlbumIdAsync(int id);

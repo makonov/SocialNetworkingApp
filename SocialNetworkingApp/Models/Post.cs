@@ -10,7 +10,9 @@ namespace SocialNetworkingApp.Models
         [ForeignKey("User")]
         public string? UserId { get; set; }
         public User? User { get; set; }
-        public string? Gif {  get; set; }
+        [ForeignKey("Gif")]
+        public int GifId { get; set; }
+        public Gif? Gif {  get; set; }
         public string? Text { get; set; }
         public int Likes { get; set; }
         public string? Name { get; set; }
