@@ -163,6 +163,9 @@ namespace SocialNetworkingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
@@ -268,11 +271,14 @@ namespace SocialNetworkingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CoverPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("GifPath")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -349,7 +355,7 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GifId")
+                    b.Property<int?>("GifId")
                         .HasColumnType("int");
 
                     b.Property<int>("Likes")
@@ -606,8 +612,7 @@ namespace SocialNetworkingApp.Migrations
                     b.HasOne("SocialNetworkingApp.Models.Gif", "Gif")
                         .WithMany()
                         .HasForeignKey("GifId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SocialNetworkingApp.Models.User", "User")
                         .WithMany()

@@ -47,7 +47,7 @@ namespace SocialNetworkingApp.Repositories
 
         public async Task<bool> ChangeLikeStatus(int postId, string userId)
         {
-            var isLiked = false;
+            bool isLiked = false;
             Like? like = await _context.Likes.FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
             if (like == null)
             {

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
+using System.Xml.Serialization;
 
 namespace SocialNetworkingApp.Repositories
 {
@@ -19,6 +20,11 @@ namespace SocialNetworkingApp.Repositories
         {
             _context.Add(album);
             return Save();
+        }
+
+        public bool AlbumExists(string title)
+        {
+            return _context.GifAlbums.Any(a => a.Name == title);
         }
 
         public bool Delete(GifAlbum album)

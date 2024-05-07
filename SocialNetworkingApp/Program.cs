@@ -23,6 +23,7 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IGifRepository, GifRepository>();
             builder.Services.AddScoped<IGifAlbumRepository, GifAlbumRepository>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

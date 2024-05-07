@@ -27,7 +27,7 @@
                 
                 @if (post.data.UserId == Model.CurrentUserId)
                 {
-                    <a class="comment" asp-action="ShowComments" asp-controller="Feed" asp-route-page="@ViewBag.Page" fragment="comments">Показать комментарии</a>
+                    <a class="comment" asp-action="Index" asp-controller="Comment" asp-route-postId="@post.data.Id" fragment="comments">Показать комментарии</a>
                     <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-trash-fill"></i></a>
                     <a class="btn btn-light btn-sm edit-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>
                 }

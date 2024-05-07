@@ -6,7 +6,7 @@
     public class PhotoService : IPhotoService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private static string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".pdf", ".gif" };
+        private static string[] allowedExtensions = { ".gif" };
 
         public PhotoService(IWebHostEnvironment webHostEnvironment)
         {
@@ -84,6 +84,20 @@
                 if (File.Exists(fullPath))
                 {
                     File.Delete(fullPath);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool DeleteFolder(string folderPath)
+        {
+            if (!string.IsNullOrEmpty(folderPath))
+            {
+                var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, folderPath.TrimStart('\\'));
+                if (Directory.Exists(fullPath))
+                {
+                    Directory.Delete(fullPath);
                     return true;
                 }
             }

@@ -10,6 +10,7 @@ using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.ViewModels;
 using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SocialNetworkingApp.Controllers
 {
@@ -73,7 +74,7 @@ namespace SocialNetworkingApp.Controllers
             
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
-
+            
             var post = new Post
             {
                 UserId = user.Id,
@@ -86,20 +87,20 @@ namespace SocialNetworkingApp.Controllers
 
             if (viewModel.Gif != null)
             {
-                string imageDirectory = $"data\\photo\\{user.UserName}";
-                var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, imageDirectory);
-                string gifPath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
-
                 var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
                 var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
+
+                string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
+                var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
+                string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+
                 Gif gif = new Gif
                 {
                     GifAlbumId = album.Id,
                     GifPath = gifPath,
                     CreatedAt = DateTime.Now
                 };
-
-                
+ 
                 _gifRepository.Add(gif);
                 post.Gif = gif;
             }
@@ -118,10 +119,9 @@ namespace SocialNetworkingApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPosts(int page, int lastPostId)
         {
-
             var currentUser = HttpContext.User;
-
             var user = await _userManager.GetUserAsync(currentUser);
+
             var friendIds = await _friendRepository.GetAllIdsByUserAsync(user.Id);
             var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, page, pageSize, lastPostId);
 
@@ -145,19 +145,29 @@ namespace SocialNetworkingApp.Controllers
         {
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
+
             var isLiked = await _likeRepository.ChangeLikeStatus(postId, user.Id);
             var post = await _postRepository.GetByIdAsync(postId);
-            post.Likes = isLiked ? post.Likes + 1 : post.Likes - 1;
-            _postRepository.Update(post);
-            return Json(new { success = true, likes = post.Likes });
+            if (post != null)
+            {
+                post.Likes = isLiked ? post.Likes + 1 : post.Likes - 1;
+                _postRepository.Update(post);
+                return Json(new { success = true, likes = post.Likes });
+            }
+            
+            return Json(new { success = false, error = "Пост не найден" });
         }
 
         [HttpPost]
         public async Task<IActionResult> DeletePost(int postId)
         {
             var post = await _postRepository.GetByIdAsync(postId);
-            var result = _postRepository.Delete(post);
-            return result ? Json(new { success = true}) : Json(new {success = false});
+            if (post != null)
+            {
+                _postRepository.Delete(post);
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, error = "Пост не найден" });
         }
 
         [HttpPost]
@@ -170,21 +180,23 @@ namespace SocialNetworkingApp.Controllers
 
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
+
             var post = await _postRepository.GetByIdAsync(postId);
-            if (user.Id == post.UserId)
+            if (post != null && user.Id == post.UserId)
             {   
                 post.UpdatedAt = DateTime.Now;
                 post.Text = text;
                 
                 if (inputFile != null)
                 {
-                    string imageDirectory = $"data\\photo\\{user.UserName}";
-                    var imageUploadResult = await _photoService.ReplacePhotoAsync(inputFile, imageDirectory, post.Gif.GifPath);
-                    string gifPath = imageUploadResult.IsReplacementSuccess ? imageDirectory + "\\" + imageUploadResult.NewFileName : null;
-                    
-
                     var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
                     var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
+
+                    string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
+                    var gifUploadResult = await _photoService.ReplacePhotoAsync(inputFile, gifDirectory, post.Gif.GifPath);
+                    string? gifPath = gifUploadResult.IsReplacementSuccess ? gifDirectory + "\\" + gifUploadResult.NewFileName : null;
+                    
+                    
                     Gif gif = new Gif
                     {
                         GifAlbumId = album.Id,
@@ -214,17 +226,12 @@ namespace SocialNetworkingApp.Controllers
         {
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
+
             var albums = await _albumRepository.GetAllByUserAsync(user.Id);
             List<int> albumIds = albums.Select(a => a.Id).ToList();
             var gifs = await _gifRepository.GetAllAsync();
             var gifPaths = gifs.Where(g => albumIds.Contains(g.GifAlbumId)).Select(g => g.GifPath).ToList();
             return Json(new { success = true, data = gifPaths });
-        }
-
-        public IActionResult ShowComments(int page)
-        {
-            // Здесь вы можете обработать открытие комментариев для поста postId
-            return View(page);
         }
 
         public IActionResult Privacy()

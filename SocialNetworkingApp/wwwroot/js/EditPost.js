@@ -100,8 +100,10 @@
             $imagePreview.remove();
         }
 
-        $card.find('.time-change').text('Изменено: ' + time);
-
+        if (time != undefined) {
+            $card.find('.time-change').text('Изменено: ' + time);
+        }
+        
         isEditMode = false;
         currentPostId = 0;
         originalText = '';

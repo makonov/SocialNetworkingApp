@@ -1,2 +1,34 @@
-﻿@model int
+﻿@using SocialNetworkingApp.ViewModels
+@model PostCommentsViewModel
 <a asp-action="Index" asp-controller="Feed" asp-route-page="@Model">Вернуться к посту</a>
+
+<div class="col-md-8">
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="CreatePost" id="newPostForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label asp-for="Text" class="control-label">Поделитесь мыслями насчет данного поста</label>
+                    <textarea asp-for="Text" class="form-control" rows="4" style="resize: none;"></textarea>
+                    <span asp-validation-for="Text" class="text-danger"></span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary">Опубликовать</button>
+                </div>
+            </form>
+
+            <div class="col-md-8">
+                @foreach (Comment comment in @Model.Comments.OrderByDescending(c => c.CreatedAt))
+                {
+                    <div class="card mb-3" data-id="@comment.Id">
+                        <div class="card-body">
+                            <h5 class="card-title">@comment.User.FirstName @comment.User.LastName</h5>
+                            <p class="card-text post-text">@comment.Text</p>
+                            <span class="card-text"><small class="text-muted">Опубликовано: @comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                        </div>
+                    </div>
+                    <div>hi</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

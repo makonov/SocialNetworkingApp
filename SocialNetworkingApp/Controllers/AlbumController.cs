@@ -17,17 +17,24 @@ namespace SocialNetworkingApp.Controllers
         private readonly IPhotoService _photoService;
         private readonly IPostRepository _postRepository;
 
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
         public AlbumController(IGifAlbumRepository albumRepository, 
             IGifRepository gifRepository, 
             UserManager<User> userManager,
             IPhotoService photoService,
-            IPostRepository postRepository)
+            IPostRepository postRepository,
+
+
+            IWebHostEnvironment webHostEnvironment)
         {
             _albumRepository = albumRepository;
             _gifRepository = gifRepository;
             _userManager = userManager;
             _photoService = photoService;
             _postRepository = postRepository;
+
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IActionResult> Index()
@@ -42,6 +49,8 @@ namespace SocialNetworkingApp.Controllers
         public async Task<IActionResult> Detail(int id)
         {
             GifAlbum album = await _albumRepository.GetByIdAsync(id);
+            if (album == null) return NotFound();
+            
             var gifs = await _gifRepository.GetByAlbumIdAsync(id);
             GifAlbumViewModel viewModel = new GifAlbumViewModel
             {
@@ -61,9 +70,10 @@ namespace SocialNetworkingApp.Controllers
           
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
-            string imageDirectory = $"data\\photo\\{user.UserName}";
-            var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, imageDirectory);
-            string gifPath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
+
+            string gifDirectory = $"data\\{user.UserName}\\{viewModel.GifAlbumId}";
+            var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
+            string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
 
             Gif gif = new Gif
             {
@@ -82,10 +92,7 @@ namespace SocialNetworkingApp.Controllers
             {
                 var gif = await _gifRepository.GetByIdAsync(gifId);
 
-                if (gif == null)
-                {
-                    return NotFound();
-                }
+                if (gif == null) return NotFound();
 
                 _photoService.DeletePhoto(gif.GifPath);
                 _gifRepository.Delete(gif);
@@ -97,6 +104,62 @@ namespace SocialNetworkingApp.Controllers
             }
 
             return RedirectToAction("Detail", new { id = albumId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAlbum(AddAlbumViewModel viewModel)
+        {
+            if (!ModelState.IsValid) 
+            {
+                TempData["Error"] = $"Произошла ошибка при создании альбома: {ModelState.GetValueOrDefault("Title")}";
+                return RedirectToAction("Index");
+            }
+
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+
+            GifAlbum album = new GifAlbum
+            {
+                UserId = user.Id,
+                Name = viewModel.Title,
+                Description = viewModel.Description
+            };
+
+            _albumRepository.Add(album);
+
+            if (viewModel.Gif != null)
+            {
+                string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
+                var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
+                string? coverPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+                album.CoverPath = coverPath;
+                _albumRepository.Update(album);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> DeleteAlbum(int id)
+        {
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+
+            var album = await _albumRepository.GetByIdAsync(id);
+            if (album == null) return NotFound();
+            try
+            {
+                _photoService.DeletePhoto(album.CoverPath);
+                var gifs = await _gifRepository.GetByAlbumIdAsync(id);
+                gifs.ForEach(g => _photoService.DeletePhoto(g.GifPath));
+                _albumRepository.Delete(album);
+                
+                _photoService.DeleteFolder($"data\\{user.UserName}\\{album.Id}");
+            }
+            catch
+            {
+                TempData["Error"] = "Произошла ошибка при удалении альбома";
+            }
+            return RedirectToAction("Index");
         }
 
     }

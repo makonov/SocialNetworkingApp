@@ -8,6 +8,22 @@ namespace SocialNetworkingApp.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.Gif)
+                .WithMany()
+                .HasForeignKey(p => p.GifId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Gif>()
+                .HasOne(g => g.Album)
+                .WithMany()
+                .HasForeignKey(g => g.GifAlbumId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
         public DbSet<User> Users {  get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Friend> Friends { get; set; }

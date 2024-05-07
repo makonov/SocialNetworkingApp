@@ -1,0 +1,13 @@
+﻿@using SocialNetworkingApp.ViewModels
+@model CreateCommentViewModel
+<form asp-action="CreateComment" enctype="multipart/form-data">
+    <input hidden asp-for="PostId"/>
+    <div class="form-group">
+        <label asp-for="Text" class="control-label">Поделитесь мыслями насчет данного поста</label>
+        <textarea asp-for="Text" class="form-control" rows="4" style="resize: none;"></textarea>
+        <span asp-validation-for="Text" class="text-danger"></span>
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+        <button type="submit" class="btn btn-primary">Опубликовать</button>
+    </div>
+</form>

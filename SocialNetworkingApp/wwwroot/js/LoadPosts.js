@@ -2,13 +2,6 @@
     var page = 1;
     var lastPostId = 0;
     var isLoading = false;
-    var distance = localStorage.getItem('scrollDistance');
-
-    // Если значение расстояния существует, прокручиваем страницу на это расстояние
-    if (distance) {
-        $(window).scrollTop(distance);
-        console.log(distance);
-    }
 
     $(window).scroll(function () {
         if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
@@ -20,11 +13,9 @@
         if (!isLoading) {
             isLoading = true;
             lastPostId = $('#postsContainer .card').last().data('id')
-            /*var distance = measureDistance();*/
-            /*console.log(distance);*/
             $.ajax({
                 url: '/Feed/GetPosts',
-                data: { page: page, lastPostId: lastPostId/*, distance: distance*/ },
+                data: { page: page, lastPostId: lastPostId},
                 type: 'GET',
                 success: function (data) {
                     if (data.length > 0) {
@@ -45,28 +36,25 @@
         return false;
     });
 
-    function measureDistance() {
-        // Получаем верхний пост и прогруженный пост
-        var topPost = $('.card:first');
-        var loadedPost = $('.card:last');
+    
+    //$('.comment').click(function (e) {
+    //    e.preventDefault(); // Отменяем стандартное действие ссылки
+    //    var scrollPosition = $(window).scrollTop();
 
-        // Получаем координаты верхнего поста
-        var topPostOffset = topPost.offset();
-        var topPostY = topPostOffset.top;
-
-        // Получаем координаты прогруженного поста
-        var loadedPostOffset = loadedPost.offset();
-        var loadedPostY = loadedPostOffset.top;
-
-        // Вычисляем расстояние между верхним и прогруженным постами по оси Y
-        var distance = Math.abs(loadedPostY - topPostY);
-
-        return distance;
-    }
-
-    // При покидании страницы сохраняем значение расстояния в localStorage
-    $(window).on('beforeunload', function () {
-        var distance = measureDistance();
-        localStorage.setItem('scrollDistance', distance);
-    });
+    //    $.ajax({
+    //        url: '/Feed/ShowComments',
+    //        type: 'GET',
+    //        data: { page: page, scrollPosition: scrollPosition },
+    //        success: function (response) {
+    //            // Обработка успешного ответа от сервера
+    //            console.log(response);
+    //            // Дополнительные действия по необходимости
+    //        },
+    //        error: function () {
+    //            // Обработка ошибки
+    //            console.error('Ошибка при отправке AJAX-запроса');
+    //        }
+    //    });
+    //});
+    
 });
