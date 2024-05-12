@@ -8,7 +8,7 @@
         var $this = $(this);
         $.ajax({
             type: 'POST',
-            url: '/Feed/LikePost',
+            url: '/Post/LikePost',
             data: { postId: postId },
             success: function (response) {
                 if (response.success) {

@@ -2,7 +2,7 @@
 <div class="col-md-8">
     <div class="card">
         <div class="card-body">
-            <form asp-action="CreatePost" id="newPostForm" enctype="multipart/form-data">
+            <form asp-controller="Post" asp-action="CreatePost" id="newPostForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label asp-for="Text" class="control-label">Что у вас нового?</label>
                     <div class="image-preview-0">
@@ -29,7 +29,6 @@
                     </label>
                 </div>
 
-                <!-- Модальное окно -->
                 <div class="modal fade" id="modalToggle-post-0" tabindex="-1" role="dialog" aria-labelledby="modalToggleLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">

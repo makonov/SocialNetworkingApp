@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +11,7 @@ using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
 {
+    [Authorize]
     public class AlbumController : Controller
     {
         private readonly IGifAlbumRepository _albumRepository;
@@ -24,8 +27,6 @@ namespace SocialNetworkingApp.Controllers
             UserManager<User> userManager,
             IPhotoService photoService,
             IPostRepository postRepository,
-
-
             IWebHostEnvironment webHostEnvironment)
         {
             _albumRepository = albumRepository;
@@ -33,7 +34,6 @@ namespace SocialNetworkingApp.Controllers
             _userManager = userManager;
             _photoService = photoService;
             _postRepository = postRepository;
-
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -61,52 +61,6 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddGif(AddGifViewModel viewModel)
-        {
-            if (!ModelState.IsValid) {
-                TempData["Error"] = "Ошибка при загрузке Gif: изображение не было прикреплено";
-                return RedirectToAction("Detail", new { id = viewModel.GifAlbumId });
-            }
-          
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-
-            string gifDirectory = $"data\\{user.UserName}\\{viewModel.GifAlbumId}";
-            var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
-            string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
-
-            Gif gif = new Gif
-            {
-                GifAlbumId = viewModel.GifAlbumId,
-                GifPath = gifPath,
-                CreatedAt = DateTime.Now
-            };
-            _gifRepository.Add(gif);
-
-            return RedirectToAction("Detail", new {id = viewModel.GifAlbumId});
-        }
-
-        public async Task<IActionResult> DeleteGif(int gifId, int albumId)
-        {
-            try
-            {
-                var gif = await _gifRepository.GetByIdAsync(gifId);
-
-                if (gif == null) return NotFound();
-
-                _photoService.DeletePhoto(gif.GifPath);
-                _gifRepository.Delete(gif);
-            }
-            finally
-            {
-                var emptyPosts = await _postRepository.GetAllEmptyAsync();
-                emptyPosts.ForEach(p => _postRepository.Delete(p));
-            }
-
-            return RedirectToAction("Detail", new { id = albumId });
-        }
-
-        [HttpPost]
         public async Task<IActionResult> AddAlbum(AddAlbumViewModel viewModel)
         {
             if (!ModelState.IsValid) 
@@ -117,6 +71,7 @@ namespace SocialNetworkingApp.Controllers
 
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
+            if (user == null) return Unauthorized();
 
             GifAlbum album = new GifAlbum
             {
@@ -144,6 +99,8 @@ namespace SocialNetworkingApp.Controllers
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
 
+            if (user == null) return Unauthorized();
+
             var album = await _albumRepository.GetByIdAsync(id);
             if (album == null) return NotFound();
             try
@@ -159,6 +116,40 @@ namespace SocialNetworkingApp.Controllers
             {
                 TempData["Error"] = "Произошла ошибка при удалении альбома";
             }
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> EditAlbum(EditAlbumViewModel viewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = $"Произошла ошибка при редактировании альбома";
+                return RedirectToAction("Index");
+            }
+
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+            if (user == null) return Unauthorized();
+
+            GifAlbum? album = await _albumRepository.GetByIdAsync(viewModel.AlbumId);
+
+            if (album != null)
+            {
+                album.Name = viewModel.Title;
+                if (viewModel.Description != null) album.Description = viewModel.Description;
+                if (viewModel.Gif != null)
+                {
+                    string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
+                    var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
+                    string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+                    if (album.CoverPath != null) _photoService.DeletePhoto(album.CoverPath);
+
+                    album.CoverPath = gifPath;
+                }
+                _albumRepository.Update(album);
+                return RedirectToAction("Index");
+            }
+            TempData["Error"] = $"Альбом не найден";
             return RedirectToAction("Index");
         }
 

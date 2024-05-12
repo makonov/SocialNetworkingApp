@@ -26,7 +26,6 @@
         const $text = $card.find('.post-text').val();
         var inputFile = $card.find('input[type=file]');
         var file = inputFile[0].files[0];
-        /*var gifPathValue = $('#take-image-' + postId).val();*/
         var gifPathValue = $('#imagePreview-' + postId + ' img').attr('src');
         editPost(postId, $card, $text, file, gifPathValue);
     });
@@ -125,7 +124,7 @@
         if (text.trim().length > 0 || file != null || gifPathValue != null) {
             $.ajax({
                 type: 'POST',
-                url: '/Feed/EditPost',
+                url: '/Post/EditPost',
                 data: formData,
                 contentType: false,
                 processData: false,

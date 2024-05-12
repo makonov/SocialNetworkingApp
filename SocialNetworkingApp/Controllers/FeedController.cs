@@ -47,6 +47,8 @@ namespace SocialNetworkingApp.Controllers
         {
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
+            if (user == null) return Unauthorized();
+
             var friendIds = await _friendRepository.GetAllIdsByUserAsync(user.Id);
             var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, page, pageSize);
 
@@ -64,180 +66,9 @@ namespace SocialNetworkingApp.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreatePost(CreatePostViewModel viewModel)
-        {
-            if (!ModelState.IsValid || (viewModel.Text == null && viewModel.Gif == null && viewModel.GifPath == null))
-            {
-                return RedirectToAction("Index", "Feed");
-            }
-            
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-            
-            var post = new Post
-            {
-                UserId = user.Id,
-                Text = viewModel.Text,
-                Likes = 0,
-                Name = $"{user.LastName} {user.FirstName}",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = default
-            };
-
-            if (viewModel.Gif != null)
-            {
-                var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
-                var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
-
-                string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
-                var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
-                string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
-
-                Gif gif = new Gif
-                {
-                    GifAlbumId = album.Id,
-                    GifPath = gifPath,
-                    CreatedAt = DateTime.Now
-                };
- 
-                _gifRepository.Add(gif);
-                post.Gif = gif;
-            }
-
-            if (viewModel.GifPath != null)
-            {
-                Gif gif = await _gifRepository.GetByPathAsync(viewModel.GifPath);
-                post.Gif = gif;
-            }
-
-            _postRepository.Add(post);
-            return RedirectToAction("Index", "Feed");
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> GetPosts(int page, int lastPostId)
-        {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-
-            var friendIds = await _friendRepository.GetAllIdsByUserAsync(user.Id);
-            var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, page, pageSize, lastPostId);
-
-            var postsWithLikeStatus = posts.Select(p =>
-            {
-                bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
-                return (p, isLikedByCurrentUser);
-            });
-
-            var viewModel = new FeedViewModel
-            {
-                Posts = postsWithLikeStatus,
-                CurrentUserId = user.Id
-            };
-
-            return PartialView("_FeedPartial", viewModel);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> LikePost(int postId)
-        {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-
-            var isLiked = await _likeRepository.ChangeLikeStatus(postId, user.Id);
-            var post = await _postRepository.GetByIdAsync(postId);
-            if (post != null)
-            {
-                post.Likes = isLiked ? post.Likes + 1 : post.Likes - 1;
-                _postRepository.Update(post);
-                return Json(new { success = true, likes = post.Likes });
-            }
-            
-            return Json(new { success = false, error = "Пост не найден" });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeletePost(int postId)
-        {
-            var post = await _postRepository.GetByIdAsync(postId);
-            if (post != null)
-            {
-                _postRepository.Delete(post);
-                return Json(new { success = true });
-            }
-            return Json(new { success = false, error = "Пост не найден" });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> EditPost(int postId, string text, string existingGif = null, IFormFile inputFile = null)
-        {
-            if (text == null && inputFile == null && existingGif == null)
-            {
-                return Json(new { succsess = false, error = "Пост не может быть пустым" });
-            }
-
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-
-            var post = await _postRepository.GetByIdAsync(postId);
-            if (post != null && user.Id == post.UserId)
-            {   
-                post.UpdatedAt = DateTime.Now;
-                post.Text = text;
-                
-                if (inputFile != null)
-                {
-                    var gifAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
-                    var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif на стене");
-
-                    string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
-                    var gifUploadResult = await _photoService.ReplacePhotoAsync(inputFile, gifDirectory, post.Gif.GifPath);
-                    string? gifPath = gifUploadResult.IsReplacementSuccess ? gifDirectory + "\\" + gifUploadResult.NewFileName : null;
-                    
-                    
-                    Gif gif = new Gif
-                    {
-                        GifAlbumId = album.Id,
-                        GifPath = gifPath,
-                        CreatedAt = DateTime.Now
-                    };
-                    _gifRepository.Add(gif);
-                    post.Gif = gif;
-                }
-                else if (existingGif != null)
-                {
-                    Gif gif = await _gifRepository.GetByPathAsync(existingGif);
-                    post.Gif = gif;
-                }
-                else if (post.Gif != null)
-                {
-                    post.Gif = null;
-                }
-                _postRepository.Update(post);
-                return Json(new { success = true, imagePath = post.Gif.GifPath, time = post.UpdatedAt.ToString("dd.MM.yyyy HH:mm") });
-            }
-            return Json(new { success = false, error = "Отказано в доступе"});
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> LoadGifs()
-        {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-
-            var albums = await _albumRepository.GetAllByUserAsync(user.Id);
-            List<int> albumIds = albums.Select(a => a.Id).ToList();
-            var gifs = await _gifRepository.GetAllAsync();
-            var gifPaths = gifs.Where(g => albumIds.Contains(g.GifAlbumId)).Select(g => g.GifPath).ToList();
-            return Json(new { success = true, data = gifPaths });
-        }
-
         public IActionResult Privacy()
         {
             return View();
         }
-
     }
 }

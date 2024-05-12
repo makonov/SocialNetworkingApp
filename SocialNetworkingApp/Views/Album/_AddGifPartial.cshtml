@@ -1,6 +1,6 @@
 ﻿@using SocialNetworkingApp.ViewModels
 @model AddGifViewModel
-<form asp-controller="Album" asp-action="AddGif" enctype="multipart/form-data">
+<form asp-controller="Gif" asp-action="AddGif" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <input asp-for="GifAlbumId" hidden />
     <div class="form-group">

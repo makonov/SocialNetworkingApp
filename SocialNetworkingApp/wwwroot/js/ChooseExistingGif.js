@@ -3,7 +3,7 @@ $(document).ready(function () {
     $(document).on('shown.bs.modal', '[id^="modalToggle-post-"]', function () {
         var postId = this.id.split('-').pop();
         $.ajax({
-            url: '/Feed/LoadGifs',
+            url: '/Gif/LoadGifs',
             type: 'GET',
             success: function (response) {
 

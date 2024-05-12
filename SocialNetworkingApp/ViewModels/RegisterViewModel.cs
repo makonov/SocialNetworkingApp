@@ -5,8 +5,10 @@ namespace SocialNetworkingApp.ViewModels
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Введите имя")]
+        [StringLength(50)]
         public string FirstName { get; set; }
         [Required(ErrorMessage = "Введите фамилию")]
+        [StringLength(50)]
         public string LastName { get; set; }
         [Required(ErrorMessage = "Выберите дату рождения"), DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }

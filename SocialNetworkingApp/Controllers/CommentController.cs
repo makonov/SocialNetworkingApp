@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
 {
+    [Authorize]
     public class CommentController : Controller
     {
         private readonly IPostRepository _postRepository;
@@ -60,6 +63,25 @@ namespace SocialNetworkingApp.Controllers
             _commentRepository.Add(comment);
 
             return RedirectToAction("Index", new { viewModel.PostId});
+        }
+
+        public async Task<IActionResult> EditComment(int commentId, string text)
+        {
+            var user = HttpContext.User;
+            var currentUser = await _userManager.GetUserAsync(user);
+
+            if (currentUser == null) return Unauthorized();
+
+            Comment? comment = await _commentRepository.GetByIdAsync(commentId);
+            if (comment != null)
+            {
+                comment.Text = text;
+                comment.UpdatedAt = DateTime.Now;
+                _commentRepository.Update(comment);
+                return Json(new { success = true, time = comment.UpdatedAt.ToString("dd.MM.yyyy HH:mm") });
+            }
+
+            return Json(new { success = false, error = "Отказано в доступе" });
         }
 
         public async Task<IActionResult> DeleteComment(int commentId, int postId)

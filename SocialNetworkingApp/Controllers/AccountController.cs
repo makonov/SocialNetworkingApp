@@ -104,19 +104,22 @@ namespace SocialNetworkingApp.Controllers
             var savedGifsAlbum = new GifAlbum
             {
                 UserId = newUser.Id,
-                Name = "Сохраненные Gif"
+                Name = "Сохраненные Gif",
+                IsRequired = true
             };
 
             var postGifs = new GifAlbum
             {
                 UserId = newUser.Id,
-                Name = "Gif на стене"
+                Name = "Gif на стене",
+                IsRequired = true
             };
 
             var profileGifs = new GifAlbum
             {
                 UserId = newUser.Id,
-                Name = "Gif профиля"
+                Name = "Gif профиля",
+                IsRequired = true
             };
 
             _albumRepository.Add(savedGifsAlbum);

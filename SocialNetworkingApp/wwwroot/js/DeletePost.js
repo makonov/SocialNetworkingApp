@@ -4,7 +4,7 @@
         var post = $(this).closest('.card');
         $.ajax({
             type: 'POST',
-            url: '/Feed/DeletePost',
+            url: '/Post/DeletePost',
             data: { postId: postId },
             success: function (response) {
                 if (response.success) {

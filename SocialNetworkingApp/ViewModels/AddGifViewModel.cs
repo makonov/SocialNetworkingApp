@@ -8,6 +8,7 @@ namespace SocialNetworkingApp.ViewModels
         public int GifAlbumId { get; set; }
         [Required(ErrorMessage = "Прикрепите gif изображение")]
         public IFormFile? Gif { get; set; }
+        [StringLength(100)]
         public string? Description { get; set; }
     }
 }
