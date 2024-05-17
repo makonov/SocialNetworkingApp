@@ -74,8 +74,8 @@
                                                 <div class="col-md-12 alert alert-danger">
                                                     <span><b>Внимание!</b> - При удалении альбома также удалятся все фото из него.</span>
                                                 </div>
-                                                <a class="btn btn-sm" asp-action="DeleteAlbum" asp-route-id="@album.Id">Удалить</a>
-                                                <button type="button" class="btn btn-sm" data-dismiss="modal" aria-label="Close">
+                                                <a class="btn btn-danger" asp-action="DeleteAlbum" asp-route-id="@album.Id">Удалить</a>
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">
                                                     Отмена
                                                 </button>
                                             </div>

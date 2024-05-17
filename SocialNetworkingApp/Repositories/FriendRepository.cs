@@ -38,13 +38,14 @@ namespace SocialNetworkingApp.Repositories
             return saved > 0 ? true : false;
         }
 
-        public async Task<List<string>> GetAllIdsByUserAsync(string userId)
+        public async Task<List<Friend>> GetByUserId(string userId)
+        {
+            return await _context.Friends.Include(f => f.SecondUser).Where(f => f.FirstUserId == userId).ToListAsync();
+        }
+
+        public async Task<List<string?>> GetAllIdsByUserAsync(string userId)
         {
             return await _context.Friends.Where(f => f.FirstUserId == userId).Select(f => f.SecondUserId).ToListAsync();
         }
-
-        
-
-        
     }
 }
