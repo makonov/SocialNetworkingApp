@@ -15,7 +15,7 @@
 
 <form asp-controller="Friend" asp-action="Find">
     <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-6">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="form-group flex-grow-1 me-2">
                     <label asp-for="LastName">Фамилия</label>
@@ -31,16 +31,22 @@
                 </div>
             </div>
 
-            @foreach (var user in Model.Users)
+            @if (Model.Users != null && Model.Users.Count() != 0)
             {
-                <div class="card mb-3" data-id="@user.Id">
-                    <div class="card-body">
-
-                        <h5 class="card-title">@user.FirstName @user.LastName</h5>
-
-                        <img src="@(user.ProfilePicture != null ? user.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля">
-
+                foreach (var user in Model.Users)
+                {
+                    <div class="card mb-3" data-id="@user.Id">
+                        <div class="card-body">
+                            <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@user.Id">@user.FirstName @user.LastName</a></h5>
+                            <img src="@(user.ProfilePicture != null ? user.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля">
+                        </div>
                     </div>
+                }
+            }
+            else
+            {
+                <div class="col-md-12 alert alert-danger">
+                    <span><b>Извините!</b> - Но никто не найден</span>
                 </div>
             }
         </div>
@@ -56,7 +62,6 @@
                         <input type="text" class="form-control" asp-for="City" placeholder="Введите город">
                     </div>
 
-                    <!-- Фильтр по гендеру -->
                     <div class="mb-3">
                         <label class="form-label">Гендер</label>
                         <div class="form-check">
@@ -73,10 +78,10 @@
                         </div>
                     </div>
 
-                    <!-- Фильтр по возрасту -->
                     <div class="mb-3">
                         <label for="ageFrom" class="form-label">Возраст от</label>
                         <input type="number" class="form-control" asp-for="FromAge" placeholder="От">
+                        <span asp-validation-for="FromAge" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
                         <label for="ageTo" class="form-label">Возраст до</label>
@@ -100,5 +105,9 @@
         object-fit: cover;
         object-position: left;
         max-width: 100% !important;
+    }
+
+    .profile-link {
+        color: black;
     }
 </style>

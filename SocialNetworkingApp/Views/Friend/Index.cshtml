@@ -2,47 +2,103 @@
 @model SocialNetworkingApp.ViewModels.FriendsViewModel
 
 @section Scripts {
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    @* <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Подключение скриптов Bootstrap (jQuery и Popper.js) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> *@
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <!-- Подключение скрипта Bootstrap -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/js/imagepreview.js"></script>
+    <script src="/js/addfriend.js"></script>
 }
 
-<div class="col-md-8">
+<div class="row">
+    <div class="col-md-6">
 
-    <div class="d-flex justify-content-between align-items-center">
-        <div></div>
-        <div class="text-end mb-4">
-            <a class="btn btn-primary" asp-controller="Friend" asp-action="Find">Найти друзей</a>
-        </div>
-    </div>
-
-    @foreach (var friend in Model.Friends)
-    {
-        <div class="card mb-3" data-id="@friend.SecondUserId">
-            <div class="card-body">
-
-                <h5 class="card-title">@friend.SecondUser.FirstName @friend.SecondUser.LastName</h5>
-
-                <img src="@(friend.SecondUser.ProfilePicture != null ? friend.SecondUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля друга">
-                
-
-                @if (friend.FirstUserId == Model.CurrentUserId)
-                {
-                    <div>
-                        <a asp-action="Index" asp-controller="Message" asp-route-postId="@friend.SecondUserId">Написать сообщение</a>
-                        <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@friend.SecondUserId"><i class="bi bi-trash-fill"></i></a>
-                    </div>            
-                }
+        <div class="d-flex justify-content-between align-items-center">
+            <div></div>
+            <div class="text-end mb-4">
+                <a class="btn btn-primary" asp-controller="Friend" asp-action="Find">Найти друзей</a>
             </div>
         </div>
-    }
+
+        @if (Model.Friends.Any())
+        {
+            @foreach (var friend in Model.Friends)
+            {
+                <div class="card mb-3" data-id="@friend.SecondUserId">
+                    <div class="card-body">
+
+                        <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@friend.SecondUser.Id">@friend.SecondUser.FirstName @friend.SecondUser.LastName</a></h5>
+
+                        <img src="@(friend.SecondUser.ProfilePicture != null ? friend.SecondUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля друга">
+
+
+                        @if (friend.FirstUserId == Model.CurrentUserId)
+                        {
+                            <div>
+                                <a asp-action="Index" asp-controller="Message" asp-route-postId="@friend.SecondUserId">Написать сообщение</a>
+                                <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@friend.SecondUserId"><i class="bi bi-trash-fill"></i></a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div>
+                <p>Пока что у вас нет друзей, но не отчаивайтесь! <a asp-controller="Friend" asp-action="Find">Давайте кого-нибудь найдем</a></p>
+            </div>
+        }
+
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Входящие заявки в друзья</h5>
+                @if (Model.Requests.Any())
+                {
+                    @foreach (var request in Model.Requests)
+                    {
+                        <div class="card mb-3" data-id="@request.FromUser">
+                            <div class="card-body">
+
+                                <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@request.FromUser.Id">@request.FromUser.FirstName @request.FromUser.LastName</a></h5>
+
+                                <img src="@(request.FromUser.ProfilePicture != null ? request.FromUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото пользователя">
+
+                                <div>
+                                    <a data-user-id="@request.FromUser.Id" href="#" class="btn btn-primary accept-friend-request-btn">Принять</a>
+                                    <a data-user-id="@request.FromUser.Id" href="#" class="btn btn-primary deny-friend-request-btn">Отклонить</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div>
+                        <p>У вас нет входящих заявок в друзья</p>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
 </div>
+
+
+
 
 <style>
     .fixed-profile-img {
@@ -51,5 +107,9 @@
         object-fit: cover;
         object-position: left; 
         max-width: 100% !important;
+    }
+
+    .profile-link {
+        color: black;
     }
 </style>

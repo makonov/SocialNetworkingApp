@@ -22,12 +22,13 @@
 <div class="container">
     @Html.AntiForgeryToken()
     <div class="row">
-        @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel())
+        @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel {From = "Feed"})
     </div>
     <br />
     <div id="postsContainer" class="row">
         @await Html.PartialAsync("_FeedPartial", Model)
     </div>
+
     <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog" aria-labelledby="editWarningModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -52,5 +53,24 @@
 </div>
 
 
+<style>
+    [class*="image-preview"] {
+        text-align: center;
+        margin-bottom: 10px;
+        position: relative;
+    }
 
+        [class*="image-preview"] button {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        [class*="image-preview"] img {
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+        }
+</style>
 

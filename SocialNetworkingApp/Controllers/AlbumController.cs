@@ -37,11 +37,16 @@ namespace SocialNetworkingApp.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string userId = null)
         {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
-            var albums = await _albumRepository.GetAllByUserAsync(user.Id);
+            if (userId == null)
+            {
+                var currentUser = HttpContext.User;
+                var user = await _userManager.GetUserAsync(currentUser);
+                userId = user.Id;
+            }
+
+            var albums = await _albumRepository.GetAllByUserAsync(userId);
             return View(albums);
         }
 

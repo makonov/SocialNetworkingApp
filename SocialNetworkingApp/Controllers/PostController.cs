@@ -85,7 +85,7 @@ namespace SocialNetworkingApp.Controllers
             }
 
             _postRepository.Add(post);
-            return RedirectToAction("Index", "Feed");
+            return RedirectToAction("Index", viewModel.From);
         }
 
 
@@ -111,7 +111,7 @@ namespace SocialNetworkingApp.Controllers
                 CurrentUserId = user.Id
             };
 
-            return PartialView("~/Views/Feed/_FeedPartial.cshtml", viewModel);
+            return PartialView("~/Views/Shared/_FeedPartial.cshtml", viewModel);
         }
 
         [HttpPost]

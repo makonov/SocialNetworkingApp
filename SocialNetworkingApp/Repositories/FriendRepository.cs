@@ -47,5 +47,10 @@ namespace SocialNetworkingApp.Repositories
         {
             return await _context.Friends.Where(f => f.FirstUserId == userId).Select(f => f.SecondUserId).ToListAsync();
         }
+
+        public bool IsFriend(string firstUserId, string secondUserId)
+        {
+            return _context.Friends.Any(f => f.FirstUserId == firstUserId && f.SecondUserId == secondUserId);
+        }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
+using SocialNetworkingApp.Services;
 using SocialNetworkingApp.ViewModels;
 using System.Net.WebSockets;
 
@@ -11,26 +12,30 @@ namespace SocialNetworkingApp.Controllers
     public class FriendController : Controller
     {
         private readonly IFriendRepository _friendRepository;
-        private readonly UserManager<User> _userManager;
+        private readonly IUserService _userService;
+        private readonly IFriendRequestRepository _friendRequestRepository;
 
-        public FriendController(IFriendRepository friendRepository, UserManager<User> userManager)
+        public FriendController(IFriendRepository friendRepository, IUserService userService, IFriendRequestRepository friendRequestRepository)
         {
             _friendRepository = friendRepository;
-            _userManager = userManager;
+            _userService = userService;
+            _friendRequestRepository = friendRequestRepository;
         }
 
         public async Task<IActionResult> Index()
         {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
+            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (user == null) return Unauthorized();
 
             var friends = await _friendRepository.GetByUserId(user.Id);
+            
+            var requests = await _friendRequestRepository.GetRequestsByReceiverId(user.Id);
 
             FriendsViewModel viewModel = new FriendsViewModel
             {
                 Friends = friends,
-                CurrentUserId = user.Id
+                CurrentUserId = user.Id,
+                Requests = requests
             };
 
             return View(viewModel);
@@ -39,81 +44,116 @@ namespace SocialNetworkingApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Find(List<User>? users = null)
         {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
+            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (user == null) return Unauthorized();
 
-            
-            if (users == null) users = await _userManager.Users.Where(u => u.Id != user.Id).ToListAsync();
+            users = await _userService.GetAllUsersExceptCurrentUserAsync(user.Id);
+
             FindFriendViewModel viewModel = new FindFriendViewModel
-            { 
+            {
                 Users = users,
                 CurrentUserId = user.Id
             };
+
             return View(viewModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> Find(FindFriendViewModel viewModel)
         {
-            var currentUser = HttpContext.User;
-            var user = await _userManager.GetUserAsync(currentUser);
+            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (user == null) return Unauthorized();
 
             if (!ModelState.IsValid) return View(viewModel);
 
-            IQueryable<User> users = _userManager.Users;
-            if (viewModel.LastName != null)
+            try
             {
-                string lastName = viewModel.LastName.Trim();
-                users = users.Where(u => u.LastName.Contains(lastName));
+                var users = await _userService.FindUsersAsync(viewModel, user.Id);
+                FindFriendViewModel newViewModel = new FindFriendViewModel { Users = users };
+                return View(newViewModel);
             }
-
-            if (viewModel.FirstName != null)
+            catch (ArgumentException ex)
             {
-                string firstName = viewModel.FirstName.Trim();
-                users = users.Where(u => u.FirstName.Contains(firstName));
-            }
-
-            if (viewModel.City != null)
-            {
-                users = users.Where(u => u.City ==  viewModel.City);
-            }
-
-            if (viewModel.Gender != null)
-            {
-                switch(viewModel.Gender)
-                {
-                    case "Male":
-                        users = users.Where(u => u.IsMale == true);
-                        break;
-                    case "Female":
-                        users = users.Where(u => u.IsMale == false);
-                        break;
-                }
-            }
-
-            if (viewModel.FromAge != null && viewModel.ToAge != null && viewModel.FromAge > viewModel.ToAge)
-            {
-                ModelState.AddModelError("FromAge", "Нижняя граница возраста не может быть больше верхней границы");
+                ModelState.AddModelError("FromAge", ex.Message);
                 return View(viewModel);
             }
+        }
 
-            if (viewModel.FromAge != null) 
+        [HttpPost]
+        public async Task<IActionResult> SendRequest(string userId)
+        {
+            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (user == null) return Unauthorized();
+
+            FriendRequest newRequest = new FriendRequest
             {
-                users = users.Where(u => DateTime.Now.Year - u.BirthDate.Year >= viewModel.FromAge);
-            }
+                FromUserId = user.Id,
+                ToUserId = userId
+            };
 
-            if (viewModel.ToAge != null)
+            try
             {
-                users = users.Where(u => DateTime.Now.Year - u.BirthDate.Year <= viewModel.ToAge);
+                _friendRequestRepository.Add(newRequest);
+                return Json(new { success = true });
             }
+            catch
+            {
+                return Json(new { success = false, error = "Произошла ошибка при обработке запроса на добавление в друзья." });
+            }
+        }
 
-            var result = await users.Where(u => user.Id != u.Id).ToListAsync();
+        [HttpPost]
+        public async Task<IActionResult> DenyRequest(string userId)
+        {
+            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (user == null) return Unauthorized();
 
-            FindFriendViewModel newViewModel = new FindFriendViewModel { Users = result };
+            FriendRequest? request = _friendRequestRepository.GetRequest(user.Id, userId);
+            if (request == null) return NotFound();
 
-            return View(newViewModel);
+            try
+            {
+                _friendRequestRepository.Delete(request);
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false, error = "Произошла ошибка при обработке запроса на добавление в друзья." });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptRequest(string userId)
+        {
+            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (user == null) return Unauthorized();
+
+            FriendRequest? request = _friendRequestRepository.GetRequest(user.Id, userId);
+            if (request == null) return NotFound();
+
+            Friend first = new Friend
+            {
+                FirstUserId = user.Id,
+                SecondUserId = userId
+            };
+
+            Friend second = new Friend
+            {
+                FirstUserId = userId,
+                SecondUserId = user.Id
+            };
+
+            try
+            {
+                _friendRepository.Add(first);
+                _friendRepository.Add(second);
+                _friendRequestRepository.Delete(request);
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false, error = "Произошла ошибка при обработке запроса на добавление в друзья." });
+            }
         }
     }
 }

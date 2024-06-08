@@ -20,26 +20,17 @@ namespace SocialNetworkingApp.Controllers
         private readonly IPostRepository _postRepository;
         private readonly ILikeRepository _likeRepository;
         private readonly IFriendRepository _friendRepository;
-        private readonly IPhotoService _photoService;
-        private readonly IGifAlbumRepository _albumRepository;
-        private readonly IGifRepository _gifRepository;
         private readonly UserManager<User> _userManager;
         private const int pageSize = 10;
 
         public FeedController(IPostRepository postRepository,
             ILikeRepository likeRepository,
             IFriendRepository friendRepository,
-            IPhotoService photoService,
-            IGifAlbumRepository albumRepository,
-            IGifRepository gifRepository,
             UserManager<User> userManager)
         {
             _postRepository = postRepository;
             _likeRepository = likeRepository;
             _friendRepository = friendRepository;
-            _photoService = photoService;
-            _gifRepository = gifRepository;
-            _albumRepository = albumRepository;
             _userManager = userManager;
         }
 

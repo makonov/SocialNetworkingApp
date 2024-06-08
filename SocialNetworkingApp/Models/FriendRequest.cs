@@ -8,10 +8,10 @@ namespace SocialNetworkingApp.Models
         [Key]
         public int Id { get; set; }
         [ForeignKey("User")]
-        public int FromUserId { get; set; }
+        public string? FromUserId { get; set; }
         public User? FromUser { get; set; }
         [ForeignKey("User")]
-        public int ToUserId { get; set; }
+        public string? ToUserId { get; set; }
         public User? ToUser { get; set; }
     }
 }

@@ -218,23 +218,17 @@ namespace SocialNetworkingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FromUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FromUserId1")
+                    b.Property<string>("FromUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("ToUserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ToUserId1")
+                    b.Property<string>("ToUserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FromUserId1");
+                    b.HasIndex("FromUserId");
 
-                    b.HasIndex("ToUserId1");
+                    b.HasIndex("ToUserId");
 
                     b.ToTable("FriendRequests");
                 });
@@ -564,11 +558,11 @@ namespace SocialNetworkingApp.Migrations
                 {
                     b.HasOne("SocialNetworkingApp.Models.User", "FromUser")
                         .WithMany()
-                        .HasForeignKey("FromUserId1");
+                        .HasForeignKey("FromUserId");
 
                     b.HasOne("SocialNetworkingApp.Models.User", "ToUser")
                         .WithMany()
-                        .HasForeignKey("ToUserId1");
+                        .HasForeignKey("ToUserId");
 
                     b.Navigation("FromUser");
 

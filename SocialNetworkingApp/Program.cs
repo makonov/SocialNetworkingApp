@@ -22,8 +22,10 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IFriendRepository, FriendRepository>();
             builder.Services.AddScoped<IGifRepository, GifRepository>();
             builder.Services.AddScoped<IGifAlbumRepository, GifAlbumRepository>();
-            builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+            builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
+            builder.Services.AddScoped<IPhotoService, PhotoService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
