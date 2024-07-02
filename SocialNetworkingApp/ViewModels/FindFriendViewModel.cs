@@ -1,4 +1,5 @@
-﻿using SocialNetworkingApp.Models;
+﻿using SocialNetworkingApp.Data;
+using SocialNetworkingApp.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetworkingApp.ViewModels
@@ -16,7 +17,8 @@ namespace SocialNetworkingApp.ViewModels
         public int? FromAge { get; set; }
         [Range(13, 100, ErrorMessage = "Поле 'Возраст до' должно принимать значение от 13 до 100")]
         public int? ToAge { get; set; }
-        public IEnumerable<User>? Users { get; set; }
+        public IEnumerable<(User data, UserStatus status)>? Users { get; set; }
         public string? CurrentUserId { get; set; }
+        public int CurrentPage { get; set; }
     }
 }

@@ -40,7 +40,7 @@ namespace SocialNetworkingApp.Repositories
 
         public bool RequestExists(string firstUserId, string secondUserId)
         {
-            return _context.FriendRequests.Any(r => r.FromUserId == firstUserId && r.ToUserId == secondUserId || r.FromUserId == secondUserId && r.ToUserId == firstUserId);
+            return _context.FriendRequests.Any(r => r.FromUserId == firstUserId && r.ToUserId == secondUserId);
         }
 
         public bool Save()

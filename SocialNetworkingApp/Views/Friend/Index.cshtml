@@ -18,6 +18,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/js/imagepreview.js"></script>
     <script src="/js/addfriend.js"></script>
+    <script src="/js/deletefriendfromfriendlist.js"></script>
 }
 
 <div class="row">
@@ -46,7 +47,7 @@
                         {
                             <div>
                                 <a asp-action="Index" asp-controller="Message" asp-route-postId="@friend.SecondUserId">Написать сообщение</a>
-                                <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@friend.SecondUserId"><i class="bi bi-trash-fill"></i></a>
+                                <a class="btn btn-light btn-sm delete-friend-btn" style="float: right; margin-top: 5px;" data-user-id="@friend.SecondUserId"><i class="bi bi-trash-fill"></i></a>
                             </div>
                         }
                     </div>

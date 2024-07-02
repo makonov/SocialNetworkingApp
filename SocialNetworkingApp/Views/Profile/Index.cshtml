@@ -16,6 +16,7 @@
     <script src="/js/imagepreview.js"></script>
     <script src="/js/chooseexistinggif.js"></script>
     <script src="/js/addfriend.js"></script>
+    <script src="/js/deletefriend.js"></script>
 }
 
 <div class="container">
@@ -39,7 +40,7 @@
                                 break;
 
                             case UserStatus.Friend:
-                                <a data-user-id="@Model.User.Id" href="#" class="btn btn-primary delete-friend-request-btn">Удалить из друзей</a>
+                                <a data-user-id="@Model.User.Id" href="#" class="btn btn-primary delete-friend-btn">Удалить из друзей</a>
                                 break;
 
                             case UserStatus.Sender:

@@ -38,6 +38,11 @@ namespace SocialNetworkingApp.Repositories
             return saved > 0 ? true : false;
         }
 
+        public async Task<Friend?> GetByUserId(string firstUserId, string secondUserId)
+        {
+            return await _context.Friends.FirstOrDefaultAsync(f => f.FirstUserId == firstUserId && f.SecondUserId == secondUserId);
+        }
+
         public async Task<List<Friend>> GetByUserId(string userId)
         {
             return await _context.Friends.Include(f => f.SecondUser).Where(f => f.FirstUserId == userId).ToListAsync();
@@ -46,6 +51,26 @@ namespace SocialNetworkingApp.Repositories
         public async Task<List<string?>> GetAllIdsByUserAsync(string userId)
         {
             return await _context.Friends.Where(f => f.FirstUserId == userId).Select(f => f.SecondUserId).ToListAsync();
+        }
+
+        public async Task<List<Friend>> GetByUserId(string userId, int page, int pageSize, int lastFriendId = 0)
+        {
+            var query = _context.Friends
+               .Include(f => f.SecondUser)
+               .OrderBy(f => f.SecondUser.FirstName + " " + f.SecondUser.LastName)
+               .Where(f => f.FirstUserId == userId);
+
+            int friendsToSkip = (page - 1) * pageSize;
+            query = query.Skip(friendsToSkip);
+
+            if (lastFriendId > 0)
+            {
+                query = query.Where(f => f.Id < lastFriendId);
+            }
+
+            var friends = await query.Take(pageSize).ToListAsync();
+
+            return friends;
         }
 
         public bool IsFriend(string firstUserId, string secondUserId)

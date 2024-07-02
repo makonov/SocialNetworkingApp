@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
+using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.Services;
 using SocialNetworkingApp.ViewModels;
 using System.Net.WebSockets;
@@ -14,6 +17,7 @@ namespace SocialNetworkingApp.Controllers
         private readonly IFriendRepository _friendRepository;
         private readonly IUserService _userService;
         private readonly IFriendRequestRepository _friendRequestRepository;
+        int PageSize = 10;
 
         public FriendController(IFriendRepository friendRepository, IUserService userService, IFriendRequestRepository friendRequestRepository)
         {
@@ -22,19 +26,19 @@ namespace SocialNetworkingApp.Controllers
             _friendRequestRepository = friendRequestRepository;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
-            if (user == null) return Unauthorized();
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
 
-            var friends = await _friendRepository.GetByUserId(user.Id);
+            var friends = await _friendRepository.GetByUserId(currentUser.Id, page, PageSize);
             
-            var requests = await _friendRequestRepository.GetRequestsByReceiverId(user.Id);
+            var requests = await _friendRequestRepository.GetRequestsByReceiverId(currentUser.Id);
 
             FriendsViewModel viewModel = new FriendsViewModel
             {
                 Friends = friends,
-                CurrentUserId = user.Id,
+                CurrentUserId = currentUser.Id,
                 Requests = requests
             };
 
@@ -42,35 +46,88 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Find(List<User>? users = null)
+        public async Task<IActionResult> FindFiltered(FindFriendViewModel viewModel = null, int page = 1)
         {
-            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
-            if (user == null) return Unauthorized();
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
 
-            users = await _userService.GetAllUsersExceptCurrentUserAsync(user.Id);
+            var users = await _userService.FindUsersPagedAsync(viewModel, currentUser.Id, page, PageSize);
+
+            var usersWithFriendStatus = users.Select(u =>
+            {
+                UserStatus status = UserStatus.None;
+                if (_friendRequestRepository.RequestExists(currentUser.Id, u.Id))
+                    status = UserStatus.Sender;
+                else if (_friendRequestRepository.RequestExists(u.Id, currentUser.Id))
+                    status = UserStatus.Reciever;
+
+                return (u, status);
+            });
+
+            FindFriendViewModel newViewModel = new FindFriendViewModel
+            {
+                Users = usersWithFriendStatus,
+                CurrentUserId = currentUser.Id,
+                FirstName = viewModel.FirstName,
+                LastName = viewModel.LastName,
+                City = viewModel.City,
+                Gender = viewModel.Gender,
+                FromAge = viewModel.FromAge,
+                ToAge = viewModel.ToAge
+            };
+
+            return View(newViewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Find(List<User>? users = null, int page = 1)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            users = await _userService.GetPagedUsers(currentUser.Id, page, PageSize);
+
+            var usersWithFriendStatus = users.Select(u =>
+            {
+                UserStatus status = UserStatus.None;
+                if (_friendRequestRepository.RequestExists(currentUser.Id, u.Id))
+                    status = UserStatus.Sender;
+                else if (_friendRequestRepository.RequestExists(u.Id, currentUser.Id))
+                    status = UserStatus.Reciever;
+
+                return (u, status);
+            });
 
             FindFriendViewModel viewModel = new FindFriendViewModel
             {
-                Users = users,
-                CurrentUserId = user.Id
+                Users = usersWithFriendStatus,
+                CurrentUserId = currentUser.Id
             };
 
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Find(FindFriendViewModel viewModel)
+        public async Task<IActionResult> Find(FindFriendViewModel viewModel, int page = 1)
         {
-            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
-            if (user == null) return Unauthorized();
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
 
             if (!ModelState.IsValid) return View(viewModel);
 
             try
             {
-                var users = await _userService.FindUsersAsync(viewModel, user.Id);
-                FindFriendViewModel newViewModel = new FindFriendViewModel { Users = users };
-                return View(newViewModel);
+
+                FindFriendViewModel newViewModel = new FindFriendViewModel
+                {
+                    FirstName = viewModel.FirstName,
+                    LastName = viewModel.LastName,
+                    City = viewModel.City,
+                    Gender = viewModel.Gender,
+                    FromAge = viewModel.FromAge,
+                    ToAge = viewModel.ToAge
+                };
+                return RedirectToAction("FindFiltered", newViewModel);
             }
             catch (ArgumentException ex)
             {
@@ -82,12 +139,12 @@ namespace SocialNetworkingApp.Controllers
         [HttpPost]
         public async Task<IActionResult> SendRequest(string userId)
         {
-            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
-            if (user == null) return Unauthorized();
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
 
             FriendRequest newRequest = new FriendRequest
             {
-                FromUserId = user.Id,
+                FromUserId = currentUser.Id,
                 ToUserId = userId
             };
 
@@ -105,10 +162,10 @@ namespace SocialNetworkingApp.Controllers
         [HttpPost]
         public async Task<IActionResult> DenyRequest(string userId)
         {
-            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
-            if (user == null) return Unauthorized();
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
 
-            FriendRequest? request = _friendRequestRepository.GetRequest(user.Id, userId);
+            FriendRequest? request = _friendRequestRepository.GetRequest(currentUser.Id, userId);
             if (request == null) return NotFound();
 
             try
@@ -125,34 +182,57 @@ namespace SocialNetworkingApp.Controllers
         [HttpPost]
         public async Task<IActionResult> AcceptRequest(string userId)
         {
-            var user = await _userService.GetCurrentUserAsync(HttpContext.User);
-            if (user == null) return Unauthorized();
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
 
-            FriendRequest? request = _friendRequestRepository.GetRequest(user.Id, userId);
+            FriendRequest? request = _friendRequestRepository.GetRequest(currentUser.Id, userId);
             if (request == null) return NotFound();
 
-            Friend first = new Friend
+            Friend firstRelation = new Friend
             {
-                FirstUserId = user.Id,
+                FirstUserId = currentUser.Id,
                 SecondUserId = userId
             };
 
-            Friend second = new Friend
+            Friend secondRelation = new Friend
             {
                 FirstUserId = userId,
-                SecondUserId = user.Id
+                SecondUserId = currentUser.Id
             };
 
             try
             {
-                _friendRepository.Add(first);
-                _friendRepository.Add(second);
+                _friendRepository.Add(firstRelation);
+                _friendRepository.Add(secondRelation);
                 _friendRequestRepository.Delete(request);
                 return Json(new { success = true });
             }
             catch
             {
                 return Json(new { success = false, error = "Произошла ошибка при обработке запроса на добавление в друзья." });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteFriend(string userId)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            Friend? firstRelation = await _friendRepository.GetByUserId(userId, currentUser.Id);
+            Friend? secondRelation = await _friendRepository.GetByUserId(currentUser.Id, userId);
+
+            if (firstRelation == null || secondRelation == null) return NotFound();
+
+            try
+            {
+                _friendRepository.Delete(firstRelation);
+                _friendRepository.Delete(secondRelation);
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false, error = "Произошла ошибка при удалении друга." });
             }
         }
     }

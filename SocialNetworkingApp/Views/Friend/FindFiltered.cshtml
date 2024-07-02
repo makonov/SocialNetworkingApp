@@ -21,8 +21,17 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="/js/imagepreview.js"></script>
     <script src="/js/addfriend.js"></script>
-    <script src="/js/loadusers.js"></script>
+    <script src="/js/loadfilteredusers.js"></script>
 }
+
+<div id="filterData"
+     data-first-name="@Model.FirstName"
+     data-last-name="@Model.LastName"
+     data-city="@Model.City"
+     data-gender="@Model.Gender"
+     data-from-age="@Model.FromAge"
+     data-to-age="@Model.ToAge">
+</div>
 
 <form asp-controller="Friend" asp-action="Find">
     <div class="row">
@@ -53,34 +62,13 @@
                     <span><b>Извините!</b> - Но никто не найден</span>
                 </div>
             }
-            
-
-            @* @if (Model.Users != null && Model.Users.Count() != 0)
-            {
-                foreach (var user in Model.Users)
-                {
-                    <div class="card mb-3" data-id="@user.Id">
-                        <div class="card-body">
-                            <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@user.Id">@user.FirstName @user.LastName</a></h5>
-                            <img src="@(user.ProfilePicture != null ? user.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля">
-                            <div><a data-user-id="@user.Id" href="#" class="btn btn-primary add-friend-btn">Добавить в друзья</a></div>
-                        </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="col-md-12 alert alert-danger">
-                    <span><b>Извините!</b> - Но никто не найден</span>
-                </div>
-            } *@
         </div>
 
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Фильтры</h5>
-                    
+
                     <!-- Фильтр по городу -->
                     <div class="mb-3">
                         <label for="cityFilter" class="form-label">Город</label>
@@ -112,16 +100,13 @@
                         <label for="ageTo" class="form-label">Возраст до</label>
                         <input type="number" class="form-control" asp-for="ToAge" placeholder="До">
                     </div>
-                    
+
                 </div>
             </div>
         </div>
 
     </div>
 </form>
-
-
-
 
 <style>
     .fixed-profile-img {

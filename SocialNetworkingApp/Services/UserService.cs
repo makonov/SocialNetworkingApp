@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
+using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.ViewModels;
 using System.Security.Claims;
 
@@ -16,7 +18,7 @@ namespace SocialNetworkingApp.Services
             _userManager = userManager;
         }
 
-        public async Task<List<User>> FindUsersAsync(FindFriendViewModel viewModel, string currentUserId)
+        public async Task<List<User>> FindUsersPagedAsync(FindFriendViewModel viewModel, string currentUserId, int pageNumber, int pageSize)
         {
             IQueryable<User> users = _userManager.Users.Where(u => u.Id != currentUserId);
 
@@ -65,8 +67,12 @@ namespace SocialNetworkingApp.Services
                 users = users.Where(u => DateTime.Now.Year - u.BirthDate.Year <= viewModel.ToAge);
             }
 
+            int skip = (pageNumber - 1) * pageSize;
+            users = users.Skip(skip).Take(pageSize);
+
             return await users.ToListAsync();
         }
+
 
         public async Task<List<User>> GetAllUsersExceptCurrentUserAsync(string currentUserId)
         {
@@ -81,6 +87,20 @@ namespace SocialNetworkingApp.Services
         public async Task<User?> GetUserByIdAsync(string userId)
         {
             return await _userManager.FindByIdAsync(userId);
+        }
+
+        public async Task<List<User>> GetPagedUsers(string userId, int page, int pageSize)
+        {
+            var query = _userManager.Users
+                .OrderBy(u => u.LastName + " " + u.FirstName)
+                .Where(u => u.Id != userId);
+
+            int usersToSkip = (page - 1) * pageSize;
+            query = query.Skip(usersToSkip);
+
+            var users = await query.Take(pageSize).ToListAsync();
+
+            return users;
         }
     }
 }

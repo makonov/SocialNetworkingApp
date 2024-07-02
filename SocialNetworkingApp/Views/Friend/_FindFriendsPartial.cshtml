@@ -1,0 +1,26 @@
+﻿@using SocialNetworkingApp.Data;
+@model SocialNetworkingApp.ViewModels.FindFriendViewModel
+
+
+@foreach (var user in Model.Users)
+{
+    <div class="card mb-3" data-id="@user.data.Id">
+        <div class="card-body">
+            <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@user.data.Id">@user.data.FirstName @user.data.LastName</a></h5>
+            <img src="@(user.data.ProfilePicture != null ? user.data.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля">
+            @switch(user.status)
+            {
+                case UserStatus.Sender:
+                    <div><a data-user-id="@user.data.Id" href="#" class="btn btn-primary deny-friend-request-btn">Отменить заявку в друзья</a></div>
+                    break;
+                case UserStatus.None:
+                    <div><a data-user-id="@user.data.Id" href="#" class="btn btn-primary add-friend-btn">Добавить в друзья</a></div>
+                    break;
+                case UserStatus.Reciever:
+                    <div><a data-user-id="@user.data.Id" href="#" class="btn btn-primary accept-friend-request-btn">Принять заявку в друзья</a></div>
+                    break;
+            }          
+        </div>
+    </div>
+}
+
