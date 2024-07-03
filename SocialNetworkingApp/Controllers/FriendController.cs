@@ -14,16 +14,21 @@ namespace SocialNetworkingApp.Controllers
 {
     public class FriendController : Controller
     {
+        private readonly UserManager<User> _userManager;
         private readonly IFriendRepository _friendRepository;
         private readonly IUserService _userService;
         private readonly IFriendRequestRepository _friendRequestRepository;
         int PageSize = 10;
 
-        public FriendController(IFriendRepository friendRepository, IUserService userService, IFriendRequestRepository friendRequestRepository)
+        public FriendController(UserManager<User> userManager, 
+            IFriendRepository friendRepository, 
+            IUserService userService, 
+            IFriendRequestRepository friendRequestRepository)
         {
             _friendRepository = friendRepository;
             _userService = userService;
             _friendRequestRepository = friendRequestRepository;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(int page = 1)
@@ -43,6 +48,22 @@ namespace SocialNetworkingApp.Controllers
             };
 
             return View(viewModel);
+        }
+
+        public async Task<IActionResult> GetFriends(int page, int lastFriendId)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var friends = await _friendRepository.GetByUserId(currentUser.Id, page, PageSize, lastFriendId);
+
+            FriendsViewModel viewModel = new FriendsViewModel
+            {
+                Friends = friends,
+                CurrentUserId = currentUser.Id,
+            };
+
+            return PartialView("~/Views/Friend/_ShowFriendsPartial.cshtml", viewModel);
         }
 
         [HttpGet]
@@ -202,10 +223,13 @@ namespace SocialNetworkingApp.Controllers
 
             try
             {
+                User? friend = await _userManager.FindByIdAsync(userId);
+                if (friend == null) return NotFound();
+
                 _friendRepository.Add(firstRelation);
                 _friendRepository.Add(secondRelation);
                 _friendRequestRepository.Delete(request);
-                return Json(new { success = true });
+                return Json(new { success = true, friendId = friend.Id, FirstName = friend.FirstName, LastName = friend.LastName, ProfilePicture = friend.ProfilePicture});
             }
             catch
             {

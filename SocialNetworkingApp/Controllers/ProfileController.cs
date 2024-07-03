@@ -64,8 +64,11 @@ namespace SocialNetworkingApp.Controllers
             }
             else if (_friendRequestRepository.RequestExists(currentUser.Id, userId))
             {
-                var request = _friendRequestRepository.GetRequest(currentUser.Id, userId);
-                status = request.FromUserId == currentUser.Id ? UserStatus.Sender : UserStatus.Reciever;
+                status =  UserStatus.Sender;
+            }
+            else if (_friendRequestRepository.RequestExists(userId, currentUser.Id))
+            {
+                status = UserStatus.Reciever;
             }
 
             var viewModel = new ProfileViewModel

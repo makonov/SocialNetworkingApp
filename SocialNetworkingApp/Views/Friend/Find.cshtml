@@ -53,27 +53,6 @@
                     <span><b>Извините!</b> - Но никто не найден</span>
                 </div>
             }
-            
-
-            @* @if (Model.Users != null && Model.Users.Count() != 0)
-            {
-                foreach (var user in Model.Users)
-                {
-                    <div class="card mb-3" data-id="@user.Id">
-                        <div class="card-body">
-                            <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@user.Id">@user.FirstName @user.LastName</a></h5>
-                            <img src="@(user.ProfilePicture != null ? user.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля">
-                            <div><a data-user-id="@user.Id" href="#" class="btn btn-primary add-friend-btn">Добавить в друзья</a></div>
-                        </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="col-md-12 alert alert-danger">
-                    <span><b>Извините!</b> - Но никто не найден</span>
-                </div>
-            } *@
         </div>
 
         <div class="col-md-3">

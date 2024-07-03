@@ -19,6 +19,7 @@
     <script src="/js/imagepreview.js"></script>
     <script src="/js/addfriend.js"></script>
     <script src="/js/deletefriendfromfriendlist.js"></script>
+    <script src="/js/loadfriends.js"></script>
 }
 
 <div class="row">
@@ -31,9 +32,13 @@
             </div>
         </div>
 
+        
         @if (Model.Friends.Any())
         {
-            @foreach (var friend in Model.Friends)
+            <div id="friendsContainer">
+                @await Html.PartialAsync("_ShowFriendsPartial", Model)
+            </div>
+            @* @foreach (var friend in Model.Friends)
             {
                 <div class="card mb-3" data-id="@friend.SecondUserId">
                     <div class="card-body">
@@ -52,7 +57,7 @@
                         }
                     </div>
                 </div>
-            }
+            } *@
         }
         else
         {
@@ -60,6 +65,7 @@
                 <p>Пока что у вас нет друзей, но не отчаивайтесь! <a asp-controller="Friend" asp-action="Find">Давайте кого-нибудь найдем</a></p>
             </div>
         }
+        
 
     </div>
 
@@ -67,19 +73,19 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Входящие заявки в друзья</h5>
+                
                 @if (Model.Requests.Any())
                 {
                     @foreach (var request in Model.Requests)
                     {
                         <div class="card mb-3" data-id="@request.FromUser">
                             <div class="card-body">
-
                                 <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@request.FromUser.Id">@request.FromUser.FirstName @request.FromUser.LastName</a></h5>
 
                                 <img src="@(request.FromUser.ProfilePicture != null ? request.FromUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото пользователя">
 
                                 <div>
-                                    <a data-user-id="@request.FromUser.Id" href="#" class="btn btn-primary accept-friend-request-btn">Принять</a>
+                                    <a data-user-id="@request.FromUser.Id" href="#" class="btn btn-primary accept-friendreq-from-reqlist-btn">Принять</a>
                                     <a data-user-id="@request.FromUser.Id" href="#" class="btn btn-primary deny-friend-request-btn">Отклонить</a>
                                 </div>
                             </div>
