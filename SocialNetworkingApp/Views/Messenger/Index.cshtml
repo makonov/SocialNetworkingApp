@@ -1,0 +1,52 @@
+﻿@model SocialNetworkingApp.ViewModels.MessengerViewModel
+
+@{
+    ViewData["Title"] = "Сообщения";
+}
+
+@section scripts {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+}
+
+<div class="container">
+    @if (Model.LastMessages.Count() > 0)
+    {
+        foreach (Message message in Model.LastMessages)
+        {
+            <div class="card mb-2">
+                <div class="card-body">
+                    <a href="@Url.Action("ShowDialogue", "Messenger", new { userId = message.FromUserId != Model.CurrentUserId ? message.FromUserId : message.ToUserId })" class="stretched-link">
+                        <div class="message-info">
+                            @if (message.FromUser.Id == Model.CurrentUserId)
+                            {
+                                <strong>@message.ToUser.FirstName @message.ToUser.LastName</strong>
+                                <br />
+                                <span>Вы: @message.Text.Substring(0, Math.Min(50, message.Text.Length))</span>
+                                <br />
+                                <span class="text-muted">@message.SentAt.ToString("g")</span>
+                            }
+                            else
+                            {
+                                <strong>@message.FromUser.FirstName @message.FromUser.LastName</strong>
+                                <br />
+                                <span>@message.Text.Substring(0, Math.Min(50, message.Text.Length))</span>
+                                <br />
+                                <span class="text-muted">@message.SentAt.ToString("g")</span>
+                            }
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">Сообщения не найдены</div>
+    }
+</div>
+

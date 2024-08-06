@@ -1,0 +1,73 @@
+﻿@model SocialNetworkingApp.ViewModels.DialogueViewModel
+
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.16/signalr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js\"></script>")
+
+    <script>
+        $(document).ready(function () {
+            var dialogCard = $('#dialog');
+            dialogCard.scrollTop(dialogCard[0].scrollHeight);
+        });
+    </script>
+
+    <script src="~/js/getsendersmessage.js"></script>
+
+
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <a href="@Url.Action("Index", "Messenger")" class="btn btn-secondary mb-3">Перейти к диалогам</a>
+            <div class="card dialog-card" id="dialog" data-interlocutor-name="@Model.CurrentInterlocutorName">
+                <div class="card-body">
+                    @if (Model.Messages.Count() > 0)
+                    {
+                        foreach (var message in Model.Messages)
+                        {
+                            <div class="message mb-2">
+                                <strong>@(message.FromUserId == Model.CurrentUserId ? "Вы" : message.FromUser.FirstName + " " + message.FromUser.LastName):</strong>
+                                <p>@message.Text</p>
+                                <small class="text-muted">@message.SentAt.ToString("g")</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p id="flag">Пока что у вас нет сообщений с пользователем по имени <strong>@Model.CurrentInterlocutorName</strong></p>
+                    }
+                </div>
+            </div>
+            <form id="messageForm" class="message-input">
+                <div class="input-group">
+                    <input type="hidden" id="fromUserId" value="@Model.CurrentUserId" />
+                    <input type="hidden" id="toUserId" value="@Model.CurrentInterlocutorId" />
+                    <input type="text" id="messageInput" class="form-control" placeholder="Введите сообщение" required />
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .dialog-card {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .message-input {
+        margin-top: 20px;
+    }
+</style>

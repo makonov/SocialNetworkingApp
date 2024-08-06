@@ -19,6 +19,9 @@
                 case UserStatus.Reciever:
                     <div><a data-user-id="@user.data.Id" href="#" class="btn btn-primary accept-friend-request-btn">Принять заявку в друзья</a></div>
                     break;
+                case UserStatus.Friend:
+                    <div><a data-user-id="@user.data.Id" href="#" class="btn btn-primary delete-friend-btn">Удалить из друзей</a></div>
+                    break;
             }          
         </div>
     </div>

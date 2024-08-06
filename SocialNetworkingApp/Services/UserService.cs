@@ -5,6 +5,7 @@ using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.ViewModels;
+using System.Net;
 using System.Security.Claims;
 
 namespace SocialNetworkingApp.Services
@@ -102,5 +103,7 @@ namespace SocialNetworkingApp.Services
 
             return users;
         }
+
+        
     }
 }

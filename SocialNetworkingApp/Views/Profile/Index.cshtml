@@ -50,7 +50,7 @@
                         <a asp-controller="Album" asp-action="Index" asp-route-userId="@Model.User.Id" class="btn btn-primary mt-1">Перейти к альбомам</a>
                         @if(Model.CurrentUserId != Model.User.Id)
                         {
-                            <a asp-controller="Messenger" asp-action="Index" asp-route-userId="@Model.User.Id" class="btn btn-primary mt-1">Написать собщение</a>
+                            <a asp-controller="Messenger" asp-action="ShowDialogue" asp-route-userId="@Model.User.Id" class="btn btn-primary mt-1">Написать собщение</a>
                         }
                         else
                         {

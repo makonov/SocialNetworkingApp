@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Data;
+using SocialNetworkingApp.Hubs;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
@@ -17,6 +18,7 @@ namespace SocialNetworkingApp
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSignalR();
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddScoped<ILikeRepository, LikeRepository>();
             builder.Services.AddScoped<IFriendRepository, FriendRepository>();
@@ -26,6 +28,7 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -70,6 +73,8 @@ namespace SocialNetworkingApp
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Feed}/{action=Index}/{id?}");
+
+            app.MapHub<ChatHub>("/chatHub");
 
             app.Run();
         }

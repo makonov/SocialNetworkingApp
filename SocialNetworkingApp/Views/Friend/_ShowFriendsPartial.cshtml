@@ -15,7 +15,7 @@
             @if (friend.FirstUserId == Model.CurrentUserId)
             {
                 <div>
-                    <a asp-action="Index" asp-controller="Message" asp-route-postId="@friend.SecondUserId">Написать сообщение</a>
+                    <a asp-action="ShowDialogue" asp-controller="Messenger" asp-route-userId="@friend.SecondUserId">Написать сообщение</a>
                     <a class="btn btn-light btn-sm delete-friend-btn" style="float: right; margin-top: 5px;" data-user-id="@friend.SecondUserId"><i class="bi bi-trash-fill"></i></a>
                 </div>
             }

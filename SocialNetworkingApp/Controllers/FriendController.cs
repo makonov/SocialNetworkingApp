@@ -115,6 +115,8 @@ namespace SocialNetworkingApp.Controllers
                     status = UserStatus.Sender;
                 else if (_friendRequestRepository.RequestExists(u.Id, currentUser.Id))
                     status = UserStatus.Reciever;
+                else if (_friendRepository.IsFriend(u.Id, currentUser.Id))
+                    status = UserStatus.Friend;
 
                 return (u, status);
             });

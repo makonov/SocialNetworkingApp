@@ -30,7 +30,7 @@
                 <div class="card-body">
                     <h5 class="card-title">@comment.User.FirstName @comment.User.LastName</h5>
                     <p class="card-text comment-text">@comment.Text</p>
-                    @if (comment.UpdatedAt != null)
+                    @if (comment.UpdatedAt != default)
                     {
                         <span class="card-text"><small class="text-muted time-change">Изменено: @comment.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
                     }
