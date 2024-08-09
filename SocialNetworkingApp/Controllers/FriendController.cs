@@ -18,7 +18,7 @@ namespace SocialNetworkingApp.Controllers
         private readonly IFriendRepository _friendRepository;
         private readonly IUserService _userService;
         private readonly IFriendRequestRepository _friendRequestRepository;
-        int PageSize = 10;
+        private const int PageSize = 10;
 
         public FriendController(UserManager<User> userManager, 
             IFriendRepository friendRepository, 

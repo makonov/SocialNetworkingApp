@@ -3,7 +3,8 @@
     var flagElement = $("#flag");
     dialogCard.scrollTop(dialogCard[0].scrollHeight);
 
-    var interlocutorName = dialogCard.data("interlocutor-name");
+    var messageContainer = $("#messageContainer");
+    var interlocutorName = messageContainer.data("interlocutor-name");
     var connection = new signalR.HubConnectionBuilder()
         .withUrl("/chatHub")
         .build();

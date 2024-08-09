@@ -1,0 +1,10 @@
+﻿@model SocialNetworkingApp.ViewModels.DialogueViewModel
+
+@foreach (var message in Model.Messages)
+{
+    <div class="message mb-2" data-id="@message.Id">
+        <strong>@(message.FromUserId == Model.CurrentUserId ? "Вы" : message.FromUser.FirstName + " " + message.FromUser.LastName):</strong>
+        <p>@message.Text</p>
+        <small class="text-muted">@message.SentAt.ToString("g")</small>
+    </div>
+}

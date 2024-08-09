@@ -38,14 +38,36 @@ namespace SocialNetworkingApp.Repositories
             return saved > 0 ? true : false;
         }
 
-        public Task<List<Message>> GetAllByUserIds(string firstUserId, string secondUserId)
+        public Task<List<Message>> GetAllMessagesByUserIds(string firstUserId, string secondUserId)
         {
             return _context.Messages
                 .Include(m => m.FromUser)
                 .Include(m => m.ToUser)
-                .OrderBy(m => m.SentAt)
+                .OrderByDescending(m => m.SentAt)
                 .Where(m => m.FromUserId == firstUserId && m.ToUserId == secondUserId || m.FromUserId == secondUserId && m.ToUserId == firstUserId)
                 .ToListAsync();
+        }
+
+        public async Task<List<Message>> GetMessagesByUserIds(string firstUserId, string secondUserId, int page, int pageSize, int lastMessageId = 0)
+        {
+            var query = _context.Messages
+                .Include(m => m.FromUser)
+                .Include(m => m.ToUser)
+                .OrderByDescending(m => m.SentAt)
+                .Where(m => m.FromUserId == firstUserId && m.ToUserId == secondUserId 
+                || m.FromUserId == secondUserId && m.ToUserId == firstUserId);
+
+            int messagesToSkip = (page - 1) * pageSize;
+            query = query.Skip(messagesToSkip);
+
+            if (lastMessageId > 0)
+            {
+                query = query.Where(m => m.Id < lastMessageId);
+            }
+            
+            var messages = await query.Take(pageSize).ToListAsync();
+
+            return messages;
         }
 
         public async Task<List<Message>> GetLastMessagesForUserAsync(string userId)

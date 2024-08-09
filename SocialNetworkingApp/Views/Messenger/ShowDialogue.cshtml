@@ -8,7 +8,6 @@
     <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js\"></script>")
 
     <script>
@@ -19,15 +18,18 @@
     </script>
 
     <script src="~/js/getsendersmessage.js"></script>
-
+    <script src="~/js/loadmessages.js"></script>
 
 }
+
+
+
 
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
             <a href="@Url.Action("Index", "Messenger")" class="btn btn-secondary mb-3">Перейти к диалогам</a>
-            <div class="card dialog-card" id="dialog" data-interlocutor-name="@Model.CurrentInterlocutorName">
+            @* <div class="card dialog-card" id="dialog" data-interlocutor-name="@Model.CurrentInterlocutorName">
                 <div class="card-body">
                     @if (Model.Messages.Count() > 0)
                     {
@@ -39,6 +41,20 @@
                                 <small class="text-muted">@message.SentAt.ToString("g")</small>
                             </div>
                         }
+                    }
+                    else
+                    {
+                        <p id="flag">Пока что у вас нет сообщений с пользователем по имени <strong>@Model.CurrentInterlocutorName</strong></p>
+                    }
+                </div>
+            </div> *@
+            <div class="card dialog-card" id="dialog">
+                <div class="card-body">
+                    @if (Model.Messages.Count() > 0)
+                    {
+                        <div id="messageContainer" data-interlocutor-name="@Model.CurrentInterlocutorName" data-interlocutor-id="@Model.CurrentInterlocutorId">
+                            @await Html.PartialAsync("_ShowMessagesPartial", Model)
+                        </div>
                     }
                     else
                     {
