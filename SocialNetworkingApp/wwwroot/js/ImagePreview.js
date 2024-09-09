@@ -52,4 +52,13 @@
             $clearImage.css('display', 'none');
         }
     });
+
+    $('#chooseProfilePicModal').on('hidden.bs.modal', function (event) {
+        if ($(event.target).is('#chooseProfilePicModal')) {
+            $('#imagePreview-profilepic').empty();
+            $('#input-image-profilepic').val('');
+            $('#take-image-profilepic').val('');
+        }
+    });
+
 });

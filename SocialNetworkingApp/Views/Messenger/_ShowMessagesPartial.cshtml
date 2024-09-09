@@ -3,8 +3,14 @@
 @foreach (var message in Model.Messages)
 {
     <div class="message mb-2" data-id="@message.Id">
-        <strong>@(message.FromUserId == Model.CurrentUserId ? "Вы" : message.FromUser.FirstName + " " + message.FromUser.LastName):</strong>
+        <strong><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@message.FromUserId">@(message.FromUserId == Model.CurrentUserId ? "Вы" : message.FromUser.FirstName + " " + message.FromUser.LastName):</a></strong>
         <p>@message.Text</p>
         <small class="text-muted">@message.SentAt.ToString("g")</small>
     </div>
 }
+
+<style>
+    .profile-link {
+        color: black;
+    }
+</style>

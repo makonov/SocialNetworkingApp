@@ -9,13 +9,13 @@
 
             <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@friend.SecondUser.Id">@friend.SecondUser.FirstName @friend.SecondUser.LastName</a></h5>
 
-            <img src="@(friend.SecondUser.ProfilePicture != null ? friend.SecondUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля друга">
+            <img src="@(friend.SecondUser.ProfilePicture != null ? "/" + friend.SecondUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img" alt="Фото профиля друга">
 
 
             @if (friend.FirstUserId == Model.CurrentUserId)
             {
                 <div>
-                    <a asp-action="ShowDialogue" asp-controller="Messenger" asp-route-userId="@friend.SecondUserId">Написать сообщение</a>
+                    <a class="message-link" asp-action="ShowDialogue" asp-controller="Messenger" asp-route-userId="@friend.SecondUserId">Написать сообщение</a>
                     <a class="btn btn-light btn-sm delete-friend-btn" style="float: right; margin-top: 5px;" data-user-id="@friend.SecondUserId"><i class="bi bi-trash-fill"></i></a>
                 </div>
             }

@@ -4,8 +4,7 @@
     var isLoading = false;
 
     $('#dialog').scroll(function () {
-        if ($('#dialog').scrollTop() <= 50) {
-            console.log("reached");
+        if ($('#dialog').scrollTop() <= 200) {
             loadMore();
         }
     });

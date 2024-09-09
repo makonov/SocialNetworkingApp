@@ -103,7 +103,5 @@ namespace SocialNetworkingApp.Services
 
             return users;
         }
-
-        
     }
 }

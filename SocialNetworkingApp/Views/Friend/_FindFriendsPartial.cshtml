@@ -7,7 +7,8 @@
     <div class="card mb-3" data-id="@user.data.Id">
         <div class="card-body">
             <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@user.data.Id">@user.data.FirstName @user.data.LastName</a></h5>
-            <img src="@(user.data.ProfilePicture != null ? user.data.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото профиля">
+            <img src="@(user.data.ProfilePicture != null ? "/" + user.data.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img" alt="Фото профиля">
+
             @switch(user.status)
             {
                 case UserStatus.Sender:

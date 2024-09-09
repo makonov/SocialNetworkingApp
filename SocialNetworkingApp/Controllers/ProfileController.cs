@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
+using SocialNetworkingApp.Services;
 using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
@@ -18,20 +20,32 @@ namespace SocialNetworkingApp.Controllers
         private readonly IPostRepository _postRepository;
         private readonly ILikeRepository _likeRepository;
         private readonly IFriendRepository _friendRepository;
+        private readonly IGifAlbumRepository _albumRepository;
+        private readonly IPhotoService _photoService;
+        private readonly IGifRepository _gifRepository;
         private readonly IFriendRequestRepository _friendRequestRepository;
+        private readonly UserManager<User> _userManager;
         private const int pageSize = 10;
 
         public ProfileController(IPostRepository postRepository,
             ILikeRepository likeRepository,
             IFriendRepository friendRepository,
             IFriendRequestRepository friendRequestRepository,
-            IUserService userService)
+            IGifAlbumRepository albumRepository,
+            IGifRepository gifRepository,
+            IPhotoService photoService,
+            IUserService userService,
+            UserManager<User> userManager)
         {
             _postRepository = postRepository;
             _likeRepository = likeRepository;
             _friendRepository = friendRepository;
             _friendRequestRepository = friendRequestRepository;
+            _gifRepository = gifRepository;
+            _albumRepository = albumRepository;
             _userService = userService;
+            _photoService = photoService;
+            _userManager = userManager;
         }
 
         // GET: ProfileController
@@ -58,13 +72,13 @@ namespace SocialNetworkingApp.Controllers
             {
                 status = UserStatus.Owner;
             }
-            else if (_friendRepository.IsFriend(userId, currentUser.Id ))
+            else if (_friendRepository.IsFriend(userId, currentUser.Id))
             {
                 status = UserStatus.Friend;
             }
             else if (_friendRequestRepository.RequestExists(currentUser.Id, userId))
             {
-                status =  UserStatus.Sender;
+                status = UserStatus.Sender;
             }
             else if (_friendRequestRepository.RequestExists(userId, currentUser.Id))
             {
@@ -79,6 +93,46 @@ namespace SocialNetworkingApp.Controllers
                 Status = status
             };
             return View(viewModel);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ChooseProfilePicture(ProfileViewModel viewModel)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+            
+            if (viewModel.Gif != null)
+            {
+                var gifAlbums = await _albumRepository.GetAllByUserAsync(currentUser.Id);
+                var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif профиля");
+
+                string gifDirectory = $"data\\{currentUser.UserName}\\{album.Id}";
+                var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
+                string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+
+                Gif gif = new Gif
+                {
+                    GifAlbumId = album.Id,
+                    GifPath = gifPath,
+                    CreatedAt = DateTime.Now
+                };
+
+                _gifRepository.Add(gif);
+                currentUser.ProfilePicture = gifPath;
+                await _userManager.UpdateAsync(currentUser);
+            }
+            else if (viewModel.GifPath != null)
+            {
+                currentUser.ProfilePicture = viewModel.GifPath;
+                await _userManager.UpdateAsync(currentUser);
+            }
+            else
+            {
+                TempData["Error"] = $"Произошла ошибка при обновлении фотографии профиля: не выбрано изображение";
+            }
+
+            return RedirectToAction("Index", new { userId = currentUser.Id, page = 1 });
         }
 
         // GET: ProfileController/Details/5

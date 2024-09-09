@@ -62,7 +62,7 @@
                             <div class="card-body">
                                 <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@request.FromUser.Id">@request.FromUser.FirstName @request.FromUser.LastName</a></h5>
 
-                                <img src="@(request.FromUser.ProfilePicture != null ? request.FromUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img rounded-circle" alt="Фото пользователя">
+                                <img src="@(request.FromUser.ProfilePicture != null ? "/" + request.FromUser.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img" alt="Фото пользователя">
 
                                 <div>
                                     <a data-user-id="@request.FromUser.Id" href="#" class="btn btn-primary accept-friendreq-from-reqlist-btn">Принять</a>
@@ -94,9 +94,13 @@
         object-fit: cover;
         object-position: left; 
         max-width: 100% !important;
+        border-radius: 5px;
+        margin-bottom: 10px;
     }
 
-    .profile-link {
+    .profile-link,
+    .message-link {
         color: black;
     }
+
 </style>

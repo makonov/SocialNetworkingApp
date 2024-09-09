@@ -23,31 +23,10 @@
 }
 
 
-
-
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
             <a href="@Url.Action("Index", "Messenger")" class="btn btn-secondary mb-3">Перейти к диалогам</a>
-            @* <div class="card dialog-card" id="dialog" data-interlocutor-name="@Model.CurrentInterlocutorName">
-                <div class="card-body">
-                    @if (Model.Messages.Count() > 0)
-                    {
-                        foreach (var message in Model.Messages)
-                        {
-                            <div class="message mb-2">
-                                <strong>@(message.FromUserId == Model.CurrentUserId ? "Вы" : message.FromUser.FirstName + " " + message.FromUser.LastName):</strong>
-                                <p>@message.Text</p>
-                                <small class="text-muted">@message.SentAt.ToString("g")</small>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p id="flag">Пока что у вас нет сообщений с пользователем по имени <strong>@Model.CurrentInterlocutorName</strong></p>
-                    }
-                </div>
-            </div> *@
             <div class="card dialog-card" id="dialog">
                 <div class="card-body">
                     @if (Model.Messages.Count() > 0)

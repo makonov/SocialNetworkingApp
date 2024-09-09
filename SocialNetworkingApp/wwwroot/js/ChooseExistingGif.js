@@ -31,9 +31,8 @@ $(document).ready(function () {
         var gifPath = $(this).data('gif');
         const $modal = $(this).closest('.modal');
         const postId = $modal.attr('id').split('-').pop();
+        $('#take-image-' + postId).val(gifPath).trigger('change');
         $('#modalToggle-post-' + postId).modal('hide'); 
-        $('#modalToggle-post-' + postId).attr('aria-hidden', 'true'); 
-        $('#take-image-' + postId).val(gifPath).trigger('change');;
     });
 });
 
