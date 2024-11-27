@@ -6,8 +6,8 @@ namespace SocialNetworkingApp.ViewModels
     {
         [StringLength(200)]
         public string? Text { get; set; }
-        public IFormFile? Gif { get; set; }
-        public string? GifPath { get; set; }
+        public IFormFile? Image { get; set; }
+        public string? ImagePath { get; set; }
         [Required]
         public string? From { get; set; }
     }

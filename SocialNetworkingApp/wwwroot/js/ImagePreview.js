@@ -37,13 +37,13 @@
         var postId = this.id.split('-').pop(); 
         var $imagePreview = $('#imagePreview-' + postId);
         var $clearImage = $('#clear-image-' + postId);
-        var gifPath = $('#take-image-' + postId).val();
+        var imagePath = $('#take-image-' + postId).val();
         $('#input-image-' + postId).val('');
-        if (gifPath) {
+        if (imagePath) {
             $imagePreview.empty();
 
             $('<img>').attr({
-                'src': gifPath,
+                'src': imagePath,
                 'class': 'img-fluid'
             }).appendTo($imagePreview);
 

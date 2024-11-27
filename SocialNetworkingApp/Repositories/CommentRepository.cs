@@ -28,12 +28,12 @@ namespace SocialNetworkingApp.Repositories
 
         public async Task<Comment?> GetByIdAsync(int id)
         {
-            return await _context.Comments.FindAsync(id);
+            return await _context.Comments.Include(c => c.Image).Include(c => c.Post).FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task<List<Comment>> GetByPostIdAsync(int postId)
         {
-            return await _context.Comments.Include(c => c.User).Where(c => c.PostId == postId).ToListAsync();
+            return await _context.Comments.Include(c => c.User).Include(c => c.Image).Where(c => c.PostId == postId).ToListAsync();
         }
 
         public bool Save()
@@ -46,6 +46,27 @@ namespace SocialNetworkingApp.Repositories
         {
             _context.Update(comment);
             return Save();
+        }
+
+        public async Task<List<Comment>> GetByPostIdAsync(int postId, int page, int pageSize, int lastCommentId = 0)
+        {
+            var query = _context.Comments
+               .OrderByDescending(c => c.UpdatedAt != default ? c.UpdatedAt : c.CreatedAt)
+               .Include(c => c.User)
+               .Include(c => c.Image)
+               .Where(c => c.PostId == postId);
+
+            int commentsToSkip = (page - 1) * pageSize;
+            query = query.Skip(commentsToSkip);
+
+            if (lastCommentId > 0)
+            {
+                query = query.Where(c => c.Id < lastCommentId);
+            }
+
+            var comments = await query.Take(pageSize).ToListAsync();
+
+            return comments;
         }
     }
 }

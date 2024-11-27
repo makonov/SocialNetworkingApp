@@ -14,23 +14,23 @@ namespace SocialNetworkingApp.Controllers
     [Authorize]
     public class AlbumController : Controller
     {
-        private readonly IGifAlbumRepository _albumRepository;
-        private readonly IGifRepository _gifRepository;
+        private readonly IImageAlbumRepository _albumRepository;
+        private readonly IImageRepository _imageRepository;
         private readonly UserManager<User> _userManager;
         private readonly IPhotoService _photoService;
         private readonly IPostRepository _postRepository;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AlbumController(IGifAlbumRepository albumRepository, 
-            IGifRepository gifRepository, 
+        public AlbumController(IImageAlbumRepository albumRepository,
+            IImageRepository imageRepository, 
             UserManager<User> userManager,
             IPhotoService photoService,
             IPostRepository postRepository,
             IWebHostEnvironment webHostEnvironment)
         {
             _albumRepository = albumRepository;
-            _gifRepository = gifRepository;
+            _imageRepository = imageRepository;
             _userManager = userManager;
             _photoService = photoService;
             _postRepository = postRepository;
@@ -53,14 +53,14 @@ namespace SocialNetworkingApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
-            GifAlbum album = await _albumRepository.GetByIdAsync(id);
+            ImageAlbum album = await _albumRepository.GetByIdAsync(id);
             if (album == null) return NotFound();
             
-            var gifs = await _gifRepository.GetByAlbumIdAsync(id);
-            GifAlbumViewModel viewModel = new GifAlbumViewModel
+            var images = await _imageRepository.GetByAlbumIdAsync(id);
+            ImageAlbumViewModel viewModel = new ImageAlbumViewModel
             {
                 Album = album,
-                Gifs = gifs
+                Images = images
             };
             return View(viewModel);
         }
@@ -78,7 +78,7 @@ namespace SocialNetworkingApp.Controllers
             var user = await _userManager.GetUserAsync(currentUser);
             if (user == null) return Unauthorized();
 
-            GifAlbum album = new GifAlbum
+            ImageAlbum album = new ImageAlbum
             {
                 UserId = user.Id,
                 Name = viewModel.Title,
@@ -87,11 +87,11 @@ namespace SocialNetworkingApp.Controllers
 
             _albumRepository.Add(album);
 
-            if (viewModel.Gif != null)
+            if (viewModel.Image != null)
             {
-                string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
-                var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
-                string? coverPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+                string imageDirectory = $"data\\{user.UserName}\\{album.Id}";
+                var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Image, imageDirectory);
+                string? coverPath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
                 album.CoverPath = coverPath;
                 _albumRepository.Update(album);
             }
@@ -111,8 +111,8 @@ namespace SocialNetworkingApp.Controllers
             try
             {
                 _photoService.DeletePhoto(album.CoverPath);
-                var gifs = await _gifRepository.GetByAlbumIdAsync(id);
-                gifs.ForEach(g => _photoService.DeletePhoto(g.GifPath));
+                var images = await _imageRepository.GetByAlbumIdAsync(id);
+                images.ForEach(i => _photoService.DeletePhoto(i.ImagePath));
                 _albumRepository.Delete(album);
                 
                 _photoService.DeleteFolder($"data\\{user.UserName}\\{album.Id}");
@@ -136,20 +136,20 @@ namespace SocialNetworkingApp.Controllers
             var user = await _userManager.GetUserAsync(currentUser);
             if (user == null) return Unauthorized();
 
-            GifAlbum? album = await _albumRepository.GetByIdAsync(viewModel.AlbumId);
+            ImageAlbum? album = await _albumRepository.GetByIdAsync(viewModel.AlbumId);
 
             if (album != null)
             {
                 album.Name = viewModel.Title;
                 if (viewModel.Description != null) album.Description = viewModel.Description;
-                if (viewModel.Gif != null)
+                if (viewModel.Image != null)
                 {
-                    string gifDirectory = $"data\\{user.UserName}\\{album.Id}";
-                    var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
-                    string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+                    string imageDirectory = $"data\\{user.UserName}\\{album.Id}";
+                    var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Image, imageDirectory);
+                    string? imagePath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
                     if (album.CoverPath != null) _photoService.DeletePhoto(album.CoverPath);
 
-                    album.CoverPath = gifPath;
+                    album.CoverPath = imagePath;
                 }
                 _albumRepository.Update(album);
                 return RedirectToAction("Index");

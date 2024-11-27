@@ -13,15 +13,15 @@ namespace SocialNetworkingApp.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Post>()
-                .HasOne(p => p.Gif)
+                .HasOne(p => p.Image)
                 .WithMany()
-                .HasForeignKey(p => p.GifId)
+                .HasForeignKey(p => p.ImageId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Gif>()
-                .HasOne(g => g.Album)
+            modelBuilder.Entity<Image>()
+                .HasOne(i => i.Album)
                 .WithMany()
-                .HasForeignKey(g => g.GifAlbumId)
+                .HasForeignKey(i => i.ImageAlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
         public DbSet<User> Users {  get; set; }
@@ -29,8 +29,8 @@ namespace SocialNetworkingApp.Data
         public DbSet<Friend> Friends { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<Gif> Gifs { get; set; }
-        public DbSet<GifAlbum> GifAlbums { get; set;}
+        public DbSet<Image> Images { get; set; }
+        public DbSet<ImageAlbum> ImageAlbums { get; set;}
         public DbSet<Post> Posts { get; set; }
         public DbSet<Like> Likes { get; set; }
     }

@@ -11,7 +11,7 @@ namespace SocialNetworkingApp.ViewModels
         public User? User { get; set; }
         public string? CurrentUserId { get; set; }
         public UserStatus Status { get; set; }
-        public IFormFile? Gif { get; set; }
-        public string? GifPath { get; set; }
+        public IFormFile? Image { get; set; }
+        public string? ImagePath { get; set; }
     }
 }

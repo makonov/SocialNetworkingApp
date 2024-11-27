@@ -12,9 +12,9 @@ namespace SocialNetworkingApp.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly IGifAlbumRepository _albumRepository;
+        private readonly IImageAlbumRepository _albumRepository;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IGifAlbumRepository albumRepository)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IImageAlbumRepository albumRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -101,30 +101,30 @@ namespace SocialNetworkingApp.Controllers
             await _userManager.AddToRoleAsync(newUser, UserRoles.User);
             await _signInManager.SignInAsync(newUser, isPersistent: false);
 
-            var savedGifsAlbum = new GifAlbum
+            var savedImagesAlbum = new ImageAlbum
             {
                 UserId = newUser.Id,
-                Name = "Сохраненные Gif",
+                Name = "Сохраненные изображения",
                 IsRequired = true
             };
 
-            var postGifs = new GifAlbum
+            var postImages = new ImageAlbum
             {
                 UserId = newUser.Id,
-                Name = "Gif на стене",
+                Name = "Изображения на стене",
                 IsRequired = true
             };
 
-            var profileGifs = new GifAlbum
+            var profileImages = new ImageAlbum
             {
                 UserId = newUser.Id,
-                Name = "Gif профиля",
+                Name = "Изображения профиля",
                 IsRequired = true
             };
 
-            _albumRepository.Add(savedGifsAlbum);
-            _albumRepository.Add(postGifs);
-            _albumRepository.Add(profileGifs);
+            _albumRepository.Add(savedImagesAlbum);
+            _albumRepository.Add(postImages);
+            _albumRepository.Add(profileImages);
 
             return RedirectToAction("Index", "Feed");
         }

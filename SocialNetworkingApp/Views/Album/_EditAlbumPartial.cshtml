@@ -4,16 +4,16 @@
     @Html.AntiForgeryToken()
     <div class="form-group">
         <input hidden asp-for="AlbumId" />
-        <input hidden asp-for="CurrentGif"/>
+        <input hidden asp-for="CurrentImage"/>
         <div class="form-group">
             <label asp-for="Title" class="control-label">Название</label>
             <input asp-for="Title" class="form-control">
             <span asp-validation-for="Title" class="text-danger"></span>
         </div>
         <div class="image-preview-@Model.AlbumId">
-            @if (Model.CurrentGif != null)
+            @if (Model.CurrentImage != null)
             {
-                <span id="imagePreview-@Model.AlbumId"><img class="card-img-top" alt="Post Image" src="@Model.CurrentGif" /></span>
+                <span id="imagePreview-@Model.AlbumId"><img class="card-img-top" alt="Post Image" src="@Model.CurrentImage" /></span>
                 <button type="button" class="btn btn-light btn-sm" id="clear-image-@Model.AlbumId"><i class="bi bi-x"></i></button>
             }
             else
@@ -24,13 +24,13 @@
         </div>
         <label asp-for="Description" class="control-label">Описание</label>
         <textarea asp-for="Description" class="form-control" rows="4" style="resize: none;"></textarea>
-        <span asp-validation-for="Gif" class="text-danger"></span>
+        <span asp-validation-for="Image" class="text-danger"></span>
     </div>
     <div class="d-flex justify-content-between align-items-center">
         <button type="submit" class="btn btn-primary">Редактировать</button>
         <label for="input-image-@Model.AlbumId" class="btn btn-light btn-sm" style="margin-top: 5px;">
             <i class="fas fa-camera"></i>
-            <input asp-for="Gif" hidden id="input-image-@Model.AlbumId" accept=".gif" style="display:none">
+            <input asp-for="Image" hidden id="input-image-@Model.AlbumId" accept=".gif" style="display:none">
         </label>
     </div>
 </form>

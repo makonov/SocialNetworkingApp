@@ -20,9 +20,9 @@ namespace SocialNetworkingApp.Controllers
         private readonly IPostRepository _postRepository;
         private readonly ILikeRepository _likeRepository;
         private readonly IFriendRepository _friendRepository;
-        private readonly IGifAlbumRepository _albumRepository;
+        private readonly IImageAlbumRepository _albumRepository;
         private readonly IPhotoService _photoService;
-        private readonly IGifRepository _gifRepository;
+        private readonly IImageRepository _imageRepository;
         private readonly IFriendRequestRepository _friendRequestRepository;
         private readonly UserManager<User> _userManager;
         private const int pageSize = 10;
@@ -31,8 +31,8 @@ namespace SocialNetworkingApp.Controllers
             ILikeRepository likeRepository,
             IFriendRepository friendRepository,
             IFriendRequestRepository friendRequestRepository,
-            IGifAlbumRepository albumRepository,
-            IGifRepository gifRepository,
+            IImageAlbumRepository albumRepository,
+            IImageRepository imageRepository,
             IPhotoService photoService,
             IUserService userService,
             UserManager<User> userManager)
@@ -41,7 +41,7 @@ namespace SocialNetworkingApp.Controllers
             _likeRepository = likeRepository;
             _friendRepository = friendRepository;
             _friendRequestRepository = friendRequestRepository;
-            _gifRepository = gifRepository;
+            _imageRepository = imageRepository;
             _albumRepository = albumRepository;
             _userService = userService;
             _photoService = photoService;
@@ -102,29 +102,29 @@ namespace SocialNetworkingApp.Controllers
             var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (currentUser == null) return Unauthorized();
             
-            if (viewModel.Gif != null)
+            if (viewModel.Image != null)
             {
-                var gifAlbums = await _albumRepository.GetAllByUserAsync(currentUser.Id);
-                var album = gifAlbums.FirstOrDefault(g => g.Name == "Gif профиля");
+                var imageAlbums = await _albumRepository.GetAllByUserAsync(currentUser.Id);
+                var album = imageAlbums.FirstOrDefault(a => a.Name == "Изображения профиля");
 
-                string gifDirectory = $"data\\{currentUser.UserName}\\{album.Id}";
-                var gifUploadResult = await _photoService.UploadPhotoAsync(viewModel.Gif, gifDirectory);
-                string? gifPath = gifUploadResult.IsAttachedAndExtensionValid ? gifDirectory + "\\" + gifUploadResult.FileName : null;
+                string imageDirectory = $"data\\{currentUser.UserName}\\{album.Id}";
+                var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Image, imageDirectory);
+                string? imagePath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
 
-                Gif gif = new Gif
+                Image image = new Image
                 {
-                    GifAlbumId = album.Id,
-                    GifPath = gifPath,
+                    ImageAlbumId = album.Id,
+                    ImagePath = imagePath,
                     CreatedAt = DateTime.Now
                 };
 
-                _gifRepository.Add(gif);
-                currentUser.ProfilePicture = gifPath;
+                _imageRepository.Add(image);
+                currentUser.ProfilePicture = imagePath;
                 await _userManager.UpdateAsync(currentUser);
             }
-            else if (viewModel.GifPath != null)
+            else if (viewModel.ImagePath != null)
             {
-                currentUser.ProfilePicture = viewModel.GifPath;
+                currentUser.ProfilePicture = viewModel.ImagePath;
                 await _userManager.UpdateAsync(currentUser);
             }
             else

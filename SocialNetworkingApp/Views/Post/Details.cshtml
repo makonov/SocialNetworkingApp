@@ -1,0 +1,138 @@
+﻿@using SocialNetworkingApp.ViewModels
+@model PostCommentsViewModel
+
+@section Scripts {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script src="/js/EditComment.js"></script>
+    <script src="/js/imagepreview.js"></script>
+    <script src="/js/chooseexistingimage.js"></script>
+    <script src="/js/deletecomment.js"></script>
+    @* <script src="/js/infinitescroll.js"></script> *@
+    <script src="/js/loadcomments.js"></script>
+
+    <script>
+        function goBack() {
+            // Получаем URL из localStorage
+            const previousPage = localStorage.getItem('previousPage');
+            if (previousPage) {
+                // Открываем предыдущую страницу
+                window.open(previousPage, '_self');
+            }
+            // Закрываем текущую вкладку
+            window.close();
+        }
+    </script>
+}
+
+<div class="container">
+    <a href="#" onclick="goBack()">Назад</a>
+
+    <div class="container mt-5">
+        @if (TempData["Error"] != null)
+        {
+            <div class="col-md-8 alert alert-danger">
+                <span><b>Ошибка!</b> - @TempData["Error"]</span>
+            </div>
+        }
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-3" data-id="@Model.Post.Id">
+                <div class="card-body">
+                    <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.Post.UserId">@Model.Post.User.FirstName @Model.Post.User.LastName</a></h5>
+
+                    @if (Model.Post.Image != null)
+                    {
+                        <div class="image-preview-@Model.Post.Id">
+                            <span id="imagePreview-@Model.Post.Id">
+                                <img src="~/@Model.Post.Image.ImagePath" class="card-img-top" alt="Post Image">
+                            </span>
+                            <button type="button" class="btn btn-light btn-sm" id="clear-image-@Model.Post.Id" style="display:none;"><i class="bi bi-x"></i></button>
+                        </div>
+                    }
+                    <p class="card-text post-text">@Model.Post.Text</p>
+                    @if (Model.Post.UpdatedAt == default)
+                    {
+                        <span class="card-text"><small class="text-muted time-change">Опубликовано: @Model.Post.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                    }
+                    else
+                    {
+                        <span class="card-text"><small class="text-muted time-change">Изменено: @Model.Post.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+   
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    @await Html.PartialAsync("_CreateCommentPartial", new CreateCommentViewModel { PostId = Model.PostId })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div id="commentsContainer" class="row">
+        @await Html.PartialAsync("_ShowCommentsPartial", Model)
+    </div>
+
+    <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog" aria-labelledby="editWarningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWarningModalLabel">Предупреждение</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Нельзя перейти к редактированию комментария, пока другой комментарий находится в режиме редактирования.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<style>
+    [class*="image-preview"] {
+        text-align: center;
+        margin-bottom: 10px;
+        position: relative;
+    }
+
+    [class*="image-preview"] button {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    [class*="image-preview"] img {
+        max-width: 100%;
+        max-height: 400px;
+        width: auto;
+        height: auto;
+    }
+
+    .profile-link,
+    .comment-link {
+        color: black;
+    }
+</style>
+
+

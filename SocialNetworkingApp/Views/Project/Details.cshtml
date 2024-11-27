@@ -1,0 +1,117 @@
+﻿<div class="container mt-4">
+    <h2 class="mb-4">Проект: Разработка мобильного приложения</h2>
+
+    <!-- Информация о проекте -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Информация о проекте</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Цель:</strong> Создать приложение для улучшения экологии города.</p>
+            <p><strong>Описание:</strong> В рамках проекта планируется разработать приложение, позволяющее отслеживать экологические инициативы и проводить мероприятия.</p>
+            <p><strong>Прогресс:</strong> Подготовлен дизайн и разработана начальная версия.</p>
+            <p><strong>Состояние:</strong> Работа начата</p>
+            <a href="#" class="btn btn-primary mt-2">Перейти к альбомам</a>
+        </div>
+    </div>
+
+    <!-- Участники и история изменений (сворачиваемые details) -->
+    <details class="mb-4">
+        <summary class="btn btn-secondary">Участники проекта</summary>
+        <div class="card mt-3">
+            <div class="card-body">
+                <ul>
+                    <li>Иван Иванов — Руководитель проекта</li>
+                    <li>Мария Петрова — Дизайнер</li>
+                    <li>Анна Смирнова — Программист</li>
+                </ul>
+            </div>
+        </div>
+    </details>
+
+    <details class="mb-4">
+        <summary class="btn btn-secondary">История изменений</summary>
+        <div class="card mt-3">
+            <div class="card-body">
+                <ul>
+                    <li><strong>15.11.2024:</strong> Создан дизайн мобильного приложения.</li>
+                    <li><strong>10.11.2024:</strong> Сформирована команда проекта.</li>
+                    <li><strong>01.11.2024:</strong> Проект создан.</li>
+                </ul>
+            </div>
+        </div>
+    </details>
+
+    <div class="mb-4">
+        <!-- Вкладка обратной связи -->
+        <a href="/feedback" class="btn btn-outline-primary mt-3">Перейти к обратной связи</a>
+    </div>
+    
+    <!-- Вкладка объявлений -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Объявления</h5>
+        </div>
+        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+            <ul>
+                <li><strong>Ищу:</strong> Дизайнера UI/UX для улучшения макетов.</li>
+                <li><strong>Нужен:</strong> Программист на Flutter для интеграции API.</li>
+                <li><strong>Требуется:</strong> Тестировщик для проверки первой версии приложения.</li>
+            </ul>
+            <form class="mt-3">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Добавить объявление...">
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Опубликовать</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Лента постов -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Лента постов</h5>
+        </div>
+        <div class="card-body">
+            <div class="post mb-3">
+                <p><strong>Иван Иванов:</strong> Завершили разработку дизайна! Теперь двигаемся к программированию.</p>
+                <small>15.11.2024</small>
+            </div>
+            <div class="post mb-3">
+                <p><strong>Мария Петрова:</strong> Работаю над прототипами экранов. Скоро будет готово!</p>
+                <small>12.11.2024</small>
+            </div>
+            <form>
+                <div class="form-group">
+                    <textarea class="form-control" rows="3" placeholder="Добавить пост..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Опубликовать</button>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+
+<style>
+    .container h2 {
+        text-align: center;
+        font-size: 1.8rem;
+    }
+
+    .card {
+        /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); */
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+    }
+
+    textarea {
+        resize: none;
+    }
+
+    ul {
+        padding-left: 20px;
+    }
+</style>

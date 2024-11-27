@@ -1,4 +1,13 @@
 ﻿@model SocialNetworkingApp.ViewModels.FeedViewModel
+
+@section scripts {
+    <script>
+        function saveCurrentPage() {
+            // Сохраняем URL текущей страницы
+            localStorage.setItem('previousPage', window.location.href);
+        }
+    </script>
+}
 <div class="col-md-8">
     @foreach (var post in Model.Posts.OrderByDescending(p => p.data.CreatedAt))
     {
@@ -6,11 +15,11 @@
             <div class="card-body">
                 <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h5>
                 
-                @if (post.data.Gif != null)
+                @if (post.data.Image != null)
                 {
                     <div class="image-preview-@post.data.Id">
                         <span id="imagePreview-@post.data.Id">
-                            <img src="@post.data.Gif.GifPath" class="card-img-top" alt="Post Image">
+                            <img src="@post.data.Image.ImagePath" class="card-img-top" alt="Post Image">
                         </span>
                         <button type="button" class="btn btn-light btn-sm" id="clear-image-@post.data.Id" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>
@@ -25,7 +34,7 @@
                     <span class="card-text"><small class="text-muted time-change">Изменено: @post.data.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
                 }
 
-                <a class="comment comment-link" asp-action="Index" asp-controller="Comment" asp-route-postId="@post.data.Id" fragment="comments">Показать комментарии</a>
+                <a class="comment comment-link" asp-action="Details" asp-controller="Post" asp-route-id="@post.data.Id" fragment="comments" target="_blank" onclick="saveCurrentPage()">Показать комментарии</a>
 
                 @if (post.data.UserId == Model.CurrentUserId)
                 {
@@ -45,14 +54,14 @@
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modalToggleLabel">Гифки пользователя</h5>
+                            <h5 class="modal-title" id="modalToggleLabel">Изображения пользователя</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <div class="row" id="gifContainer-@post.data.Id">
-                                <!-- Здесь будут отображаться гифки -->
+                            <div class="row" id="imageContainer-@post.data.Id">
+                                <!-- Здесь будут отображаться изображения -->
                             </div>
                         </div>
                     </div>

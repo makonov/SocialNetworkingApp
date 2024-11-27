@@ -6,7 +6,7 @@
     public class PhotoService : IPhotoService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private static string[] allowedExtensions = { ".gif" };
+        private static string[] allowedExtensions = { ".gif", ".png", ".jpeg", ".jpg" };
 
         public PhotoService(IWebHostEnvironment webHostEnvironment)
         {

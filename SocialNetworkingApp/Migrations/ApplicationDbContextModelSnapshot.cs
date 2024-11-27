@@ -166,6 +166,9 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
@@ -179,6 +182,8 @@ namespace SocialNetworkingApp.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("PostId");
 
@@ -233,7 +238,7 @@ namespace SocialNetworkingApp.Migrations
                     b.ToTable("FriendRequests");
                 });
 
-            modelBuilder.Entity("SocialNetworkingApp.Models.Gif", b =>
+            modelBuilder.Entity("SocialNetworkingApp.Models.Image", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,20 +252,20 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GifAlbumId")
+                    b.Property<int>("ImageAlbumId")
                         .HasColumnType("int");
 
-                    b.Property<string>("GifPath")
+                    b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GifAlbumId");
+                    b.HasIndex("ImageAlbumId");
 
-                    b.ToTable("Gifs");
+                    b.ToTable("Images");
                 });
 
-            modelBuilder.Entity("SocialNetworkingApp.Models.GifAlbum", b =>
+            modelBuilder.Entity("SocialNetworkingApp.Models.ImageAlbum", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -287,7 +292,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("GifAlbums");
+                    b.ToTable("ImageAlbums");
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Like", b =>
@@ -352,7 +357,7 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("GifId")
+                    b.Property<int?>("ImageId")
                         .HasColumnType("int");
 
                     b.Property<int>("Likes")
@@ -372,7 +377,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GifId");
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("UserId");
 
@@ -524,6 +529,10 @@ namespace SocialNetworkingApp.Migrations
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Comment", b =>
                 {
+                    b.HasOne("SocialNetworkingApp.Models.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
                     b.HasOne("SocialNetworkingApp.Models.Post", "Post")
                         .WithMany()
                         .HasForeignKey("PostId")
@@ -533,6 +542,8 @@ namespace SocialNetworkingApp.Migrations
                     b.HasOne("SocialNetworkingApp.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Image");
 
                     b.Navigation("Post");
 
@@ -569,18 +580,18 @@ namespace SocialNetworkingApp.Migrations
                     b.Navigation("ToUser");
                 });
 
-            modelBuilder.Entity("SocialNetworkingApp.Models.Gif", b =>
+            modelBuilder.Entity("SocialNetworkingApp.Models.Image", b =>
                 {
-                    b.HasOne("SocialNetworkingApp.Models.GifAlbum", "Album")
+                    b.HasOne("SocialNetworkingApp.Models.ImageAlbum", "Album")
                         .WithMany()
-                        .HasForeignKey("GifAlbumId")
+                        .HasForeignKey("ImageAlbumId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Album");
                 });
 
-            modelBuilder.Entity("SocialNetworkingApp.Models.GifAlbum", b =>
+            modelBuilder.Entity("SocialNetworkingApp.Models.ImageAlbum", b =>
                 {
                     b.HasOne("SocialNetworkingApp.Models.User", "User")
                         .WithMany()
@@ -606,16 +617,16 @@ namespace SocialNetworkingApp.Migrations
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Post", b =>
                 {
-                    b.HasOne("SocialNetworkingApp.Models.Gif", "Gif")
+                    b.HasOne("SocialNetworkingApp.Models.Image", "Image")
                         .WithMany()
-                        .HasForeignKey("GifId")
+                        .HasForeignKey("ImageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SocialNetworkingApp.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Gif");
+                    b.Navigation("Image");
 
                     b.Navigation("User");
                 });

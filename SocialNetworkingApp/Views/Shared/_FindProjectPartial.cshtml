@@ -1,0 +1,50 @@
+﻿@{
+    Layout = null;
+}
+
+<!-- Карточка с фильтрами поиска -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Поиск</h5>
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="searchTitle">Поиск по названию</label>
+                <input type="text" id="searchTitle" class="form-control" placeholder="Введите название проекта">
+            </div>
+        </div>
+
+        <!-- Раскрывающееся окно для фильтров -->
+        <details>
+            <summary>Показать фильтры</summary>
+
+            <!-- Фильтры поиска -->
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="categoryFilter">Фильтр по категории</label>
+                    <select id="categoryFilter" class="form-control">
+                        <option value="">Выберите категорию</option>
+                        <option value="education">Образование</option>
+                        <option value="startup">Стартапы</option>
+                        <option value="research">Научные исследования</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label for="skillsFilter">Фильтр по навыкам</label>
+                    <input type="text" id="skillsFilter" class="form-control" placeholder="Например, дизайнер, программист">
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label for="dateFilter">Фильтр по срокам</label>
+                    <input type="date" id="dateFilter" class="form-control">
+                </div>
+            </div>
+        </details>
+
+        <!-- Кнопка поиска -->
+        <button id="searchProjects" class="btn btn-primary mt-3">Найти проекты</button>
+    </div>
+</div>

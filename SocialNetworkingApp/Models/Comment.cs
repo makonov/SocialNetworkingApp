@@ -14,6 +14,9 @@ namespace SocialNetworkingApp.Models
         public int PostId { get; set; }
         public Post? Post { get; set; }
         public string? Text { get; set; }
+        [ForeignKey("Image")]
+        public int? ImageId { get; set; }
+        public Image? Image { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set;}
     }

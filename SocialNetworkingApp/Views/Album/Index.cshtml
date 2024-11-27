@@ -1,5 +1,5 @@
 ﻿@using SocialNetworkingApp.ViewModels
-@model IEnumerable<GifAlbum>
+@model IEnumerable<ImageAlbum>
 @{
 
 }
@@ -93,7 +93,7 @@
                                                 </button>
                                             </div>
                                             <div class="modal-body">
-                                                @await Html.PartialAsync("_EditAlbumPartial", new EditAlbumViewModel {AlbumId = album.Id, Title = album.Name, Description = album.Description, CurrentGif = album.CoverPath})
+                                                @await Html.PartialAsync("_EditAlbumPartial", new EditAlbumViewModel {AlbumId = album.Id, Title = album.Name, Description = album.Description, CurrentImage = album.CoverPath})
                                             </div>
                                         </div>
                                     </div>

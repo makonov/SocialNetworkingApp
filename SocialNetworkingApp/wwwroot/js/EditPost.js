@@ -26,8 +26,8 @@
         const $text = $card.find('.post-text').val();
         var inputFile = $card.find('input[type=file]');
         var file = inputFile[0].files[0];
-        var gifPathValue = $('#imagePreview-' + postId + ' img').attr('src');
-        editPost(postId, $card, $text, file, gifPathValue);
+        var imagePathValue = $('#imagePreview-' + postId + ' img').attr('src');
+        editPost(postId, $card, $text, file, imagePathValue);
     });
 
     $(document).on('click', '[data-dismiss="modal"]', function () {
@@ -46,11 +46,11 @@
             + '</a>'
             + '<div class="collapse" id="collapse-' + postId + '">'
             + '<label for="input-image-' + postId + '" class="btn btn-light btn-sm" style="margin-top:5px; ">'
-            + 'Загрузить фото с устройства'
-            + '<input asp-for="Gif" type="file" hidden id="input-image-' + postId + '" accept=".gif" style="display: none">'
+            + 'Загрузить фото с устройства' 
+            + '<input asp-for="Image" type="file" hidden id="input-image-' + postId + '" accept=".jpeg,.jpg,.png,.gif" style="display: none">'
             + '</label>'
             + '<label for="take-image-' + postId + '" class="btn btn-light btn-sm" style="margin-top:5px;" data-bs-toggle="modal" data-bs-target="#modalToggle-post-' + postId + '">'
-            + '<input asp-for="GifPath" hidden id="take-image-' + postId + '" accept=".gif" style="display: none">'
+            + '<input asp-for="ImagePath" hidden id="take-image-' + postId + '" accept=".jpeg,.jpg,.png,.gif"" style="display: none">'
             + 'Выбрать фото из альбома'
             + '</label>'
             + '</div>'
@@ -109,7 +109,7 @@
         $imagePath = '';
     }
 
-    function editPost(postId, card, text, file, gifPathValue) {
+    function editPost(postId, card, text, file, imagePathValue) {
         var formData = new FormData();
         formData.append('text', text);
         formData.append('postId', postId);
@@ -117,11 +117,11 @@
             formData.append('inputFile', file);
         }
 
-        if (gifPathValue) {
-            formData.append('existingGif', gifPathValue);
+        if (imagePathValue) {
+            formData.append('existingImage', imagePathValue);
         }
 
-        if (text.trim().length > 0 || file != null || gifPathValue != null) {
+        if (text.trim().length > 0 || file != null || imagePathValue != null) {
             $.ajax({
                 type: 'POST',
                 url: '/Post/EditPost',

@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Поддержка проектов";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Поддержка проектов</h2>
+
+    <!-- Включаем partial view с фильтрами и поиском -->
+    @await Html.PartialAsync("_FindProjectPartial")
+
+    <div class="row">
+        <!-- Карточка проекта -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Проект: Разработка мобильного приложения</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Цель:</strong> Создать приложение для улучшения экологии города.</p>
+                    <p><strong>Описание:</strong> В рамках проекта планируется разработать приложение, позволяющее отслеживать экологические инициативы и проводить мероприятия.</p>
+                    <p><strong>Прогресс:</strong> Подготовлен дизайн и разработана начальная версия.</p>
+                    <h6 class="mt-3">Требуются участники:</h6>
+                    <ul>
+                        <li>Дизайнер UI/UX</li>
+                        <li>Программист на Flutter</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary mt-2">Подробнее</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Еще одна карточка проекта -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Проект: Исследование в области искусственного интеллекта</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Цель:</strong> Участвовать в студенческой конференции по ИИ.</p>
+                    <p><strong>Описание:</strong> Проект посвящен применению алгоритмов машинного обучения для анализа больших данных.</p>
+                    <p><strong>Прогресс:</strong> Проведены начальные эксперименты, требуется доработка модели.</p>
+                    <h6 class="mt-3">Требуются участники:</h6>
+                    <ul>
+                        <li>Аналитик данных</li>
+                        <li>Программист Python</li>
+                    </ul>
+                    <a asp-controller="Project" asp-action="Details" class="btn btn-primary mt-2">Подробнее</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container h2 {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    .card {
+        /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); */
+    }
+
+    .card-header h5 {
+        font-size: 1.2rem;
+        margin: 0;
+    }
+</style>
+
+
+
