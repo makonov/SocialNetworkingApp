@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetworkingApp.ViewModels
 {
@@ -12,8 +13,8 @@ namespace SocialNetworkingApp.ViewModels
         public string LastName { get; set; }
         [Required(ErrorMessage = "Выберите дату рождения"), DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }
-        [Required(ErrorMessage = "Введите ваш город")]
-        public string City { get; set; }
+        [Required(ErrorMessage = "Выберите свою группу")]
+        public int GroupId { get; set; }
         [Required(ErrorMessage = "Выберите пол")]
         public bool? IsMale { get; set; }
         [Display(Name = "Электронная почта")]
@@ -27,5 +28,7 @@ namespace SocialNetworkingApp.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Введенный пароль не совпадает")]
         public string ConfirmPassword { get; set;}
+
+        public List<SelectListItem>? Groups { get; set; }
     }
 }

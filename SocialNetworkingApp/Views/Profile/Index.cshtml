@@ -74,7 +74,7 @@
     @if (Model.CurrentUserId == Model.User.Id)
     {
         <div class="row">
-            @await Html.PartialAsync("~/Views/Shared/_CreatePostPartial.cshtml", new SocialNetworkingApp.ViewModels.CreatePostViewModel { From = "Profile" })
+            @await Html.PartialAsync("~/Views/Shared/_CreatePostPartial.cshtml", new SocialNetworkingApp.ViewModels.CreatePostViewModel { From = "Profile", PostTypeId = (int)PostTypeEnum.Profile })
         </div>
         <br />
     }

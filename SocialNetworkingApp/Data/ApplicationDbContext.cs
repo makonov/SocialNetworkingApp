@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Models;
 
@@ -23,9 +24,14 @@ namespace SocialNetworkingApp.Data
                 .WithMany()
                 .HasForeignKey(i => i.ImageAlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
         }
         public DbSet<User> Users {  get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Community> Communities { get; set; }
+        public DbSet<CommunityMember> CommunityMembers { get; set; }
+        public DbSet<CommunityType> CommunityTypes { get; set; }
         public DbSet<Friend> Friends { get; set; }
         public DbSet<FriendRequest> FriendRequests { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -33,5 +39,16 @@ namespace SocialNetworkingApp.Data
         public DbSet<ImageAlbum> ImageAlbums { get; set;}
         public DbSet<Post> Posts { get; set; }
         public DbSet<Like> Likes { get; set; }
+        public DbSet<PostType> PostTypes { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectAnnouncement> ProjectAnnouncements { get; set; }
+        public DbSet<ProjectChange> ProjectChanges { get; set; }
+        public DbSet<ProjectFeedback> ProjectFeedbacks { get; set; }
+        public DbSet<ProjectFollower> ProjectFolloweres { get; set;}
+        public DbSet<ProjectStatus> ProjectStatuses { get; set; }
+        public DbSet<ProjectType> ProjectTypes { get; set; }
+        public DbSet<StudentGroup> StudentGroups { get; set; }
+        public DbSet<UserRole> UserRoles {  get; set; }
+
     }
 }

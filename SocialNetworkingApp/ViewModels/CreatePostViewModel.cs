@@ -10,5 +10,7 @@ namespace SocialNetworkingApp.ViewModels
         public string? ImagePath { get; set; }
         [Required]
         public string? From { get; set; }
+        [Required]
+        public int PostTypeId { get; set; }
     }
 }

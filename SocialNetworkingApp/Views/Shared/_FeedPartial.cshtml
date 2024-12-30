@@ -1,4 +1,5 @@
-﻿@model SocialNetworkingApp.ViewModels.FeedViewModel
+﻿@using SocialNetworkingApp.Data
+@model SocialNetworkingApp.ViewModels.FeedViewModel
 
 @section scripts {
     <script>
@@ -13,7 +14,10 @@
     {
         <div class="card mb-3" data-id="@post.data.Id">
             <div class="card-body">
-                <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h5>
+                @if (post.data.TypeId == (int) PostTypeEnum.Profile)
+                {
+                    <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h5>
+                }
                 
                 @if (post.data.Image != null)
                 {

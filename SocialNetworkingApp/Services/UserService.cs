@@ -35,11 +35,6 @@ namespace SocialNetworkingApp.Services
                 users = users.Where(u => u.FirstName.Contains(firstName));
             }
 
-            if (!string.IsNullOrWhiteSpace(viewModel.City))
-            {
-                users = users.Where(u => u.City == viewModel.City);
-            }
-
             if (!string.IsNullOrWhiteSpace(viewModel.Gender))
             {
                 switch (viewModel.Gender)

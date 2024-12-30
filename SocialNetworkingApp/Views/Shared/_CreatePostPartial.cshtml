@@ -4,6 +4,7 @@
         <div class="card-body">
             <form asp-controller="Post" asp-action="CreatePost" id="newPostForm" enctype="multipart/form-data">
                 <input hidden asp-for="From" />
+                <input hidden asp-for="PostTypeId" />
                 <div class="form-group">
                     <label asp-for="Text" class="control-label">Что у вас нового?</label>
                     <div class="image-preview-0">

@@ -1,4 +1,5 @@
-﻿@model SocialNetworkingApp.ViewModels.FeedViewModel
+﻿@using SocialNetworkingApp.Data
+@model SocialNetworkingApp.ViewModels.FeedViewModel
 
 @{
     ViewData["Title"] = "Лента";
@@ -23,7 +24,7 @@
 <div class="container">
     @Html.AntiForgeryToken()
     <div class="row">
-        @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel {From = "Feed"})
+        @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel { From = "Feed", PostTypeId = (int) PostTypeEnum.Profile})
     </div>
     <br />
     <div id="postsContainer" class="row">

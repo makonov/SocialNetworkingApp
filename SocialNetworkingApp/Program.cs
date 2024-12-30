@@ -26,6 +26,7 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IImageAlbumRepository, ImageAlbumRepository>();
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
+            builder.Services.AddScoped<IStudentGroupRepository, StudentGroupRepository>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
@@ -13,12 +15,15 @@ namespace SocialNetworkingApp.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IImageAlbumRepository _albumRepository;
+        private readonly IStudentGroupRepository _groupRepository;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IImageAlbumRepository albumRepository)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IImageAlbumRepository albumRepository, IStudentGroupRepository groupRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _albumRepository = albumRepository;
+            _groupRepository = groupRepository;
+
         }
 
         public IActionResult Login()
@@ -52,9 +57,19 @@ namespace SocialNetworkingApp.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
-            var response = new RegisterViewModel();
+            var groups = await _groupRepository.GetAllAsync();
+
+            var response = new RegisterViewModel
+            {
+                Groups = groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList()
+            };
+
             return View(response);
         }
 
@@ -84,10 +99,11 @@ namespace SocialNetworkingApp.Controllers
                 FirstName = viewModel.FirstName,
                 LastName = viewModel.LastName,
                 BirthDate = (DateTime) viewModel.BirthDate,
-                City = viewModel.City,
                 IsMale = viewModel.IsMale,
                 UserName = viewModel.Email,
                 Email = viewModel.Email,
+                GroupId = viewModel.GroupId,
+                RoleId = (int) UserRoleEnum.Student
             };
 
             var result = await _userManager.CreateAsync(newUser, viewModel.Password);

@@ -79,6 +79,7 @@ namespace SocialNetworkingApp.Controllers
                 Likes = 0,
                 Name = $"{user.LastName} {user.FirstName}",
                 CreatedAt = DateTime.Now,
+                TypeId = viewModel.PostTypeId,
                 UpdatedAt = default
             };
 
