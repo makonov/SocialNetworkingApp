@@ -59,7 +59,7 @@ namespace SocialNetworkingApp.Controllers
             var profileUser = await _userService.GetUserByIdAsync(userId);
 
             var friendIds = new List<string>();
-            var posts = await _postRepository.GetAllBySubscription(userId, friendIds, page, pageSize);
+            var posts = await _postRepository.GetAllFromProfileByUserId(userId, page, pageSize);
 
             var postsWithLikeStatus = posts.Select(p =>
             {

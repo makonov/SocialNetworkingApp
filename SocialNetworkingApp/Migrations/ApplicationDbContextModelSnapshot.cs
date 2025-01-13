@@ -348,6 +348,9 @@ namespace SocialNetworkingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CommunityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("CoverPath")
                         .HasColumnType("nvarchar(max)");
 
@@ -360,10 +363,17 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommunityId");
+
+                    b.HasIndex("ProjectId");
 
                     b.HasIndex("UserId");
 
@@ -518,6 +528,9 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<string>("Goal")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("LastProjectChangeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
@@ -585,7 +598,8 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
 
                     b.ToTable("ProjectChanges");
                 });
@@ -635,6 +649,10 @@ namespace SocialNetworkingApp.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -959,9 +977,21 @@ namespace SocialNetworkingApp.Migrations
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ImageAlbum", b =>
                 {
+                    b.HasOne("SocialNetworkingApp.Models.Community", "Community")
+                        .WithMany()
+                        .HasForeignKey("CommunityId");
+
+                    b.HasOne("SocialNetworkingApp.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId");
+
                     b.HasOne("SocialNetworkingApp.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Community");
+
+                    b.Navigation("Project");
 
                     b.Navigation("User");
                 });
@@ -1067,8 +1097,8 @@ namespace SocialNetworkingApp.Migrations
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectChange", b =>
                 {
                     b.HasOne("SocialNetworkingApp.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
+                        .WithOne("LastProjectChange")
+                        .HasForeignKey("SocialNetworkingApp.Models.ProjectChange", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1129,6 +1159,11 @@ namespace SocialNetworkingApp.Migrations
             modelBuilder.Entity("SocialNetworkingApp.Models.Community", b =>
                 {
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("SocialNetworkingApp.Models.Project", b =>
+                {
+                    b.Navigation("LastProjectChange");
                 });
 #pragma warning restore 612, 618
         }

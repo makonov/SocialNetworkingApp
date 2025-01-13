@@ -1,5 +1,5 @@
 ﻿@using SocialNetworkingApp.ViewModels
-@model IEnumerable<ImageAlbum>
+@model AlbumCatalogueViewModel
 @{
 
 }
@@ -24,9 +24,13 @@
             <span><b>Извините!</b> - @TempData["Error"]</span>
         </div>
     }
-    <div class="text-center mb-4">
-        <button class="btn btn-primary" data-toggle="modal" data-target="#addAlbumModal">Создать альбом</button>
-    </div>
+
+    @if (Model.IsProjectMember || Model.IsOwner)
+    {
+        <div class="text-center mb-4">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#addAlbumModal">Создать альбом</button>
+        </div>
+    }
     
     <div class="modal fade" id="addAlbumModal" tabindex="-1" role="dialog" aria-labelledby="addAlbumModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -38,7 +42,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @await Html.PartialAsync("_AddAlbumPartial", new AddAlbumViewModel())
+                    @await Html.PartialAsync("_AddAlbumPartial", new AddAlbumViewModel {ProjectId = Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null})
                 </div>
             </div>
         </div>
@@ -46,7 +50,7 @@
 
     <div class="row">
 
-        @foreach (var album in Model)
+        @foreach (var album in Model.Albums)
         {
             <div class="col-md-4 mb-4">
                 <div class="card">
@@ -55,49 +59,52 @@
                         <h5 class="card-title">@album.Name</h5>
                         <p class="card-text">@(album.Description != null ? album.Description : "нет описания")</p>
                         <div class="row">
-                            <a asp-action="Detail" asp-route-id="@album.Id" class="btn btn-primary">Открыть</a>
+                            <a asp-action="Details" asp-route-id="@album.Id" class="btn btn-primary">Открыть</a>
                             @if(!album.IsRequired) 
                             {
-                                <a data-toggle="modal" data-target="#deleteAlbumModal_@album.Id" class="btn btn-light like-btn"><i class="bi bi-trash-fill"></i></a>
-                                <a data-toggle="modal" data-target="#editAlbumModal_@album.Id" class="btn btn-light like-btn"><i class="bi bi-pen-fill"></i></a>
+                                @if (Model.IsProjectMember || Model.IsOwner)
+                                {
+                                    <a data-toggle="modal" data-target="#deleteAlbumModal_@album.Id" class="btn btn-light like-btn"><i class="bi bi-trash-fill"></i></a>
+                                    <a data-toggle="modal" data-target="#editAlbumModal_@album.Id" class="btn btn-light like-btn"><i class="bi bi-pen-fill"></i></a>
 
-                                <div class="modal fade" id="deleteAlbumModal_@album.Id" tabindex="-1" role="dialog" aria-labelledby="deleteAlbumModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteAlbumModalLabel">Удаление альбома</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="col-md-12 alert alert-danger">
-                                                    <span><b>Внимание!</b> - При удалении альбома также удалятся все фото из него.</span>
+                                    <div class="modal fade" id="deleteAlbumModal_@album.Id" tabindex="-1" role="dialog" aria-labelledby="deleteAlbumModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteAlbumModalLabel">Удаление альбома</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
                                                 </div>
-                                                <a class="btn btn-danger" asp-action="DeleteAlbum" asp-route-id="@album.Id">Удалить</a>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">
-                                                    Отмена
-                                                </button>
+                                                <div class="modal-body">
+                                                    <div class="col-md-12 alert alert-danger">
+                                                        <span><b>Внимание!</b> - При удалении альбома также удалятся все фото из него.</span>
+                                                    </div>
+                                                    <a class="btn btn-danger" asp-action="DeleteAlbum" asp-route-id="@album.Id" asp-route-projectId="@(Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null)">Удалить</a>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">
+                                                        Отмена
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="modal fade" id="editAlbumModal_@album.Id" tabindex="-1" role="dialog" aria-labelledby="editAlbumModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="editAlbumModalLabel">Редактирование альбома</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                @await Html.PartialAsync("_EditAlbumPartial", new EditAlbumViewModel {AlbumId = album.Id, Title = album.Name, Description = album.Description, CurrentImage = album.CoverPath})
+                                    <div class="modal fade" id="editAlbumModal_@album.Id" tabindex="-1" role="dialog" aria-labelledby="editAlbumModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editAlbumModalLabel">Редактирование альбома</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    @await Html.PartialAsync("_EditAlbumPartial", new EditAlbumViewModel { AlbumId = album.Id, Title = album.Name, Description = album.Description, CurrentImage = album.CoverPath, ProjectId = Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null })
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                }
                             }             
                         </div>
                     </div>

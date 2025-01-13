@@ -20,6 +20,8 @@ namespace SocialNetworkingApp.Models
         public ProjectType? Type { get; set; } 
         public decimal? FundraisingGoal { get; set; } 
         public decimal? FundraisingProgress { get; set; }
-        //public virtual ICollection<ProjectKeyword> ProjectKeywords { get; set; }
+        [ForeignKey("ProjectChange")]
+        public int? LastProjectChangeId { get; set; }
+        public ProjectChange? LastProjectChange { get; set; }
     }
 }

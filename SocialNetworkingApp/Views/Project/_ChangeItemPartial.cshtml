@@ -1,0 +1,6 @@
+﻿@using SocialNetworkingApp.Models
+@model ProjectChange
+
+<li id="change-@Model.Id">
+    <strong>@Model.ChangeDate.ToString("dd.MM.yyyy HH:mm")</strong> @Model.ChangeDescription
+</li>

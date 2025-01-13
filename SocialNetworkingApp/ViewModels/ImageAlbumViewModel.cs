@@ -6,5 +6,7 @@ namespace SocialNetworkingApp.ViewModels
     {
         public ImageAlbum Album { get; set; }
         public List<Image> Images { get; set; }
+        public bool IsProjectMember { get; set; }
+        public bool IsOwner {  get; set; }
     }
 }

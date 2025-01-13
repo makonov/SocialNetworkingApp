@@ -12,5 +12,6 @@ namespace SocialNetworkingApp.ViewModels
         public string? From { get; set; }
         [Required]
         public int PostTypeId { get; set; }
+        public int? ProjectId { get; set; }
     }
 }

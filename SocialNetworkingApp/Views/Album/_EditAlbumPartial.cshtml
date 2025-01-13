@@ -3,6 +3,7 @@
 <form asp-controller="Album" asp-action="EditAlbum" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <div class="form-group">
+        <input hidden asp-for="ProjectId" />
         <input hidden asp-for="AlbumId" />
         <input hidden asp-for="CurrentImage"/>
         <div class="form-group">

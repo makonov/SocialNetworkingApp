@@ -2,6 +2,7 @@
 @model AddAlbumViewModel
 <form asp-controller="Album" asp-action="AddAlbum" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
+    <input hidden asp-for="ProjectId" />
     <div class="form-group">
         <div class="form-group">
             <label asp-for="Title" class="control-label">Название</label>

@@ -13,5 +13,6 @@ namespace SocialNetworkingApp.ViewModels
         public string? CurrentImage { get; set; }
         [StringLength(50)]
         public string? Description { get; set; }
+        public int? ProjectId { get; set; }
     }
 }

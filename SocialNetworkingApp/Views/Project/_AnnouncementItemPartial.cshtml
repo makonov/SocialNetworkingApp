@@ -1,0 +1,6 @@
+﻿@using SocialNetworkingApp.Models
+@model ProjectAnnouncement
+
+<li id="announcement-@Model.Id">
+    <strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm") @Model.Title:</strong> @Model.Description
+</li>

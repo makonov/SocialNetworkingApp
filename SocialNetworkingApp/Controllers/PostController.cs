@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
@@ -19,6 +21,8 @@ namespace SocialNetworkingApp.Controllers
         private readonly IImageAlbumRepository _albumRepository;
         private readonly IImageRepository _imageRepository;
         private readonly ICommentRepository _commentRepository;
+        private readonly IProjectFollowerRepository _projectFollowerRepository;
+        private readonly IProjectRepository _projectRepository;
         private readonly UserManager<User> _userManager;
         private const int PageSize = 10;
 
@@ -29,7 +33,9 @@ namespace SocialNetworkingApp.Controllers
             IImageAlbumRepository albumRepository,
             IImageRepository imageRepository,
             ICommentRepository commentRepository,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            IProjectFollowerRepository projectFollowerRepository,
+            IProjectRepository projectRepository)
         {
             _postRepository = postRepository;
             _likeRepository = likeRepository;
@@ -39,6 +45,8 @@ namespace SocialNetworkingApp.Controllers
             _albumRepository = albumRepository;
             _commentRepository = commentRepository;
             _userManager = userManager;
+            _projectFollowerRepository = projectFollowerRepository;
+            _projectRepository = projectRepository;
         }
 
         public async Task<IActionResult> Details(int id, int page = 1)
@@ -83,12 +91,28 @@ namespace SocialNetworkingApp.Controllers
                 UpdatedAt = default
             };
 
+            if (viewModel.ProjectId != null) post.ProjectId = viewModel.ProjectId;
+
             if (viewModel.Image != null)
             {
-                var imageAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
-                var album = imageAlbums.FirstOrDefault(g => g.Name == "Изображения на стене");
-
-                string imageDirectory = $"data\\{user.UserName}\\{album.Id}";
+                
+                string imageDirectory = string.Empty; ImageAlbum? album = new ImageAlbum(); List<ImageAlbum> imageAlbums;
+                switch (viewModel.PostTypeId)
+                {
+                    case (int) PostTypeEnum.Profile:
+                        imageAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
+                        album = imageAlbums.FirstOrDefault(g => g.Name == "Изображения на стене");
+                        imageDirectory = $"data\\{user.UserName}\\{album.Id}";
+                        break;
+                    case (int) PostTypeEnum.Project:
+                        imageAlbums = await _albumRepository.GetAllByProjectAsync(viewModel.ProjectId);
+                        album = imageAlbums.FirstOrDefault(a => a.Name == "Изображения на стене");
+                        imageDirectory = $"data\\project-{viewModel.ProjectId}\\{album.Id}";
+                        break;
+                    case (int)PostTypeEnum.Community:
+                        break;
+                }
+                
                 var imageUploadResult = await _photoService.UploadPhotoAsync(viewModel.Image, imageDirectory);
                 string? imagePath = imageUploadResult.IsAttachedAndExtensionValid ? imageDirectory + "\\" + imageUploadResult.FileName : null;
 
@@ -110,7 +134,15 @@ namespace SocialNetworkingApp.Controllers
             }
 
             _postRepository.Add(post);
-            return RedirectToAction("Index", viewModel.From);
+
+            switch(viewModel.From)
+            {
+                case "Project":
+                    return RedirectToAction("Details", "Project", new { projectId = viewModel.ProjectId });
+                default:
+                    return RedirectToAction("Index", viewModel.From);
+
+            }
         }
 
 
@@ -122,7 +154,66 @@ namespace SocialNetworkingApp.Controllers
             if (user == null) return Unauthorized();
 
             var friendIds = await _friendRepository.GetAllIdsByUserAsync(user.Id);
-            var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, page, PageSize, lastPostId);
+            var projectIds = (await _projectFollowerRepository.GetAllByUserIdAsync(user.Id)).Select(p => p.ProjectId).ToList();
+            var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, projectIds, page, PageSize, lastPostId);
+
+            var postsWithLikeStatus = posts.Select(p =>
+            {
+                bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
+                return (p, isLikedByCurrentUser);
+            });
+
+            var viewModel = new FeedViewModel
+            {
+                Posts = postsWithLikeStatus,
+                CurrentUserId = user.Id
+            };
+
+            return PartialView("~/Views/Shared/_FeedPartial.cshtml", viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProfilePosts(int page, int lastPostId)
+        {
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+            if (user == null) return Unauthorized();
+
+            List<Post> posts = new List<Post>();
+            if (lastPostId > 0)
+            {
+                string postOwnerId = (await _postRepository.GetByIdAsync(lastPostId)).UserId;
+                posts = await _postRepository.GetAllFromProfileByUserId(user.Id, page, PageSize, lastPostId);
+            }
+            
+            var postsWithLikeStatus = posts.Select(p =>
+            {
+                bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
+                return (p, isLikedByCurrentUser);
+            });
+
+            var viewModel = new FeedViewModel
+            {
+                Posts = postsWithLikeStatus,
+                CurrentUserId = user.Id
+            };
+
+            return PartialView("~/Views/Shared/_FeedPartial.cshtml", viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProjectPosts(int page, int lastPostId)
+        {
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+            if (user == null) return Unauthorized();
+
+            List<Post> posts = new List<Post>();
+            if (lastPostId > 0)
+            {
+                int? projectId = (await _postRepository.GetByIdAsync(lastPostId)).ProjectId;
+                posts = await _postRepository.GetAllByProjectId((int) projectId, page, PageSize, lastPostId);
+            }
 
             var postsWithLikeStatus = posts.Select(p =>
             {
@@ -190,10 +281,25 @@ namespace SocialNetworkingApp.Controllers
 
                 if (inputFile != null)
                 {
-                    var imageAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
-                    var album = imageAlbums.FirstOrDefault(g => g.Name == "Изображения на стене");
+                    string imageDirectory = string.Empty; ImageAlbum? album = new ImageAlbum(); List<ImageAlbum> imageAlbums;
+                    if (post.ProjectId != null)
+                    {
+                        imageAlbums = await _albumRepository.GetAllByProjectAsync(post.ProjectId);
+                        album = imageAlbums.FirstOrDefault(a => a.Name == "Изображения на стене");
+                        imageDirectory = $"data\\project-{post.ProjectId}\\{album.Id}";
+                        
+                    }
+                    else if (post.CommunityId != null)
+                    {
 
-                    string imageDirectory = $"data\\{user.UserName}\\{album.Id}";
+                    }
+                    else
+                    {
+                        imageAlbums = await _albumRepository.GetAllByUserAsync(user.Id);
+                        album = imageAlbums.FirstOrDefault(g => g.Name == "Изображения на стене");
+                        imageDirectory = $"data\\{user.UserName}\\{album.Id}";
+                    }
+
                     var imageUploadResult = await _photoService.ReplacePhotoAsync(inputFile, imageDirectory, post.Image != null ? post.Image.ImagePath : null);
                     string? imagePath = imageUploadResult.IsReplacementSuccess ? imageDirectory + "\\" + imageUploadResult.NewFileName : null;
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SocialNetworkingApp.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetworkingApp.ViewModels
 {
@@ -10,5 +11,6 @@ namespace SocialNetworkingApp.ViewModels
         public IFormFile? Image { get; set; }
         [StringLength(100)]
         public string? Description { get; set; }
+        public PostTypeEnum? PostType { get; set; }
     }
 }

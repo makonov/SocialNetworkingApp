@@ -21,17 +21,21 @@ namespace SocialNetworkingApp.Controllers
         private readonly ILikeRepository _likeRepository;
         private readonly IFriendRepository _friendRepository;
         private readonly UserManager<User> _userManager;
+        private readonly IProjectFollowerRepository _projectFollowerRepository;
         private const int pageSize = 10;
 
         public FeedController(IPostRepository postRepository,
             ILikeRepository likeRepository,
             IFriendRepository friendRepository,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            IProjectFollowerRepository projectFollowerRepository)
         {
             _postRepository = postRepository;
             _likeRepository = likeRepository;
             _friendRepository = friendRepository;
             _userManager = userManager;
+            _projectFollowerRepository = projectFollowerRepository;
+
         }
 
         public async Task<IActionResult> Index(int page = 1)
@@ -41,7 +45,8 @@ namespace SocialNetworkingApp.Controllers
             if (user == null) return Unauthorized();
 
             var friendIds = await _friendRepository.GetAllIdsByUserAsync(user.Id);
-            var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, page, pageSize);
+            var projectIds = (await _projectFollowerRepository.GetAllByUserIdAsync(user.Id)).Select(p => p.ProjectId).ToList();
+            var posts = await _postRepository.GetAllBySubscription(user.Id, friendIds, projectIds, page, pageSize);
 
             var postsWithLikeStatus = posts.Select(p =>
             {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetworkingApp.Interfaces;
@@ -19,6 +20,7 @@ namespace SocialNetworkingApp.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IPhotoService _photoService;
         private readonly IPostRepository _postRepository;
+        private readonly IProjectFollowerRepository _followerRepository;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -27,6 +29,7 @@ namespace SocialNetworkingApp.Controllers
             UserManager<User> userManager,
             IPhotoService photoService,
             IPostRepository postRepository,
+            IProjectFollowerRepository followerRepository,
             IWebHostEnvironment webHostEnvironment)
         {
             _albumRepository = albumRepository;
@@ -34,25 +37,42 @@ namespace SocialNetworkingApp.Controllers
             _userManager = userManager;
             _photoService = photoService;
             _postRepository = postRepository;
+            _followerRepository = followerRepository;
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IActionResult> Index(string userId = null)
+        public async Task<IActionResult> Index(string userId = null, int? projectId = null, int? communityId = null)
         {
-            if (userId == null)
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+
+            var albums = projectId != null ? await _albumRepository.GetAllByProjectAsync(projectId) : 
+                         communityId != null ? await _albumRepository.GetAllByCommunityId(0) :
+                         userId != null && user.Id != userId ? await _albumRepository.GetAllByUserAsync(userId) :
+                         await _albumRepository.GetAllByUserAsync(user.Id);
+
+            var viewModel = new AlbumCatalogueViewModel { Albums = albums };
+
+            if (albums.Count() > 0 && albums.First().ProjectId != null)
             {
-                var currentUser = HttpContext.User;
-                var user = await _userManager.GetUserAsync(currentUser);
-                userId = user.Id;
+                var projectFollower = (await _followerRepository.GetByProjectIdAsync((int)albums.First().ProjectId)).FirstOrDefault(f => f.UserId == user.Id && f.IsMember);
+                if (projectFollower != null) viewModel.IsProjectMember = true;
+            }
+            else if (userId == null && albums.Count() > 0 && albums.First().UserId == user.Id)
+            {
+                viewModel.IsOwner = true;
             }
 
-            var albums = await _albumRepository.GetAllByUserAsync(userId);
-            return View(albums);
+            return View(viewModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Detail(int id)
+        public async Task<IActionResult> Details(int id)
         {
+            var currentUser = HttpContext.User;
+            var user = await _userManager.GetUserAsync(currentUser);
+            if (user == null) return Unauthorized();
+
             ImageAlbum album = await _albumRepository.GetByIdAsync(id);
             if (album == null) return NotFound();
             
@@ -62,6 +82,16 @@ namespace SocialNetworkingApp.Controllers
                 Album = album,
                 Images = images
             };
+
+            if (album.ProjectId != null)
+            {
+                var projectFollower = (await _followerRepository.GetByProjectIdAsync((int)album.ProjectId)).FirstOrDefault(f => f.UserId == user.Id);
+                if (projectFollower != null) viewModel.IsProjectMember = true;
+            } else if (album.UserId != null)
+            {
+                viewModel.IsOwner = album.UserId == user.Id ? true : false;
+            }
+
             return View(viewModel);
         }
 
@@ -71,7 +101,8 @@ namespace SocialNetworkingApp.Controllers
             if (!ModelState.IsValid) 
             {
                 TempData["Error"] = $"Произошла ошибка при создании альбома: {ModelState.GetValueOrDefault("Title")}";
-                return RedirectToAction("Index");
+                if (viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId });
+                else return RedirectToAction("Index");
             }
 
             var currentUser = HttpContext.User;
@@ -80,10 +111,12 @@ namespace SocialNetworkingApp.Controllers
 
             ImageAlbum album = new ImageAlbum
             {
-                UserId = user.Id,
                 Name = viewModel.Title,
                 Description = viewModel.Description
             };
+
+            if (viewModel.ProjectId != null) album.ProjectId = viewModel.ProjectId;
+            else album.UserId = user.Id;
 
             _albumRepository.Add(album);
 
@@ -96,10 +129,11 @@ namespace SocialNetworkingApp.Controllers
                 _albumRepository.Update(album);
             }
 
-            return RedirectToAction("Index");
+            if(viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId});
+            else return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> DeleteAlbum(int id)
+        public async Task<IActionResult> DeleteAlbum(int id, int? projectId = null)
         {
             var currentUser = HttpContext.User;
             var user = await _userManager.GetUserAsync(currentUser);
@@ -121,7 +155,9 @@ namespace SocialNetworkingApp.Controllers
             {
                 TempData["Error"] = "Произошла ошибка при удалении альбома";
             }
-            return RedirectToAction("Index");
+
+            if (projectId != null) return RedirectToAction("Index", new { projectId = projectId });
+            else return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> EditAlbum(EditAlbumViewModel viewModel)
@@ -129,7 +165,8 @@ namespace SocialNetworkingApp.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = $"Произошла ошибка при редактировании альбома";
-                return RedirectToAction("Index");
+                if (viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId });
+                else return RedirectToAction("Index");
             }
 
             var currentUser = HttpContext.User;
@@ -152,10 +189,13 @@ namespace SocialNetworkingApp.Controllers
                     album.CoverPath = imagePath;
                 }
                 _albumRepository.Update(album);
-                return RedirectToAction("Index");
+                if (viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId });
+                else return RedirectToAction("Index");
             }
             TempData["Error"] = $"Альбом не найден";
-            return RedirectToAction("Index");
+
+            if (viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId });
+            else return RedirectToAction("Index");
         }
 
     }

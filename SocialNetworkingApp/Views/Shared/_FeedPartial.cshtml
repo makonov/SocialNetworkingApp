@@ -18,12 +18,17 @@
                 {
                     <h5 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h5>
                 }
+                else if (post.data.TypeId == (int) PostTypeEnum.Project)
+                {
+                    <h4 class="card-title"><a class="profile-link" asp-controller="Project" asp-action="Details" asp-route-projectId="@post.data.Project.Id">@post.data.Project.Title</a></h4>
+                    <h6 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h6>
+                }
                 
                 @if (post.data.Image != null)
                 {
                     <div class="image-preview-@post.data.Id">
                         <span id="imagePreview-@post.data.Id">
-                            <img src="@post.data.Image.ImagePath" class="card-img-top" alt="Post Image">
+                            <img src="~/@post.data.Image.ImagePath" class="card-img-top" alt="Post Image">
                         </span>
                         <button type="button" class="btn btn-light btn-sm" id="clear-image-@post.data.Id" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>

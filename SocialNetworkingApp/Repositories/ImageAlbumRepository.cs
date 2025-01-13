@@ -33,6 +33,16 @@ namespace SocialNetworkingApp.Repositories
             return Save();
         }
 
+        public Task<List<ImageAlbum>> GetAllByCommunityId(int? communityId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<ImageAlbum>> GetAllByProjectAsync(int? projectId)
+        {
+            return await _context.ImageAlbums.Where(a => a.ProjectId == projectId).ToListAsync();
+        }
+
         public async Task<List<ImageAlbum>> GetAllByUserAsync(string userid)
         {
             return await _context.ImageAlbums.Where(a => a.UserId == userid).ToListAsync();

@@ -1,14 +1,45 @@
-﻿@{
+﻿@model SocialNetworkingApp.ViewModels.ProjectCatalogueViewModel
+@{
     ViewData["Title"] = "Поддержка проектов";
 }
 
 <div class="container mt-4">
     <h2 class="mb-4">Поддержка проектов</h2>
 
+    <div class="text-right mb-4">
+        <a asp-controller="Project" asp-action="Create" class="btn btn-success">Создать проект</a>
+    </div>
+
     <!-- Включаем partial view с фильтрами и поиском -->
     @await Html.PartialAsync("_FindProjectPartial")
 
     <div class="row">
+
+        @foreach(Project? project in Model.Projects)
+        {
+            <!-- Карточка проекта -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>@project.Type.Type: @project.Title</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Цель:</strong> @project.Goal</p>
+                        <p>
+                            <strong>Описание:</strong> 
+                            @(project.Description.Length > 50 ? project.Description.Substring(0, 50) + "..." : project.Description)
+                        </p>
+                        <p><strong>Статус:</strong> @project.ProjectStatus.Status</p>
+                        @if(project.Type.Type == "Стартап")
+                        {
+                            <p><strong>Цель сбора: </strong> @project.FundraisingGoal</p>
+                            <p><strong>Собрано: </strong> @project.FundraisingProgress</p>
+                        }
+                        <a asp-controller="Project" asp-action="Details" asp-route-projectId="@project.Id" class="btn btn-primary mt-2">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        }
         <!-- Карточка проекта -->
         <div class="col-md-6 mb-4">
             <div class="card">

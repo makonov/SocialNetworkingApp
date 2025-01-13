@@ -75,7 +75,7 @@ namespace SocialNetworkingApp.Controllers
                 emptyPosts.ForEach(p => _postRepository.Delete(p));
             }
 
-            return RedirectToAction("Detail", "Album", new { id = albumId });
+            return RedirectToAction("Details", "Album", new { id = albumId });
         }
 
         [HttpGet]
