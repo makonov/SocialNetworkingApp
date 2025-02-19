@@ -179,7 +179,48 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddChange(int projectId, string description)
+        public async Task<IActionResult> Edit(int projectId, string title, string goal, string description, int statusId, int typeId, decimal? fundraisingProgress = null, decimal? fundraisingGoal = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Ошибка. Поле не может быть пустым.";
+                RedirectToAction("Details", new { projectId = projectId });
+            }
+
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            bool isCurrentUserMember = await _followerRepository.IsMember(currentUser.Id, (int)projectId);
+
+            if (!isCurrentUserMember) return Forbid();
+
+            var project = await _projectRepository.GetByIdAsync(projectId);
+
+            if (project == null) return NotFound();
+
+            project.Title = title;
+            project.Goal = goal;
+            project.Description = description;
+            project.StatusId = statusId;
+            project.FundraisingProgress = fundraisingProgress;
+            project.FundraisingGoal = fundraisingGoal;
+
+            if (project.TypeId == (int) ProjectTypeEnum.Startup && typeId != (int)ProjectTypeEnum.Startup)
+            {
+                project.FundraisingGoal = null;
+                project.FundraisingProgress = null;
+            }
+            project.TypeId = typeId;
+
+            _projectRepository.Update(project);
+
+            return RedirectToAction("Details",new { projectId = projectId});
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddChange(int projectId, string description)
+        {
+            if (projectId > 0)
         {
             var newChange = new ProjectChange
             {
