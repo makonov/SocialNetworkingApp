@@ -25,7 +25,7 @@
         </div>
     }
 
-    @if (Model.IsProjectMember || Model.IsOwner)
+    @if (Model.IsProjectMember || Model.IsOwner ||  Model.IsCommunityAdmin)
     {
         <div class="text-center mb-4">
             <button class="btn btn-primary" data-toggle="modal" data-target="#addAlbumModal">Создать альбом</button>
@@ -42,7 +42,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @await Html.PartialAsync("_AddAlbumPartial", new AddAlbumViewModel {ProjectId = Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null})
+                    @await Html.PartialAsync("_AddAlbumPartial", new AddAlbumViewModel { ProjectId = Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null, CommunityId = Model.Albums.Count() > 0 && Model.Albums.First().CommunityId != null ? Model.Albums.First().CommunityId : null })
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@
                             <a asp-action="Details" asp-route-id="@album.Id" class="btn btn-primary">Открыть</a>
                             @if(!album.IsRequired) 
                             {
-                                @if (Model.IsProjectMember || Model.IsOwner)
+                                @if (Model.IsProjectMember || Model.IsOwner || Model.IsCommunityAdmin)
                                 {
                                     <a data-toggle="modal" data-target="#deleteAlbumModal_@album.Id" class="btn btn-light like-btn"><i class="bi bi-trash-fill"></i></a>
                                     <a data-toggle="modal" data-target="#editAlbumModal_@album.Id" class="btn btn-light like-btn"><i class="bi bi-pen-fill"></i></a>
@@ -99,7 +99,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    @await Html.PartialAsync("_EditAlbumPartial", new EditAlbumViewModel { AlbumId = album.Id, Title = album.Name, Description = album.Description, CurrentImage = album.CoverPath, ProjectId = Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null })
+                                                    @await Html.PartialAsync("_EditAlbumPartial", new EditAlbumViewModel { AlbumId = album.Id, Title = album.Name, Description = album.Description, CurrentImage = album.CoverPath, ProjectId = Model.Albums.Count() > 0 && Model.Albums.First().ProjectId != null ? Model.Albums.First().ProjectId : null, CommunityId = Model.Albums.Count() > 0 && Model.Albums.First().CommunityId != null ? Model.Albums.First().CommunityId : null })
                                                 </div>
                                             </div>
                                         </div>

@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Справочник";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1>@ViewData["Title"]</h1>
+            <div class="list-group mt-4">
+                <a asp-controller="AdminReference" asp-action="Index" asp-route-entityName="PostType" class="list-group-item list-group-item-action">Типы постов</a>
+                <a asp-controller="UserReference" asp-action="Index" class="list-group-item list-group-item-action">Пользователи</a>
+                <a asp-controller="AdminReference" asp-action="Index" asp-route-entityName="CommunityType" class="list-group-item list-group-item-action">Типы сообществ</a>
+                <a asp-controller="AdminReference" asp-action="Index" asp-route-entityName="ProjectStatus" class="list-group-item list-group-item-action">Статусы проектов</a>
+                <a asp-controller="AdminReference" asp-action="Index" asp-route-entityName="ProjectType" class="list-group-item list-group-item-action">Типы проектов</a>
+                <a asp-controller="AdminReference" asp-action="Index" asp-route-entityName="StudentGroup" class="list-group-item list-group-item-action">Студенческие группы</a>
+            </div>
+        </div>
+    </div>
+</div>
+

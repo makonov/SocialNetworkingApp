@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using SocialNetworkingApp.Data
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -12,7 +13,22 @@
 <body>
     <header class="sticky-top">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 align-content-center">
-            <a class="navbar-brand @(User.Identity.IsAuthenticated ? "ml-auto" : "mx-auto")" asp-controller="Feed" asp-action="Index">Студенческая платформа идей и общения</a>
+            @if(User.Identity.IsAuthenticated) 
+            {
+                if (User.IsInRole(UserRoles.User))
+                {
+                    <a class="navbar-brand ml-auto" asp-controller="Feed" asp-action="Index">Студенческая платформа идей и общения</a>
+                }
+                else if (User.IsInRole(UserRoles.Admin))
+                {
+                    <a class="navbar-brand ml-auto" asp-controller="Admin" asp-action="Index">Студенческая платформа идей и общения</a>
+                }
+            }
+            else
+            {
+                <a class="navbar-brand mx-auto" asp-controller="Feed" asp-action="Index">Студенческая платформа идей и общения</a>
+            }
+            
             <div class="mr-auto">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -36,14 +52,21 @@
             @if (User.Identity.IsAuthenticated)
             {
                 <div class="row">
-                    <div class="col-md-2">
-                        <div class="d-flex justify-content-center justify-content-md-start sticky">
-                            @Html.Partial("_MenuPartial")
+                    @if (User.IsInRole(UserRoles.User))
+                    {
+                        <div class="col-md-2">
+                            <div class="d-flex justify-content-center justify-content-md-start sticky">
+                                @Html.Partial("_MenuPartial")
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-10">
+                        <div class="col-md-10">
+                            @RenderBody()
+                        </div>
+                    }
+                    else if (User.IsInRole(UserRoles.Admin))
+                    {
                         @RenderBody()
-                    </div>
+                    }
                 </div>
             }
             else

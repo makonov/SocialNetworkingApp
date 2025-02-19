@@ -1,0 +1,83 @@
+﻿@model SocialNetworkingApp.ViewModels.CommunityCatalogueViewModel
+@{
+    ViewData["Title"] = "Сообщества";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Поддержка сообществ</h2>
+
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <a asp-controller="Community" asp-action="Index" class="btn btn-outline-secondary">Все сообщества</a>
+        <a asp-controller="Community" asp-action="MyCommunities" class="btn btn-outline-secondary">Мои сообщества</a>
+        <a asp-controller="Community" asp-action="CommunitiesWithMembership" class="btn btn-outline-secondary">Сообщества, в которых состою</a>
+        <a asp-controller="Community" asp-action="Create" class="btn btn-success">Создать</a>
+    </div>
+
+    <!-- Включаем partial view с фильтрами и поиском -->
+    @await Html.PartialAsync("_FindCommunityPartial", new SocialNetworkingApp.ViewModels.FindCommunityViewModel { Types = Model.Types })
+
+    <div class="row">
+
+        @foreach (Community? community in Model.Communities)
+        {
+            <div class="col-md-6 mb-4">
+                <a asp-controller="Community" asp-action="Details" asp-route-communityId="@community.Id" class="text-decoration-none project-card">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>@community.Title</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Тип:</strong> @community.CommunityType.Type</p>
+                            <p>
+                                <strong>Описание:</strong>
+                                @(community.Description.Length > 50 ? community.Description.Substring(0, 50) + "..." : community.Description)
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .container h2 {
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    .card {
+        /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); */
+    }
+
+    .card-header h5 {
+        font-size: 1.2rem;
+        margin: 0;
+    }
+
+    .project-card {
+        display: block;
+        color: inherit; /* Сохраняет цвет текста */
+    }
+
+        .project-card .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .project-card:hover .card {
+            transform: scale(1.03);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+    .more-info {
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+        font-weight: bold;
+        color: #007bff; /* Цвет ссылки */
+    }
+
+    .project-card:hover .more-info {
+        opacity: 1;
+    }
+
+</style>

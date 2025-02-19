@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
@@ -11,7 +12,7 @@ using System.Drawing.Printing;
 
 namespace SocialNetworkingApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.User)]
     public class CommentController : Controller
     {
         private readonly IPostRepository _postRepository;

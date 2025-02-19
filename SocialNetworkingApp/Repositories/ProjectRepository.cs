@@ -47,5 +47,22 @@ namespace SocialNetworkingApp.Repositories
             _context.Update(project);
             return Save();
         }
+
+        public async Task<List<Project>> GetFilteredProjectsAsync(string title, int? typeId)
+        {
+            var query = _context.Projects.Include(p => p.ProjectStatus).Include(p => p.Type).AsQueryable();
+
+            if (!string.IsNullOrEmpty(title))
+            {
+                query = query.Where(p => p.Title.Contains(title));
+            }
+
+            if (typeId.HasValue && typeId > 0)
+            {
+                query = query.Where(p => p.TypeId == typeId.Value);
+            }
+
+            return await query.ToListAsync();
+        }
     }
 }

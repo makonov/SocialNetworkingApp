@@ -3,16 +3,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.Services;
 using SocialNetworkingApp.ViewModels;
 using System.Drawing.Printing;
+using System.Reflection;
 
 namespace SocialNetworkingApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.User)]
     public class ProjectController : Controller
     {
         private readonly IProjectRepository _projectRepository;
@@ -26,6 +28,7 @@ namespace SocialNetworkingApp.Controllers
         private readonly IProjectFeedbackRepository _projectFeedbackRepository;
         private readonly IUserService _userService;
         private readonly IImageAlbumRepository _albumRepository;
+        private readonly IProjectService _projectService;
         private readonly int PageSize = 10;
 
         public ProjectController(IProjectRepository projectRepository,
@@ -38,7 +41,8 @@ namespace SocialNetworkingApp.Controllers
             IProjectAnnouncementRepository projectAnnouncementRepository,
             IProjectFollowerRepository projectFollowerRepository,
             IProjectFeedbackRepository projectFeedbackRepository,
-            IImageAlbumRepository albumRepository)
+            IImageAlbumRepository albumRepository,
+            IProjectService projectService)
         {
             _projectRepository = projectRepository;
             _projectStatusRepository = projectStatusRepository;
@@ -51,7 +55,7 @@ namespace SocialNetworkingApp.Controllers
             _followerRepository = projectFollowerRepository;
             _projectFeedbackRepository = projectFeedbackRepository;
             _albumRepository = albumRepository;
-
+            _projectService = projectService;
         }
 
         public async Task<IActionResult> Index()
@@ -59,15 +63,18 @@ namespace SocialNetworkingApp.Controllers
             var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (currentUser == null) return Unauthorized();
 
+            var projects = await _projectRepository.GetAllAsync();
+
             var viewModel = new ProjectCatalogueViewModel
             {
-                Projects = await _projectRepository.GetAllAsync(),
+                Projects = await _projectService.GetProjectDataList(projects),
                 CurrentUserId = currentUser.Id,
                 User = currentUser
             };
 
             return View(viewModel);
         }
+
 
         public async Task<IActionResult> Details(int? projectId = null)
         {
@@ -89,6 +96,10 @@ namespace SocialNetworkingApp.Controllers
             var announcements = await _projectAnnouncementRepository.GetByProjectIdAsync((int)projectId);
             var members = await _followerRepository.GetMembersByProjectIdAsync((int) projectId);
             bool isCurrentUserMember = await _followerRepository.IsMember(currentUser.Id, (int) projectId);
+            bool isCurrentUserOwner = await _followerRepository.IsOwner(currentUser.Id, (int)projectId);
+            bool isFollower = (await _followerRepository.GetByUserIdAndProjectIdAsync(currentUser.Id, (int)projectId)) != null ? true : false;
+            int FollowerCount = (await _followerRepository.GetByProjectIdAsync((int) projectId)).Count();
+            var users = isCurrentUserMember ? await _userService.GetSelectListOfUsers() : null;
 
             var viewModel = new ProjectViewModel
             {
@@ -99,7 +110,13 @@ namespace SocialNetworkingApp.Controllers
                 Changes = changes,
                 Announcements = announcements,
                 Members = members,
-                Posts = postsWithLikeStatus
+                Posts = postsWithLikeStatus,
+                IsFollower = isFollower,
+                FollowersCount = FollowerCount,
+                Statuses = await _projectStatusRepository.GetSelectListAsync(),
+                Types = await _projectTypeRepository.GetSelectListAsync(),
+                Users = users,
+                IsOwner = isCurrentUserOwner
             };
 
             return View(viewModel);
@@ -151,7 +168,7 @@ namespace SocialNetworkingApp.Controllers
                 ProjectId = project.Id,
                 UserId = currentUser.Id,
                 IsMember = true,
-                IsAdmin = true,
+                IsOwner = true,
                 Role = "Создатель"
             };
 
@@ -181,12 +198,6 @@ namespace SocialNetworkingApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int projectId, string title, string goal, string description, int statusId, int typeId, decimal? fundraisingProgress = null, decimal? fundraisingGoal = null)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["Error"] = "Ошибка. Поле не может быть пустым.";
-                RedirectToAction("Details", new { projectId = projectId });
-            }
-
             var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (currentUser == null) return Unauthorized();
 
@@ -218,9 +229,7 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddChange(int projectId, string description)
-        {
-            if (projectId > 0)
+        public IActionResult AddChange(int projectId, string description)
         {
             var newChange = new ProjectChange
             {
@@ -231,7 +240,8 @@ namespace SocialNetworkingApp.Controllers
 
             _projectChangeRepository.Add(newChange);
 
-            return PartialView("_ChangeItemPartial", newChange); 
+            return PartialView("_ChangeItemPartial", newChange);
+
         }
 
         [HttpPost]
@@ -249,5 +259,290 @@ namespace SocialNetworkingApp.Controllers
 
             return PartialView("_AnnouncementItemPartial", newAnnouncement);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteChange(int changeId)
+        {
+            var change = await _projectChangeRepository.GetByIdAsync(changeId);
+            if (change != null)
+            {
+                _projectChangeRepository.Delete(change);
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = "Изменение не найдено." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditChange(int changeId, string description)
+        {
+            var change = await _projectChangeRepository.GetByIdAsync(changeId);
+            if (change != null)
+            {
+                change.ChangeDescription = description;
+                _projectChangeRepository.Update(change);
+                return Json(new { success = true, updatedDescription = description });
+            }
+            return Json(new { success = false, message = "Изменение не найдено." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAnnouncement(int announcementId)
+        {
+            var announcement = await _projectAnnouncementRepository.GetByIdAsync(announcementId);
+            if (announcement != null)
+            {
+                _projectAnnouncementRepository.Delete(announcement);
+                return Json(new { success = true });
+            }
+            return Json(new { success = false, message = "Изменение не найдено." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAnnouncement(int announcementId, string title, string description)
+        {
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description))
+            {
+                return Json(new { success = false, message = "Заголовок и описание не могут быть пустыми." });
+            }
+
+            var announcement = await _projectAnnouncementRepository.GetByIdAsync(announcementId);
+            if (announcement != null)
+            {
+                announcement.Title = title;
+                announcement.Description = description;
+                _projectAnnouncementRepository.Update(announcement);
+
+                return Json(new { success = true, updatedTitle = title, updatedDescription = description });
+            }
+            return Json(new { success = false, message = "Объявление не найдено." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unsubscribe(int projectId)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var projectFollower = await _followerRepository.GetByUserIdAndProjectIdAsync(currentUser.Id, projectId);
+            
+            if (projectFollower == null)
+            {
+                return Json(new { success = false, message = "Проект не найден." });
+            }
+
+            _followerRepository.Delete(projectFollower);
+
+            return Json(new { success = true, subscriberCount = (await _followerRepository.GetByProjectIdAsync(projectId)).Count });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Subscribe(int projectId)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var projectFollower = await _followerRepository.GetByUserIdAndProjectIdAsync(currentUser.Id, projectId);
+
+            if (projectFollower != null)
+            {
+                return Json(new { success = false, message = "Пользователь уже подписан на проект." });
+            }
+
+            var newProjectFollower = new ProjectFollower
+            {
+                ProjectId = projectId,
+                UserId = currentUser.Id,
+            };
+
+            _followerRepository.Add(newProjectFollower);
+
+            return Json(new { success = true, subscriberCount = (await _followerRepository.GetByProjectIdAsync(projectId)).Count });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddMember(int projectId, string studentData, string role)
+        {
+            var project = await _projectRepository.GetByIdAsync(projectId);
+            if (project == null) return NotFound("Проект не найден.");
+
+            var user = await _userService.GetUserByIdAsync(studentData);
+            if (user == null) return NotFound("Пользователь не найден.");
+
+            var projectFollower = await _followerRepository.GetByUserIdAndProjectIdAsync(studentData, projectId);
+            if (projectFollower != null) 
+            {
+                if (projectFollower.IsMember) return BadRequest();
+                projectFollower.IsMember = true;
+                _followerRepository.Update(projectFollower);
+            }
+            else
+            {
+                projectFollower = new ProjectFollower
+                {
+                    ProjectId = projectId,
+                    UserId = studentData,
+                    IsMember = true,
+                    Role = role
+                };
+
+                _followerRepository.Add(projectFollower);
+            }
+           
+
+            return PartialView("_MemberListItemPartial", projectFollower);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> EditMemberRole(int memberId, string role)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var member = await _followerRepository.GetByIdAsync(memberId);
+            if (member != null)
+            {
+                member.Role = role;
+                _followerRepository.Update(member);
+                return Ok();
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteMember(int memberId)
+        {
+            var member = await _followerRepository.GetByIdAsync(memberId);
+            if (member != null)
+            {
+                _followerRepository.Delete(member);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FilterProjects(FindProjectViewModel filterModel)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var filteredProjects = await _projectRepository.GetFilteredProjectsAsync(filterModel.Title, filterModel.TypeId);       
+
+            var viewModel = new ProjectCatalogueViewModel
+            {
+                Projects = await _projectService.GetProjectDataList(filteredProjects),
+                CurrentUserId = currentUser.Id,
+                User = currentUser
+            };
+
+            return View("Index", viewModel);
+        }
+
+        public async Task<IActionResult> MySubscriptions()
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var projectIds = (await _followerRepository.GetAllByUserIdAsync(currentUser.Id)).Where(f => !f.IsMember && !f.IsOwner).Select(f => f.ProjectId);
+            var projects = new List<Project>();
+            foreach (var id in projectIds)
+            {
+                var project = await _projectRepository.GetByIdAsync(id);
+                projects.Add(project);
+            }
+
+            var viewModel = new ProjectCatalogueViewModel
+            {
+                Projects = await _projectService.GetProjectDataList(projects),
+                CurrentUserId = currentUser.Id,
+                User = currentUser,
+            };
+
+            return View("Index", viewModel);
+        }
+
+        public async Task<IActionResult> ProjectsWithMembership()
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var projectIds = (await _followerRepository.GetAllByUserIdAsync(currentUser.Id)).Where(f => f.IsMember && !f.IsOwner).Select(f => f.ProjectId);
+            var projects = new List<Project>();
+            foreach (var id in projectIds)
+            {
+                var project = await _projectRepository.GetByIdAsync(id);
+                projects.Add(project);
+            }
+
+            var viewModel = new ProjectCatalogueViewModel
+            {
+                Projects = await _projectService.GetProjectDataList(projects),
+                CurrentUserId = currentUser.Id,
+                User = currentUser
+            };
+
+            return View("Index", viewModel);
+        }
+
+        public async Task<IActionResult> MyProjects()
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var projectIds = (await _followerRepository.GetAllByUserIdAsync(currentUser.Id)).Where(f => f.IsOwner).Select(f => f.ProjectId);
+            var projects = new List<Project>();
+            foreach (var id in projectIds)
+            {
+                var project = await _projectRepository.GetByIdAsync(id);
+                projects.Add(project);
+            }
+
+            var viewModel = new ProjectCatalogueViewModel
+            {
+                Projects = await _projectService.GetProjectDataList(projects),
+                CurrentUserId = currentUser.Id,
+                User = currentUser
+            };
+
+            return View("Index", viewModel);
+        }
+
+        public async Task<IActionResult> AnnouncementsBoard()
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var announcements = await _projectAnnouncementRepository.GetAllAsync();
+
+            var viewModel = new AnnouncementsBoardViewModel
+            {
+                CurrentUserId = currentUser.Id,
+                Announcements = announcements,
+                Types = await _projectTypeRepository.GetSelectListAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FilterAnnouncemenets(AnnouncementsBoardViewModel filterModel)
+        {
+            var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
+            if (currentUser == null) return Unauthorized();
+
+            var filteredAnnouncements = await _projectAnnouncementRepository.GetFilteredAnnouncementsAsync(filterModel.KeyExpression, filterModel.TypeId);
+
+            var viewModel = new AnnouncementsBoardViewModel
+            {
+                CurrentUserId = currentUser.Id,
+                Announcements = filteredAnnouncements,
+                Types = await _projectTypeRepository.GetSelectListAsync()
+            };
+
+            return View("AnnouncementsBoard", viewModel);
+        }
+
     }
 }

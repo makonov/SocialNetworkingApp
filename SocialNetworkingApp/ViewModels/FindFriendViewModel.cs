@@ -1,4 +1,5 @@
-﻿using SocialNetworkingApp.Data;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Models;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,5 +21,7 @@ namespace SocialNetworkingApp.ViewModels
         public IEnumerable<(User data, UserStatus status)>? Users { get; set; }
         public string? CurrentUserId { get; set; }
         public int CurrentPage { get; set; }
+        public int? StudentGroupId { get; set; }
+        public IEnumerable<SelectListItem>? Groups { get; set; }
     }
 }

@@ -38,7 +38,7 @@ namespace SocialNetworkingApp.Repositories
             return saved > 0 ? true : false;
         }
         
-        public async Task<List<Post>> GetAllBySubscription(string userId, List<string> friendIds, List<int> projectIds, int page, int pageSize, int lastPostId = 0)
+        public async Task<List<Post>> GetAllBySubscription(string userId, List<string> friendIds, List<int> projectIds, List<int> communityIds, int page, int pageSize, int lastPostId = 0)
         {
             friendIds.Add(userId);
 
@@ -46,11 +46,13 @@ namespace SocialNetworkingApp.Repositories
                .Include(p => p.User)
                .Include(p => p.Image)
                .Include(p => p.Project)
+               .Include(p => p.Community)
                .Where(p => friendIds.Contains(p.UserId) && p.ProjectId == null && p.CommunityId == null);
 
-            var projects = _context.Posts.Include(p => p.User).Include(p => p.Image).Include(p => p.Project).Where(p => projectIds.Contains((int)p.ProjectId));
+            var projects = _context.Posts.Include(p => p.User).Include(p => p.Image).Include(p => p.Project).Include(p => p.Community).Where(p => projectIds.Contains((int)p.ProjectId));
+            var communitites = _context.Posts.Include(p => p.User).Include(p => p.Image).Include(p => p.Project).Include(p => p.Community).Where(p => communityIds.Contains((int)p.CommunityId));
 
-            query = query.Union(projects).OrderByDescending(p => p.UpdatedAt != default ? p.UpdatedAt : p.CreatedAt);
+            query = query.Union(projects).Union(communitites).OrderByDescending(p => p.UpdatedAt != default ? p.UpdatedAt : p.CreatedAt);
 
             int postsToSkip = (page - 1) * pageSize;
             query = query.Skip(postsToSkip);
@@ -115,7 +117,7 @@ namespace SocialNetworkingApp.Repositories
                .OrderByDescending(p => p.UpdatedAt != default ? p.UpdatedAt : p.CreatedAt)
                .Include(p => p.User)
                .Include(p => p.Image)
-               .Include(p => p.Project)
+               .Include(p => p.Community)
                .Where(p => p.CommunityId == communityId);
 
             int postsToSkip = (page - 1) * pageSize;

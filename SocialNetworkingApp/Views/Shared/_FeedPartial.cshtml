@@ -23,6 +23,11 @@
                     <h4 class="card-title"><a class="profile-link" asp-controller="Project" asp-action="Details" asp-route-projectId="@post.data.Project.Id">@post.data.Project.Title</a></h4>
                     <h6 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h6>
                 }
+                else if (post.data.TypeId == (int) PostTypeEnum.Community)
+                {
+                    <h4 class="card-title"><a class="profile-link" asp-controller="Community" asp-action="Details" asp-route-communityId="@post.data.Community.Id">@post.data.Community.Title</a></h4>
+                    <h6 class="card-title"><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@post.data.UserId">@post.data.User.FirstName @post.data.User.LastName</a></h6>
+                }
                 
                 @if (post.data.Image != null)
                 {
@@ -45,7 +50,7 @@
 
                 <a class="comment comment-link" asp-action="Details" asp-controller="Post" asp-route-id="@post.data.Id" fragment="comments" target="_blank" onclick="saveCurrentPage()">Показать комментарии</a>
 
-                @if (post.data.UserId == Model.CurrentUserId)
+                @if (post.data.UserId == Model.CurrentUserId || Model.IsCommunityAdmin)
                 {
                     <a class="btn btn-light btn-sm delete-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-trash-fill"></i></a>
                     <a class="btn btn-light btn-sm edit-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>

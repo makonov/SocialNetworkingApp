@@ -2,6 +2,7 @@
 {
     public class UserRoles
     {
-        public const string User = "user";
+        public const string User = "Студент";
+        public const string Admin = "admin";
     }
 }

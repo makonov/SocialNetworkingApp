@@ -1,0 +1,64 @@
+﻿@using SocialNetworkingApp.ViewModels
+﻿@using Microsoft.AspNetCore.Identity
+@model FilterUsersViewModel
+
+<!-- Карточка с фильтрами поиска -->
+<div class="card mb-4">
+    <details>
+        <summary class="card-header">
+            <h5 class="d-inline">Поиск пользователей</h5>
+        </summary>
+        <div class="card-body">
+            <form asp-action="Filter" asp-controller="UserReference" method="post">
+                <div class="row">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="form-group flex-grow-1 me-2">
+                            <label asp-for="LastName">Фамилия</label>
+                            <input asp-for="LastName" class="form-control" />
+                        </div>
+                        <div class="form-group flex-grow-1 me-2">
+                            <label asp-for="FirstName">Имя</label>
+                            <input asp-for="FirstName" class="form-control" />
+                        </div>
+
+                        <div class="form-group flex-grow-1 me-2">
+                            <label asp-for="GroupId" class="control-label">Группа</label>
+                            <select asp-for="GroupId" class="form-control">
+                                <option value="">Выберите группу</option>
+                                @foreach (var group in Model.Groups)
+                                {
+                                    <option value="@group.Value">@group.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="GroupId" class="text-danger"></span>
+                        </div>
+
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-primary">Поиск</button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="form-group flex-grow-1 me-2">
+                            <label asp-for="BirthDate">Дата рождения</label>
+                            <input asp-for="BirthDate" class="form-control" type="date" placeholder="Выберите дату">
+                            <span asp-validation-for="BirthDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group flex-grow-1 me-2 ms-3">
+                            <label asp-for="UserRole" class="control-label">Роль</label>
+                            @foreach (IdentityRole role in Model.AllRoles)
+                            {
+                                <div class="form-check">
+                                    <input type="radio" name="UserRole" value="@role.Name" class="form-check-input" />
+                                    <label class="form-check-label">@role.Name</label>
+                                </div>
+                            }
+                            <span asp-validation-for="UserRole" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </details>
+</div>

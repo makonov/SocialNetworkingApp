@@ -61,10 +61,16 @@
                 <div class="card-body">
                     <h5 class="card-title">Фильтры</h5>
                     
-                    <!-- Фильтр по городу -->
                     <div class="mb-3">
-                        <label for="cityFilter" class="form-label">Город</label>
-                        <input type="text" class="form-control" asp-for="City" placeholder="Введите город">
+                        <label asp-for="StudentGroupId" class="control-label">Студенческая группа</label>
+                        <select asp-for="StudentGroupId" class="form-control">
+                            <option value="">Выберите группу</option> <!-- Пустой элемент -->
+                            @foreach (var group in Model.Groups)
+                            {
+                                <option value="@group.Value">@group.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="StudentGroupId" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
@@ -91,6 +97,7 @@
                     <div class="mb-3">
                         <label for="ageTo" class="form-label">Возраст до</label>
                         <input type="number" class="form-control" asp-for="ToAge" placeholder="До">
+                        <span asp-validation-for="ToAge" class="text-danger"></span>
                     </div>
                     
                 </div>

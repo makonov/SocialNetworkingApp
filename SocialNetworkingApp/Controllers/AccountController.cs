@@ -37,7 +37,7 @@ namespace SocialNetworkingApp.Controllers
         {
             if (!ModelState.IsValid) return View(viewModel);
 
-            var user = await _userManager.FindByEmailAsync(viewModel.Login);
+            var user = await _userManager.FindByNameAsync(viewModel.Login);
 
             if (user != null)
             {
@@ -47,13 +47,13 @@ namespace SocialNetworkingApp.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, viewModel.Password, false, false);
                     if (result.Succeeded)
                     {
-                        return RedirectToAction("Index", "Feed");
+                        return RedirectToAction("Index", "Redirect");
                     }
                 }
                 TempData["Error"] = "Неверный пароль. Пожалуйста, попробуйте еще раз.";
                 return View(viewModel);
             }
-            TempData["Error"] = "Пользователь с данным электронным адресом не найден. Попробуйте еще раз.";
+            TempData["Error"] = "Пользователь с данным именем пользователя не найден. Попробуйте еще раз.";
             return View(viewModel);
         }
 
@@ -78,10 +78,10 @@ namespace SocialNetworkingApp.Controllers
         {
             if (!ModelState.IsValid) return View(viewModel);
 
-            var user = await _userManager.FindByEmailAsync(viewModel.Email);
+            var user = await _userManager.FindByNameAsync(viewModel.Login);
             if (user != null)
             {
-                TempData["Error"] = "Пользователь с данным электронным адресом уже существует";
+                TempData["Error"] = "Пользователь с данным именем пользователя уже существует";
                 return View(viewModel);
             }
 
@@ -100,10 +100,8 @@ namespace SocialNetworkingApp.Controllers
                 LastName = viewModel.LastName,
                 BirthDate = (DateTime) viewModel.BirthDate,
                 IsMale = viewModel.IsMale,
-                UserName = viewModel.Email,
-                Email = viewModel.Email,
+                UserName = viewModel.Login,
                 GroupId = viewModel.GroupId,
-                RoleId = (int) UserRoleEnum.Student
             };
 
             var result = await _userManager.CreateAsync(newUser, viewModel.Password);

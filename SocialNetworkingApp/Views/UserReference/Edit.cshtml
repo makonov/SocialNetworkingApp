@@ -1,0 +1,59 @@
+﻿﻿@using Microsoft.AspNetCore.Identity
+@model SocialNetworkingApp.ViewModels.EditUserViewModel
+
+@section Scripts {
+    <!-- Подключение Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+}
+
+<div class="container mt-4">
+    <h2>Изменение роли для пользователя @Model.UserName</h2>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input hidden asp-for="UserID" value="@Model.UserID" />
+
+        <div class="form-group">
+            <label asp-for="LastName" class="control-label">Введите фамилию пользователя</label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="FirstName" class="control-label">Введите имя пользователя</label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="BirthDate" class="control-label">Дата рождения</label>
+            <input asp-for="BirthDate" class="form-control" />
+            <span asp-validation-for="BirthDate" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="IsMale" class="control-label">Пол</label>
+            <br />
+            <div class="form-check form-check-inline">
+                <input asp-for="IsMale" type="radio" value="@true" class="form-check-input" />
+                <label class="form-check-label" for="maleRadio">Мужской</label>
+            </div>
+
+            <div class="form-check form-check-inline">
+                <input asp-for="IsMale" type="radio" value="@false" class="form-check-input" />
+                <label class="form-check-label" for="femaleRadio">Женский</label>
+            </div>
+            <br />
+            <span asp-validation-for="IsMale" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="GroupId" class="control-label">Выберите группу</label>
+            <select asp-for="GroupId" class="form-control" asp-items="Model.Groups">
+                <option value="">Выберите группу</option>
+            </select>
+            <span asp-validation-for="GroupId" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+</div>

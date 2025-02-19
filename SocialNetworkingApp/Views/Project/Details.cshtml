@@ -3,10 +3,16 @@
 
 @section Scripts {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Подключение Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- Подключение Bootstrap-select CSS и JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
     <script>
         function toggleChangeForm() {
@@ -64,14 +70,388 @@
         }
     </script>
 
+    <script>
+        // Удаление изменения
+        $(document).on('click', '.deleteChange-btn', function () {
+            const changeId = $(this).data('changeid');
+            $.ajax({
+                url: '/Project/DeleteChange',
+                method: 'POST',
+                data: { changeId },
+                success: function (response) {
+                    if (response.success) {
+                        $(`li[data-changeid="${changeId}"]`).remove();
+                    } else {
+                        alert(response.message || 'Ошибка при удалении изменения.');
+                    }
+                },
+                error: function () {
+                    alert('Ошибка при удалении изменения.');
+                }
+            });
+        });
+
+        // Открытие модального окна для редактирования
+        $(document).on('click', '.editChange-btn', function () {
+            const changeId = $(this).data('changeid');
+            const description = $(`li[data-changeid="${changeId}"] .description`).text().trim();
+
+            $('#editChangeId').val(changeId);
+            $('#editChangeDescription').val(description);
+            $('#editChangeModal').modal('show');
+        });
+
+        // Сохранение изменений после редактирования
+        function submitEditForm() {
+            const changeId = $('#editChangeId').val();
+            const description = $('#editChangeDescription').val().trim();
+
+            if (!description) {
+                alert('Описание не может быть пустым.');
+                return;
+            }
+
+            $.ajax({
+                url: '/Project/EditChange',
+                method: 'POST',
+                data: { changeId, description },
+                success: function (response) {
+                    if (response.success) {
+                        // Обновляем только описание в списке
+                        $(`li[data-changeid="${changeId}"] div`).find('.description').text(response.updatedDescription);
+                        $('#editChangeModal').modal('hide');
+                    } else {
+                        alert(response.message || 'Ошибка при редактировании изменения.');
+                    }
+                },
+                error: function () {
+                    alert('Ошибка при редактировании изменения.');
+                }
+            });
+        }
+
+
+    </script>
+
+    <script>
+        // Удаление объявления
+        $(document).on('click', '.deleteAnnouncement-btn', function () {
+            const announcementId = $(this).data('announcementid');
+            $.ajax({
+                url: '/Project/DeleteAnnouncement',
+                method: 'POST',
+                data: { announcementId },
+                success: function (response) {
+                    if (response.success) {
+                        $(`li[data-announcementid="${announcementId}"]`).remove();
+                    } else {
+                        alert(response.message || 'Ошибка при удалении объявления.');
+                    }
+                },
+                error: function () {
+                    alert('Ошибка при удалении объявления.');
+                }
+            });
+        });
+
+        // Открытие модального окна для редактирования
+        $(document).on('click', '.editAnnouncement-btn', function () {
+            const announcementId = $(this).data('announcementid');
+            const title = $(`li[data-announcementid="${announcementId}"] .title`).text().split(':')[0].trim();
+            const description = $(`li[data-announcementid="${announcementId}"] .description`).contents().filter(function () {
+                return this.nodeType === Node.TEXT_NODE;
+            }).text().trim();
+
+            $('#editAnnouncementId').val(announcementId);
+            $('#editAnnouncementTitle').val(title);
+            $('#editAnnouncementDescription').val(description);
+            $('#editAnnouncementModal').modal('show');
+        });
+
+        // Сохранение изменений после редактирования
+        function submitEditAnnouncementForm() {
+            const announcementId = $('#editAnnouncementId').val();
+            const title = $('#editAnnouncementTitle').val().trim();
+            const description = $('#editAnnouncementDescription').val().trim();
+
+            if (!title || !description) {
+                alert('Заголовок и описание не могут быть пустыми.');
+                return;
+            }
+
+            $.ajax({
+                url: '/Project/EditAnnouncement',
+                method: 'POST',
+                data: { announcementId, title, description },
+                success: function (response) {
+                    if (response.success) {
+                        $(`li[data-announcementid="${announcementId}"] div`).find('.title').text(response.updatedTitle + " : ");
+                        $(`li[data-announcementid="${announcementId}"] div`).find('.description').text(response.updatedDescription);
+                        $('#editAnnouncementModal').modal('hide');
+
+                    } else {
+                        alert(response.message || 'Ошибка при редактировании объявления.');
+                    }
+                },
+                error: function () {
+                    alert('Ошибка при редактировании объявления.');
+                }
+            });
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#subscriptionButton').click(function () {
+                const projectId = $(this).data('projectid');
+                const isSubscribed = $(this).hasClass('btn-unsubscribe');
+
+                $.ajax({
+                    url: isSubscribed ? '/Project/Unsubscribe' : '/Project/Subscribe',
+                    method: 'POST',
+                    data: { projectId: projectId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#subscriberCount').text(`${response.subscriberCount}`);
+                            if (isSubscribed) {
+                                $('#subscriptionButton').removeClass('btn-unsubscribe').addClass('btn-subscribe').text('Подписаться');
+                            } else {
+                                $('#subscriptionButton').removeClass('btn-subscribe').addClass('btn-unsubscribe').text('Отписаться');
+                            }
+                        } else {
+                            alert(response.message || 'Ошибка при подписке/отписке.');
+                        }
+                    },
+                    error: function () {
+                        alert('Произошла ошибка при выполнении запроса.');
+                    }
+                });
+            });
+        });
+
+    </script>
+
+    <script>
+        // Функция для показа/скрытия формы добавления участника
+        function toggleAddMemberForm() {
+            const form = document.getElementById('addMemberForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function submitAddMemberForm(url, listId) {
+            const form = $('#addMemberFormElement');
+            const formData = new FormData(form[0]);
+
+            // Проверяем, что выбрали студента и ввели роль
+            if (!formData.get('studentData') || !formData.get('role')) {
+                alert('Пожалуйста, выберите студента и введите роль.');
+                return;
+            }
+
+            // Отправляем данные формы через AJAX
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    const memberList = $('#' + listId);
+                    memberList.append(response);
+                    // Скрываем форму и очищаем её
+                    // $('#addMemberForm').hide();
+                    form[0].reset();
+                },
+                error: function () {
+                    alert('Такого человека нет или он уже является членом проекта.');
+                }
+            });
+        }
+
+        // Функция для обновления списка участников
+        function updateMemberList(newMemberHtml, listId) {
+            const memberList = $('#' + listId);
+            memberList.append(newMemberHtml);
+        }
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Функция для обновления видимости полей Fundraising, в зависимости от выбранного типа проекта
+            function toggleFundraisingFields() {
+                var selectedType = $('#ProjectType option:selected').text().trim();  // Получаем текст выбранного типа проекта
+                if (selectedType === 'Стартап') {  // Проверяем, равен ли текст "Стартап"
+                    $('#FundraisingFields').show();
+                } else {
+                    $('#FundraisingFields').hide();
+                }
+            }
+
+            // При загрузке страницы скрыть поля, если выбран не стартап
+            toggleFundraisingFields();
+
+            // Обработчик изменения значения типа проекта
+            $('#ProjectType').change(function () {
+                toggleFundraisingFields();
+            });
+        });
+    </script>
+
+    <script>
+        // Отправка формы редактирования роли
+        function submitEditMemberForm() {
+            const memberId = $('#editMemberId').val();
+            const newRole = $('#editMemberRole').val();
+
+            $.ajax({
+                url: '/Project/EditMemberRole',
+                type: 'POST',
+                data: {
+                    memberId: memberId,
+                    role: newRole
+                },
+                success: function () {
+                    $(`[data-memberId=${memberId}] .badge`).text(newRole);
+                    $('#editMemberModal').modal('hide');
+                },
+                error: function () {
+                    alert('Ошибка при редактировании роли.');
+                }
+            });
+        }
+
+        // Делегируем событие редактирования
+        $('#memberList').on('click', '.editMember-btn', function () {
+            const memberId = $(this).data('memberid');
+            const currentRole = $(this).data('role');
+
+            $('#editMemberId').val(memberId);
+            $('#editMemberRole').val(currentRole);
+
+            $('#editMemberModal').modal('show');
+        });
+
+        // Делегируем событие удаления
+        $('#memberList').on('click', '.deleteMember-btn', function () {
+            const memberId = $(this).data('memberid');
+
+            $.ajax({
+                url: '/Project/DeleteMember',
+                type: 'POST',
+                data: { memberId: memberId },
+                success: function () {
+                    $(`[data-memberId=${memberId}]`).remove();
+                },
+                error: function () {
+                    alert('Ошибка при удалении участника.');
+                }
+            });
+        });
+
+    </script>
+
 
 }
 
 <div class="container">
+
     @if (Model.IsCurrentUserMember)
     {
         <div class="col-md-8 text-end">
-            <a asp-controller="Project" asp-action="Edit" asp-route-id="@Model.Project.Id" class="btn btn-warning">Редактировать проект</a>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editProjectModal">Редактировать проект</button>
+        </div>
+        @if (TempData["Error"] != null)
+        {
+            <div class="col-md-12 alert alert-danger">
+                <span><b>Извините!</b> - @TempData["Error"]</span>
+            </div>
+        }
+
+            <!-- Модальное окно для редактирования проекта -->
+        <div class="modal fade" id="editProjectModal" tabindex="-1" aria-labelledby="editProjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProjectModalLabel">Редактировать проект</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editProjectForm" method="post" asp-controller="Project" asp-action="Edit">
+                            <input type="hidden" name="projectId" value="@Model.Project.Id" />
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Название проекта</label>
+                                <textarea required class="form-control" name="title">@Model.Project.Title</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="goal" class="form-label">Цель</label>
+                                <textarea required" class="form-control" name="goal">@Model.Project.Goal</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Описание</label>
+                                <textarea required class="form-control" name="description">@Model.Project.Description</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Status" class="form-label">Статус</label>
+                                <select class="form-select" name="statusId">
+                                    @foreach (var status in Model.Statuses)
+                                    {
+                                        @if (status.Value == Model.Project.StatusId.ToString())
+                                        {
+                                            <option value="@status.Value" selected>
+                                                @status.Text
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@status.Value">
+                                                @status.Text
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="Type" class="form-label">Тип проекта</label>
+                                <select id="ProjectType" class="form-select" name="typeId">
+                                    @foreach (var type in Model.Types)
+                                    {
+                                        @if (type.Value == Model.Project.TypeId.ToString())
+                                        {
+                                            <option value="@type.Value" selected>
+                                                @type.Text
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@type.Value">
+                                                @type.Text
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Поля для Fundraising скрываются/показываются в зависимости от типа проекта -->
+                            <div id="FundraisingFields" style="display:none;">
+                                <div class="mb-3">
+                                    <label for="fundraisingProgress" class="form-label">Собрано</label>
+                                    <input required step="1000" min="0" class="form-control" name="fundraisingProgress" value="@(Model.Project.FundraisingProgress != null ? Model.Project.FundraisingProgress : 0)" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fundraisingGoal" class="form-label">Цель сбора</label>
+                                    <input required step="1000" min="0" class="form-control" name="fundraisingGoal" value="@(Model.Project.FundraisingGoal != null ? Model.Project.FundraisingGoal : 0)" />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary" form="editProjectForm">Сохранить изменения</button>
+                    </div>
+                </div>
+            </div>
         </div>
     }
 
@@ -88,32 +468,125 @@
                     <p><strong>Цель:</strong> @Model.Project.Goal</p>
                     <p><strong>Описание:</strong> @Model.Project.Description</p>
                     <p><strong>Статус:</strong> @Model.Project.ProjectStatus.Status</p>
+                    @if(Model.Project.TypeId == (int) ProjectTypeEnum.Startup)
+                    {
+                        <p><strong>Собрано:</strong> @Model.Project.FundraisingProgress</p>
+                        <p><strong>Цель сбора:</strong> @Model.Project.FundraisingGoal</p>
+                    }
+                    <div>
+                        <strong>Подписчики: </strong><span id="subscriberCount" class="me-2">
+                            @Model.FollowersCount
+                        </span>
+                        @if (!Model.IsCurrentUserMember)
+                        {
+                            @if (Model.IsFollower)
+                            {
+                                <button id="subscriptionButton" class="btn btn-primary mt-2 btn-unsubscribe" data-projectId="@Model.Project.Id">
+                                    Отписаться
+                                </button>
+                            }
+                            else
+                            {
+                                <button id="subscriptionButton" class="btn btn-primary mt-2 btn-subscribe" data-projectId="@Model.Project.Id">
+                                    Подписаться
+                                </button>
+                            }
+                        }
+                    </div>
                     <a asp-controller="Album" asp-action="Index" asp-route-projectId="@Model.Project.Id" class="btn btn-primary mt-2">Перейти к альбомам</a>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Участники и история изменений (сворачиваемые details) -->
     <details class="mb-4">
         <summary class="btn btn-secondary">Участники проекта</summary>
         <div class="col-md-8">
             <div class="card mt-3">
                 <div class="card-body">
-                    <ul>
+                    <!-- Список участников -->
+                    <ul id="memberList" class="list-group">
                         @foreach (ProjectFollower member in Model.Members)
                         {
-                            <li>@member.User.FirstName @member.User.LastName - @member.Role</li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center" data-memberId="@member.Id">
+                                <div>
+                                    <span><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@member.UserId">@member.User.FirstName @member.User.LastName</a></span>
+                                    <span class="badge badge-primary">@member.Role</span>
+                                </div>
+                                @if (Model.IsOwner && Model.CurrentUserId != member.UserId)
+                                {
+                                    <div>
+                                        <!-- Кнопка редактирования роли -->
+                                        <button class="btn btn-light btn-sm editMember-btn" data-memberId="@member.Id" data-role="@member.Role">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </button>
+                                        <!-- Кнопка удаления участника -->
+                                        <button class="btn btn-light btn-sm deleteMember-btn" data-memberId="@member.Id">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </li>
                         }
                     </ul>
-                    @if (Model.IsCurrentUserMember)
+
+                    @if (Model.IsOwner)
                     {
-                        <a asp-controller="Project" asp-action="EditMember" asp-route-id="@Model.Project.Id" class="btn btn-outline-secondary mt-3">Редактировать участников</a>
+                        <button type="button" class="btn btn-outline-secondary mt-3" onclick="toggleAddMemberForm()">Добавить участника</button>
+
+                        <!-- Форма добавления участника -->
+                        <div id="addMemberForm" style="display: none;" class="mt-3">
+                            <form id="addMemberFormElement" onsubmit="event.preventDefault(); submitAddMemberForm('@Url.Action("AddMember", "Project")', 'memberList');">
+                                <input name="projectId" value="@Model.Project.Id" hidden />
+
+                                <div class="form-group mt-2">
+                                    <label for="studentData">Выберите студента</label>
+                                    <select id="studentData" name="studentData" class="form-control selectpicker" data-live-search="true">
+                                        <option value="">Выберите студента</option>
+                                        @foreach (var student in Model.Users)
+                                        {
+                                            <option value="@student.Value">@student.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="form-group mt-2">
+                                    <label for="role">Роль:</label>
+                                    <input id="role" name="role" type="text" class="form-control" placeholder="Введите роль">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary mt-2">Добавить</button>
+                            </form>
+                        </div>
+
+                        <!-- Модальное окно для редактирования роли -->
+                        <div id="editMemberModal" class="modal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Редактировать роль</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="editMemberForm" onsubmit="event.preventDefault(); submitEditMemberForm();">
+                                            <input type="hidden" id="editMemberId" />
+                                            <div class="form-group">
+                                                <label for="editMemberRole">Роль:</label>
+                                                <input required id="editMemberRole" class="form-control" type="text" placeholder="Введите новую роль">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
         </div>
-        
     </details>
 
     <details class="mb-4">
@@ -124,7 +597,23 @@
                     <ul id="changeList">
                         @foreach (ProjectChange change in Model.Changes)
                         {
-                            <li id="change-@change.Id"><strong>@change.ChangeDate.ToString("dd.MM.yyyy HH:mm")</strong> @change.ChangeDescription</li>
+                            <li data-changeId="@change.Id" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>@change.ChangeDate.ToString("dd.MM.yyyy HH:mm")</strong>
+                                    <span class="description">@change.ChangeDescription</span>
+                                </div>
+                                @if (Model.IsCurrentUserMember)
+                                {
+                                    <div>
+                                        <a class="btn btn-light btn-sm editChange-btn" style="margin-right: 5px;" data-changeId="@change.Id">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                        <a class="btn btn-light btn-sm deleteChange-btn" data-changeId="@change.Id">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                }
+                            </li>
                         }
                     </ul>
                     @if (Model.IsCurrentUserMember)
@@ -138,6 +627,28 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-2">Сохранить</button>
                             </form>
+                        </div>
+
+                        <div id="editChangeModal" class="modal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Редактировать изменение</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="editChangeForm" onsubmit="event.preventDefault(); submitEditForm();">
+                                            <input type="hidden" id="editChangeId" />
+                                            <div class="form-group">
+                                                <textarea id="editChangeDescription" class="form-control" rows="3" placeholder="Новое описание"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     }
                 </div>
@@ -156,7 +667,25 @@
                     <ul id="announcementList">
                         @foreach (ProjectAnnouncement announcement in Model.Announcements)
                         {
-                            <li><strong> @announcement.CreatedAt.ToString("dd.MM.yyyy HH:mm") @announcement.Title:</strong> @announcement.Description</li>
+                            <li data-announcementId="@announcement.Id" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong> @announcement.CreatedAt.ToString("dd.MM.yyyy HH:mm") </strong>
+                                    <span class="title"><string>@announcement.Title :</string></span>
+                                    <span class="description">@announcement.Description</span>
+                                </div>
+                                @if (Model.IsCurrentUserMember)
+                                {
+                                    <div>
+                                        <a class="btn btn-light btn-sm editAnnouncement-btn" style="margin-right: 5px;" data-announcementId="@announcement.Id">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                        <a class="btn btn-light btn-sm deleteAnnouncement-btn" data-announcementId="@announcement.Id">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                }
+                            </li>
+
                         }
                     </ul>
                     @if (Model.IsCurrentUserMember)
@@ -173,6 +702,31 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary mt-2">Сохранить</button>
                             </form>
+                        </div>
+
+                        <div id="editAnnouncementModal" class="modal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Редактировать объявление</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="editAnnouncementForm" onsubmit="event.preventDefault(); submitEditAnnouncementForm();">
+                                            <input type="hidden" id="editAnnouncementId" />
+                                            <div class="form-group">
+                                                <input type="text" id="editAnnouncementTitle" class="form-control" maxlength="20" placeholder="Заголовок" />
+                                            </div>
+                                            <div class="form-group">
+                                                <textarea id="editAnnouncementDescription" class="form-control" rows="3" placeholder="Описание"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     }
                 </div>

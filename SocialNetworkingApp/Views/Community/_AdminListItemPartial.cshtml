@@ -1,0 +1,14 @@
+﻿@using SocialNetworkingApp.Models
+@model CommunityMember
+
+<li class="list-group-item d-flex justify-content-between align-items-center" data-adminId="@Model.Id">
+    <div>
+        <span><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.UserId">@Model.User.FirstName @Model.User.LastName</a></span>
+        <span class="badge badge-primary">Администратор</span>
+    </div>
+    <div>
+        <button class="btn btn-light btn-sm deleteAdmin-btn" data-adminId="@Model.Id">
+            <i class="bi bi-trash-fill"></i>
+        </button>
+    </div>
+</li>

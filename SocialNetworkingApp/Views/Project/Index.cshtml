@@ -6,79 +6,54 @@
 <div class="container mt-4">
     <h2 class="mb-4">Поддержка проектов</h2>
 
-    <div class="text-right mb-4">
-        <a asp-controller="Project" asp-action="Create" class="btn btn-success">Создать проект</a>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <a asp-controller="Project" asp-action="Index" class="btn btn-outline-secondary">Все проекты</a>
+        <a asp-controller="Project" asp-action="MySubscriptions" class="btn btn-outline-secondary">Мои подписки</a>
+        <a asp-controller="Project" asp-action="ProjectsWithMembership" class="btn btn-outline-secondary">Проекты, в которых состою</a>
+        <a asp-controller="Project" asp-action="MyProjects" class="btn btn-outline-secondary">Проекты, которыми владею</a>
+        <a asp-controller="Project" asp-action="Create" class="btn btn-success">Создать</a>
+        <a asp-controller="Project" asp-action="AnnouncementsBoard" class="btn btn-primary">Доска объявлений</a>
     </div>
 
     <!-- Включаем partial view с фильтрами и поиском -->
-    @await Html.PartialAsync("_FindProjectPartial")
+    @await Html.PartialAsync("_FindProjectPartial", new SocialNetworkingApp.ViewModels.FindProjectViewModel {})
 
     <div class="row">
 
-        @foreach(Project? project in Model.Projects)
+        @foreach (var (project, lastChange, lastAnnouncement) in Model.Projects)
         {
-            <!-- Карточка проекта -->
             <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>@project.Type.Type: @project.Title</h5>
+                <a asp-controller="Project" asp-action="Details" asp-route-projectId="@project.Id" class="text-decoration-none project-card">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>@project.Type.Type: @project.Title</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Цель:</strong> @project.Goal</p>
+                            <p>
+                                <strong>Описание:</strong>
+                                @(project.Description.Length > 50 ? project.Description.Substring(0, 50) + "..." : project.Description)
+                            </p>
+                            <p><strong>Статус:</strong> @project.ProjectStatus.Status</p>
+                            @if (project.Type.Type == "Стартап")
+                            {
+                                <p><strong>Цель сбора: </strong> @project.FundraisingGoal</p>
+                                <p><strong>Собрано: </strong> @project.FundraisingProgress</p>
+                            }
+                            @if (lastChange != null)
+                            {
+                                <p><strong>Последнее изменение:</strong> @lastChange.ChangeDescription</p>
+                            }
+                            @if (lastAnnouncement != null)
+                            {
+                                <p><strong>Последнее объяввление:</strong> <strong>@lastAnnouncement.Title</strong> @lastAnnouncement.Description</p>
+                            }
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p><strong>Цель:</strong> @project.Goal</p>
-                        <p>
-                            <strong>Описание:</strong> 
-                            @(project.Description.Length > 50 ? project.Description.Substring(0, 50) + "..." : project.Description)
-                        </p>
-                        <p><strong>Статус:</strong> @project.ProjectStatus.Status</p>
-                        @if(project.Type.Type == "Стартап")
-                        {
-                            <p><strong>Цель сбора: </strong> @project.FundraisingGoal</p>
-                            <p><strong>Собрано: </strong> @project.FundraisingProgress</p>
-                        }
-                        <a asp-controller="Project" asp-action="Details" asp-route-projectId="@project.Id" class="btn btn-primary mt-2">Подробнее</a>
-                    </div>
-                </div>
+                </a>
             </div>
         }
-        <!-- Карточка проекта -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Проект: Разработка мобильного приложения</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Цель:</strong> Создать приложение для улучшения экологии города.</p>
-                    <p><strong>Описание:</strong> В рамках проекта планируется разработать приложение, позволяющее отслеживать экологические инициативы и проводить мероприятия.</p>
-                    <p><strong>Прогресс:</strong> Подготовлен дизайн и разработана начальная версия.</p>
-                    <h6 class="mt-3">Требуются участники:</h6>
-                    <ul>
-                        <li>Дизайнер UI/UX</li>
-                        <li>Программист на Flutter</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary mt-2">Подробнее</a>
-                </div>
-            </div>
-        </div>
 
-        <!-- Еще одна карточка проекта -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Проект: Исследование в области искусственного интеллекта</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Цель:</strong> Участвовать в студенческой конференции по ИИ.</p>
-                    <p><strong>Описание:</strong> Проект посвящен применению алгоритмов машинного обучения для анализа больших данных.</p>
-                    <p><strong>Прогресс:</strong> Проведены начальные эксперименты, требуется доработка модели.</p>
-                    <h6 class="mt-3">Требуются участники:</h6>
-                    <ul>
-                        <li>Аналитик данных</li>
-                        <li>Программист Python</li>
-                    </ul>
-                    <a asp-controller="Project" asp-action="Details" class="btn btn-primary mt-2">Подробнее</a>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -95,6 +70,31 @@
     .card-header h5 {
         font-size: 1.2rem;
         margin: 0;
+    }
+
+    .project-card {
+        display: block;
+        color: inherit; /* Сохраняет цвет текста */
+    }
+
+        .project-card .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .project-card:hover .card {
+            transform: scale(1.03);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+    .more-info {
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+        font-weight: bold;
+        color: #007bff; /* Цвет ссылки */
+    }
+
+    .project-card:hover .more-info {
+        opacity: 1;
     }
 </style>
 

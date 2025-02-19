@@ -27,7 +27,7 @@
         </div>
     }
     <div class="text-center mb-4">
-        @if (Model.IsOwner || Model.IsProjectMember)
+        @if (Model.IsOwner || Model.IsProjectMember || Model.IsCommunityAdmin)
         {
             <!-- Кнопка "Добавить фото" -->
             <button class="btn btn-primary" data-toggle="modal" data-target="#addImageModal">Добавить изображение</button>
@@ -82,7 +82,7 @@
                                     <p>@image.Description</p>
                                 </div>
                             }
-                            @if (Model.IsOwner || Model.IsProjectMember)
+                            @if (Model.IsOwner || Model.IsProjectMember || Model.IsCommunityAdmin)
                             {
                                 <div class="d-flex justify-content-between align-items-center">
                                     <a class="btn btn-light like-btn" asp-controller="Image" asp-action="DeleteImage" asp-route-imageId="@image.Id" asp-route-albumId="@image.ImageAlbumId"><i class="bi bi-trash-fill"></i></a>

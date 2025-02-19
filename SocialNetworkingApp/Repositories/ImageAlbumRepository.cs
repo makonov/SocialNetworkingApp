@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
@@ -33,9 +34,9 @@ namespace SocialNetworkingApp.Repositories
             return Save();
         }
 
-        public Task<List<ImageAlbum>> GetAllByCommunityId(int? communityId)
+        public async Task<List<ImageAlbum>> GetAllByCommunityAsync(int? communityId)
         {
-            throw new NotImplementedException();
+            return await _context.ImageAlbums.Where(a => a.CommunityId == communityId).ToListAsync();
         }
 
         public async Task<List<ImageAlbum>> GetAllByProjectAsync(int? projectId)

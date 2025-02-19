@@ -1,0 +1,98 @@
+﻿@using SocialNetworkingApp.ViewModels
+@model FilterUsersViewModel
+
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+
+@await Html.PartialAsync("_FilterUsersPartial", Model)
+
+<div class="container mt-4">
+    <h2>Пользователи</h2>
+    <a class="btn btn-sm btn-primary mb-3" asp-controller="UserReference" asp-action="CreateUser">Зарегистрировать нового пользователя</a>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="col-md-12 alert alert-danger">
+            <span><b>Извините!</b> - @TempData["Error"]</span>
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="col-md-12 alert-success">
+            <span> @TempData["Success"]</span>
+        </div>
+    }
+
+    @if (Model.Users.Any())
+    {
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Имя пользователя</th>
+                    <th scope="col">Фамилия</th>
+                    <th scope="col">Имя</th>
+                    <th scope="col">Роль</th>
+                    <th scope="col">Группа</th>
+                    <th scope="col">Пол</th>
+                    <th scope="col">Дата рождения</th>
+                    <th scope="col">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.Users)
+                {
+                    <tr>
+                        <td>@user.UserName</td>
+                        <td>@user.LastName</td>
+                        <td>@user.FirstName</td>
+                        <td>@string.Join(", ", user.Roles)</td>
+                        <td>@user.StudentGroup</td>
+                        <td>@(user.IsMale ? "М" : "Ж")</td>
+                        <td>@user.BirthDate</td>
+                        <td>
+                            <a asp-controller="UserReference" asp-action="ChangePassword" asp-route-userid="@user.UserID" class="btn btn-sm btn-secondary" style="margin: 2px;">Изменить пароль</a>
+                            @if (User.Identity.Name != user.UserName)
+                            {
+                                <a asp-controller="UserReference" asp-action="Edit" asp-route-userid="@user.UserID" class="btn btn-sm btn-warning" style="margin: 2px;">Изменить информацию</a>
+                                <a asp-controller="UserReference" asp-action="Delete" asp-route-userid="@user.UserID" class="btn btn-sm btn-danger" style="margin: 2px;">Удалить</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Увы, но ничего не найдено</p>
+    }
+</div>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .container {
+        
+        margin: auto;
+    }
+
+    .btn {
+        margin-right: 5px;
+    }
+</style>

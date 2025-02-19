@@ -189,7 +189,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Community", b =>
@@ -221,7 +221,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("Communities");
+                    b.ToTable("Communities", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.CommunityMember", b =>
@@ -247,7 +247,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CommunityMembers");
+                    b.ToTable("CommunityMembers", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.CommunityType", b =>
@@ -264,7 +264,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CommunityTypes");
+                    b.ToTable("CommunityTypes", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Friend", b =>
@@ -287,7 +287,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("SecondUserId");
 
-                    b.ToTable("Friends");
+                    b.ToTable("Friends", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.FriendRequest", b =>
@@ -310,7 +310,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("ToUserId");
 
-                    b.ToTable("FriendRequests");
+                    b.ToTable("FriendRequests", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Image", b =>
@@ -337,7 +337,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("ImageAlbumId");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ImageAlbum", b =>
@@ -377,7 +377,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ImageAlbums");
+                    b.ToTable("ImageAlbums", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Like", b =>
@@ -400,7 +400,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Likes");
+                    b.ToTable("Likes", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Message", b =>
@@ -432,7 +432,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("ToUserId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Post", b =>
@@ -486,7 +486,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.PostType", b =>
@@ -502,7 +502,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PostTypes");
+                    b.ToTable("PostTypes", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Project", b =>
@@ -528,9 +528,6 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<string>("Goal")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LastProjectChangeId")
-                        .HasColumnType("int");
-
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
@@ -549,7 +546,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("TypeId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectAnnouncement", b =>
@@ -576,7 +573,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectAnnouncements");
+                    b.ToTable("ProjectAnnouncements", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectChange", b =>
@@ -598,10 +595,9 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId")
-                        .IsUnique();
+                    b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectChanges");
+                    b.ToTable("ProjectChanges", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectFeedback", b =>
@@ -630,7 +626,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectFeedbacks");
+                    b.ToTable("ProjectFeedbacks", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectFollower", b =>
@@ -641,17 +637,16 @@ namespace SocialNetworkingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsAdmin")
+                    b.Property<bool>("IsMember")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsMember")
+                    b.Property<bool>("IsOwner")
                         .HasColumnType("bit");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -663,7 +658,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectFolloweres");
+                    b.ToTable("ProjectFolloweres", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectStatus", b =>
@@ -680,7 +675,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectStatuses");
+                    b.ToTable("ProjectStatuses", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectType", b =>
@@ -697,7 +692,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectTypes");
+                    b.ToTable("ProjectTypes", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.StudentGroup", b =>
@@ -714,7 +709,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StudentGroups");
+                    b.ToTable("StudentGroups", (string)null);
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.User", b =>
@@ -780,9 +775,6 @@ namespace SocialNetworkingApp.Migrations
                     b.Property<string>("ProfilePicture")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -805,8 +797,6 @@ namespace SocialNetworkingApp.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("RoleId");
-
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
@@ -823,7 +813,7 @@ namespace SocialNetworkingApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1097,8 +1087,8 @@ namespace SocialNetworkingApp.Migrations
             modelBuilder.Entity("SocialNetworkingApp.Models.ProjectChange", b =>
                 {
                     b.HasOne("SocialNetworkingApp.Models.Project", "Project")
-                        .WithOne("LastProjectChange")
-                        .HasForeignKey("SocialNetworkingApp.Models.ProjectChange", "ProjectId")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1145,25 +1135,12 @@ namespace SocialNetworkingApp.Migrations
                         .WithMany()
                         .HasForeignKey("GroupId");
 
-                    b.HasOne("SocialNetworkingApp.Models.UserRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Group");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("SocialNetworkingApp.Models.Community", b =>
                 {
                     b.Navigation("Members");
-                });
-
-            modelBuilder.Entity("SocialNetworkingApp.Models.Project", b =>
-                {
-                    b.Navigation("LastProjectChange");
                 });
 #pragma warning restore 612, 618
         }

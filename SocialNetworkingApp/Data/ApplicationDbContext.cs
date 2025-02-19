@@ -24,8 +24,6 @@ namespace SocialNetworkingApp.Data
                 .WithMany()
                 .HasForeignKey(i => i.ImageAlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-
         }
         public DbSet<User> Users {  get; set; }
         public DbSet<Comment> Comments { get; set; }

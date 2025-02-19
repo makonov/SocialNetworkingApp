@@ -8,5 +8,8 @@ namespace SocialNetworkingApp.ViewModels
         public string CurrentUserId { get; set; }
         public int? ProjectId { get; set; }
         public string? ProjectTitle { get; set; }
+        public int? CommunityId { get; set; }
+        public string? CommunityTitle { get; set; }
+        public bool IsCommunityAdmin { get; set; }
     }
 }

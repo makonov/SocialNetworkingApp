@@ -41,14 +41,24 @@ namespace SocialNetworkingApp.Repositories
             return await _context.ProjectFolloweres.Where(f => f.ProjectId == projectId).ToListAsync();
         }
 
+        public async Task<ProjectFollower?> GetByUserIdAndProjectIdAsync(string userId, int projectId)
+        {
+            return await _context.ProjectFolloweres.FirstOrDefaultAsync(f => f.UserId == userId && f.ProjectId == projectId);
+        }
+
         public async Task<List<ProjectFollower>> GetMembersByProjectIdAsync(int projectId)
         {
             return await _context.ProjectFolloweres.Include(f => f.User).Where(f => f.ProjectId == projectId && f.IsMember).ToListAsync();
         }
 
-        public Task<bool> IsMember(string userId, int projectId)
+        public async Task<bool> IsMember(string userId, int projectId)
         {
-            return _context.ProjectFolloweres.AnyAsync(p => p.UserId == userId && p.ProjectId == projectId);
+            return await _context.ProjectFolloweres.AnyAsync(p => p.UserId == userId && p.ProjectId == projectId && p.IsMember);
+        }
+
+        public async Task<bool> IsOwner(string userId, int projectId)
+        {
+            return await _context.ProjectFolloweres.AnyAsync(p => p.UserId == userId && p.ProjectId == projectId && p.IsOwner);
         }
 
         public bool Save()

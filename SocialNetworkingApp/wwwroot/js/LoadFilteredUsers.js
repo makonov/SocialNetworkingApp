@@ -6,7 +6,7 @@
     var filters = {
         firstName: filterData.data('first-name'),
         lastName: filterData.data('last-name'),
-        city: filterData.data('city'),
+        groupId: filterData.data('groupid'),
         gender: filterData.data('gender'),
         fromAge: filterData.data('from-age'),
         toAge: filterData.data('to-age')
@@ -28,7 +28,7 @@
                     page: page,
                     firstName: filters.firstName,
                     lastName: filters.lastName,
-                    city: filters.city,
+                    groupId: filters.groupId,
                     gender: filters.gender,
                     fromAge: filters.fromAge,
                     toAge: filters.toAge

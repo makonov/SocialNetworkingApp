@@ -43,7 +43,7 @@
             $imagePreview.empty();
 
             $('<img>').attr({
-                'src': imagePath,
+                'src': window.location.origin + "/" + imagePath,
                 'class': 'img-fluid'
             }).appendTo($imagePreview);
 

@@ -1,0 +1,53 @@
+﻿@model SocialNetworkingApp.ViewModels.AnnouncementsBoardViewModel
+
+@{
+    ViewData["Title"] = "Общая доска объявлений";
+}
+
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Доска объявлений</h2>
+
+    @await Html.PartialAsync("_FindAnnouncementPartial", Model)
+
+    <div class="list-group">
+        @foreach (var announcement in Model.Announcements)
+        {
+            <div class="list-group-item">
+                <p class="mb-1">
+                    <strong>
+                        <a asp-controller="Project" asp-action="Details" asp-route-projectId="@announcement.ProjectId" class="project-link">
+                            @announcement.Project?.Title
+                        </a>
+                    </strong>: @announcement.Title @announcement.Description
+                </p>
+                <small class="text-muted created-at">@announcement.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+<style>
+    .project-link {
+        font-size: 1.2rem; /* Увеличенный размер шрифта */
+        font-weight: bold;
+        text-decoration: none;
+        transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+        display: inline-block;
+        color: black;
+    }
+
+        .project-link:hover {
+            transform: scale(1.1); /* Увеличение при наведении */
+            color: #007bff; /* Подсветка синим */
+        }
+
+
+    .created-at {
+        font-size: 1rem; /* Увеличенный размер шрифта */
+        color: #555; /* Чуть темнее для лучшей читаемости */
+    }
+</style>
+

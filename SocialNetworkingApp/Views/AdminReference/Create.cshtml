@@ -1,0 +1,21 @@
+﻿@model object
+@{
+    ViewData["Title"] = $"Добавление записи в {ViewBag.EntityName}";
+}
+
+<h2>@ViewData["Title"]</h2>
+<form asp-action="Create" asp-route-entityName="@ViewBag.EntityName" method="post">
+    @foreach (var prop in Model.GetType().GetProperties())
+    {
+        if (prop.Name == "Id") continue;
+          <!-- Пропускаем Id, если оно генерируется автоматически -->
+        <div class="mb-3">
+            <label class="form-label">@prop.Name</label>
+            <input type="text" name="@prop.Name" class="form-control" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a asp-action="Index" asp-route-entityName="@ViewBag.EntityName" class="btn btn-secondary">Назад</a>
+</form>
+

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using SocialNetworkingApp.Data;
@@ -9,26 +11,31 @@ using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.Services;
 using SocialNetworkingApp.ViewModels;
 using System.Net.WebSockets;
+using System.Text.RegularExpressions;
 
 namespace SocialNetworkingApp.Controllers
 {
+    [Authorize(Roles = UserRoles.User)]
     public class FriendController : Controller
     {
         private readonly UserManager<User> _userManager;
         private readonly IFriendRepository _friendRepository;
         private readonly IUserService _userService;
         private readonly IFriendRequestRepository _friendRequestRepository;
+        private readonly IStudentGroupRepository _studentGroupRepository;
         private const int PageSize = 10;
 
         public FriendController(UserManager<User> userManager, 
             IFriendRepository friendRepository, 
             IUserService userService, 
-            IFriendRequestRepository friendRequestRepository)
+            IFriendRequestRepository friendRequestRepository,
+            IStudentGroupRepository studentGroupRepository)
         {
             _friendRepository = friendRepository;
             _userService = userService;
             _friendRequestRepository = friendRequestRepository;
             _userManager = userManager;
+            _studentGroupRepository = studentGroupRepository;
         }
 
         public async Task<IActionResult> Index(int page = 1)
@@ -85,16 +92,23 @@ namespace SocialNetworkingApp.Controllers
                 return (u, status);
             });
 
+            var groups = await _studentGroupRepository.GetAllAsync();
+
             FindFriendViewModel newViewModel = new FindFriendViewModel
             {
                 Users = usersWithFriendStatus,
                 CurrentUserId = currentUser.Id,
                 FirstName = viewModel.FirstName,
                 LastName = viewModel.LastName,
-                City = viewModel.City,
+                StudentGroupId = viewModel.StudentGroupId,
                 Gender = viewModel.Gender,
                 FromAge = viewModel.FromAge,
-                ToAge = viewModel.ToAge
+                ToAge = viewModel.ToAge,
+                Groups = groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList()
             };
 
             return View(newViewModel);
@@ -121,10 +135,17 @@ namespace SocialNetworkingApp.Controllers
                 return (u, status);
             });
 
+            var groups = await _studentGroupRepository.GetAllAsync();
+
             FindFriendViewModel viewModel = new FindFriendViewModel
             {
                 Users = usersWithFriendStatus,
-                CurrentUserId = currentUser.Id
+                CurrentUserId = currentUser.Id,
+                Groups =  groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList()
             };
 
             return View(viewModel);
@@ -136,6 +157,13 @@ namespace SocialNetworkingApp.Controllers
             var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (currentUser == null) return Unauthorized();
 
+            var groups = (await _studentGroupRepository.GetAllAsync()).Select(g => new SelectListItem
+            {
+                Value = g.Id.ToString(),
+                Text = g.GroupName
+            }).ToList();
+            viewModel.Groups = groups;
+
             if (!ModelState.IsValid) return View(viewModel);
 
             try
@@ -145,10 +173,11 @@ namespace SocialNetworkingApp.Controllers
                 {
                     FirstName = viewModel.FirstName,
                     LastName = viewModel.LastName,
-                    City = viewModel.City,
+                    StudentGroupId = viewModel.StudentGroupId,
                     Gender = viewModel.Gender,
                     FromAge = viewModel.FromAge,
-                    ToAge = viewModel.ToAge
+                    ToAge = viewModel.ToAge,
+                    Groups = groups
                 };
                 return RedirectToAction("FindFiltered", newViewModel);
             }

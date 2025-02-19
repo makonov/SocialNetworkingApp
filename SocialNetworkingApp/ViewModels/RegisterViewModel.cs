@@ -17,9 +17,9 @@ namespace SocialNetworkingApp.ViewModels
         public int GroupId { get; set; }
         [Required(ErrorMessage = "Выберите пол")]
         public bool? IsMale { get; set; }
-        [Display(Name = "Электронная почта")]
-        [Required(ErrorMessage = "Необходимо ввести адрес электронной почты")]
-        public string Email { get; set; }
+        [Display(Name = "Имя пользователя")]
+        [Required(ErrorMessage = "Необходимо ввести логин")]
+        public string Login { get; set; }
         [DataType(DataType.Password)]
         [Required(ErrorMessage = "Необходимо ввести пароль")]
         public string Password { get; set; }

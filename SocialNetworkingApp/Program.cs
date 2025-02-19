@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SocialNetworkingApp.Controllers;
 using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Hubs;
 using SocialNetworkingApp.Interfaces;
+using SocialNetworkingApp.Middleware;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.Services;
@@ -34,9 +36,17 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IProjectAnnouncementRepository, ProjectAnnouncementRepository>();
             builder.Services.AddScoped<IProjectFollowerRepository, ProjectFollowerRepository>();
             builder.Services.AddScoped<IProjectFeedbackRepository, ProjectFeedbackRepository>();
+            builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
+            builder.Services.AddScoped<ICommunityTypeRepository, CommunityTypeRepository>();
+            builder.Services.AddScoped<ICommunityMemberRepository, CommunityMemberRepository>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            //builder.Services.AddScoped(typeof(AdminReferenceRepository<>));
+            builder.Services.AddScoped(typeof(IAdminReferenceRepository<>), typeof(AdminReferenceRepository<>));
+            builder.Services.AddScoped<AdminReferenceController>();
+
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -78,9 +88,12 @@ namespace SocialNetworkingApp
 
             app.UseAuthorization();
 
+            //app.UseMiddleware<RoleBasedRedirectMiddleware>();
+
+
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Feed}/{action=Index}/{id?}");
+                pattern: "{controller=Redirect}/{action=Index}/{id?}");
 
             app.MapHub<ChatHub>("/chatHub");
 

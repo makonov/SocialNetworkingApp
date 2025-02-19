@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.User)]
     public class ImageController : Controller
     {
         private readonly IPhotoService _photoService;
@@ -55,7 +56,7 @@ namespace SocialNetworkingApp.Controllers
             };
             _imageRepository.Add(image);
 
-            return RedirectToAction("Detail", "Album", new { id = viewModel.ImageAlbumId });
+            return RedirectToAction("Details", "Album", new { id = viewModel.ImageAlbumId });
         }
 
         public async Task<IActionResult> DeleteImage(int imageId, int albumId)

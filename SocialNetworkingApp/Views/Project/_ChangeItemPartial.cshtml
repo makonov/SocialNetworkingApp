@@ -1,6 +1,19 @@
 ﻿@using SocialNetworkingApp.Models
 @model ProjectChange
 
-<li id="change-@Model.Id">
-    <strong>@Model.ChangeDate.ToString("dd.MM.yyyy HH:mm")</strong> @Model.ChangeDescription
+<li data-changeId="@Model.Id" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <strong>@Model.ChangeDate.ToString("dd.MM.yyyy HH:mm")</strong> 
+        <span class="description">@Model.ChangeDescription</span>
+    </div>
+    
+    <div>
+        <a class="btn btn-light btn-sm editChange-btn" style="margin-right: 5px;" data-changeId="@Model.Id">
+            <i class="bi bi-pen-fill"></i>
+        </a>
+        <a class="btn btn-light btn-sm deleteChange-btn" data-changeId="@Model.Id">
+            <i class="bi bi-trash-fill"></i>
+        </a>
+    </div>
+    
 </li>

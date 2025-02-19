@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Services;
@@ -12,7 +13,7 @@ using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.User)]
     public class AlbumController : Controller
     {
         private readonly IImageAlbumRepository _albumRepository;
@@ -21,6 +22,8 @@ namespace SocialNetworkingApp.Controllers
         private readonly IPhotoService _photoService;
         private readonly IPostRepository _postRepository;
         private readonly IProjectFollowerRepository _followerRepository;
+        private readonly ICommunityMemberRepository _communityMemberRepository;
+        private readonly ICommunityRepository _communityRepository;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -30,6 +33,8 @@ namespace SocialNetworkingApp.Controllers
             IPhotoService photoService,
             IPostRepository postRepository,
             IProjectFollowerRepository followerRepository,
+            ICommunityMemberRepository communityMemberRepository,
+            ICommunityRepository communityRepository,
             IWebHostEnvironment webHostEnvironment)
         {
             _albumRepository = albumRepository;
@@ -38,6 +43,8 @@ namespace SocialNetworkingApp.Controllers
             _photoService = photoService;
             _postRepository = postRepository;
             _followerRepository = followerRepository;
+            _communityMemberRepository = communityMemberRepository;
+            _communityRepository = communityRepository;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -47,16 +54,21 @@ namespace SocialNetworkingApp.Controllers
             var user = await _userManager.GetUserAsync(currentUser);
 
             var albums = projectId != null ? await _albumRepository.GetAllByProjectAsync(projectId) : 
-                         communityId != null ? await _albumRepository.GetAllByCommunityId(0) :
+                         communityId != null ? await _albumRepository.GetAllByCommunityAsync(communityId) :
                          userId != null && user.Id != userId ? await _albumRepository.GetAllByUserAsync(userId) :
                          await _albumRepository.GetAllByUserAsync(user.Id);
 
-            var viewModel = new AlbumCatalogueViewModel { Albums = albums };
+            var viewModel = new AlbumCatalogueViewModel { Albums = albums, CurrentUserId = user.Id };
 
             if (albums.Count() > 0 && albums.First().ProjectId != null)
             {
                 var projectFollower = (await _followerRepository.GetByProjectIdAsync((int)albums.First().ProjectId)).FirstOrDefault(f => f.UserId == user.Id && f.IsMember);
                 if (projectFollower != null) viewModel.IsProjectMember = true;
+            }
+            else if (userId == null && albums.Count > 0 && albums.First().CommunityId != null)
+            {
+                viewModel.IsCommunityAdmin = await _communityMemberRepository.IsAdmin(user.Id, (int)communityId);
+                viewModel.IsCommunityMember = await _communityMemberRepository.IsMember(user.Id, (int)communityId);
             }
             else if (userId == null && albums.Count() > 0 && albums.First().UserId == user.Id)
             {
@@ -87,7 +99,12 @@ namespace SocialNetworkingApp.Controllers
             {
                 var projectFollower = (await _followerRepository.GetByProjectIdAsync((int)album.ProjectId)).FirstOrDefault(f => f.UserId == user.Id);
                 if (projectFollower != null) viewModel.IsProjectMember = true;
-            } else if (album.UserId != null)
+            } else if (album.CommunityId != null) 
+            {
+                bool isAdmin = await _communityMemberRepository.IsAdmin(user.Id,(int) album.CommunityId);
+                viewModel.IsCommunityAdmin = isAdmin;
+            }
+            else if (album.UserId != null)
             {
                 viewModel.IsOwner = album.UserId == user.Id ? true : false;
             }
@@ -116,6 +133,7 @@ namespace SocialNetworkingApp.Controllers
             };
 
             if (viewModel.ProjectId != null) album.ProjectId = viewModel.ProjectId;
+            else if (viewModel.CommunityId != null) album.CommunityId = viewModel.CommunityId;
             else album.UserId = user.Id;
 
             _albumRepository.Add(album);
@@ -130,6 +148,7 @@ namespace SocialNetworkingApp.Controllers
             }
 
             if(viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId});
+            else if (viewModel.CommunityId != null) return RedirectToAction("Index", new { communityId = viewModel.CommunityId });
             else return RedirectToAction("Index");
         }
 
@@ -190,11 +209,13 @@ namespace SocialNetworkingApp.Controllers
                 }
                 _albumRepository.Update(album);
                 if (viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId });
+                else if (viewModel.CommunityId != null) return RedirectToAction("Index", new { communityId = viewModel.CommunityId });
                 else return RedirectToAction("Index");
             }
             TempData["Error"] = $"Альбом не найден";
 
             if (viewModel.ProjectId != null) return RedirectToAction("Index", new { projectId = viewModel.ProjectId });
+            else if (viewModel.CommunityId != null) return RedirectToAction("Index", new { communityId = viewModel.CommunityId });
             else return RedirectToAction("Index");
         }
 

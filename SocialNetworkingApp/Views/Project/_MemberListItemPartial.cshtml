@@ -1,0 +1,19 @@
+﻿@using SocialNetworkingApp.Models
+@model ProjectFollower
+
+<li class="list-group-item d-flex justify-content-between align-items-center" data-memberId="@Model.Id">
+    <div>
+        <span><a class="profile-link" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.UserId">@Model.User.FirstName @Model.User.LastName</a></span>
+        <span class="badge badge-primary">@Model.Role</span>
+    </div>
+    <div>
+        <!-- Кнопка редактирования роли -->
+        <button class="btn btn-light btn-sm editMember-btn" data-memberId="@Model.Id" data-role="@Model.Role">
+            <i class="bi bi-pen-fill"></i>
+        </button>
+        <!-- Кнопка удаления участника -->
+        <button class="btn btn-light btn-sm deleteMember-btn" data-memberId="@Model.Id">
+            <i class="bi bi-trash-fill"></i>
+        </button>
+    </div>
+</li>

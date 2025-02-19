@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
@@ -9,6 +11,7 @@ using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
 {
+    [Authorize(Roles = UserRoles.User)]
     public class MessengerController : Controller
     {
         private readonly UserManager<User> _userManager;

@@ -12,7 +12,7 @@ using SocialNetworkingApp.ViewModels;
 
 namespace SocialNetworkingApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.User)]
     public class ProfileController : Controller
     {
         private readonly IUserService _userService;

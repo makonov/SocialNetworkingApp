@@ -13,5 +13,6 @@ namespace SocialNetworkingApp.ViewModels
         [Required]
         public int PostTypeId { get; set; }
         public int? ProjectId { get; set; }
+        public int? CommunityId { get; set; }
     }
 }

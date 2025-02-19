@@ -1,6 +1,20 @@
 ﻿@using SocialNetworkingApp.Models
 @model ProjectAnnouncement
 
-<li id="announcement-@Model.Id">
-    <strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm") @Model.Title:</strong> @Model.Description
+<li data-announcementId="@Model.Id" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <strong> @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm") </strong>
+        <span class="title"><string>@Model.Title :</string></span>
+        <span class="description">@Model.Description</span>
+    </div>
+    
+    <div>
+        <a class="btn btn-light btn-sm editAnnouncement-btn" style="margin-right: 5px;" data-announcementId="@Model.Id">
+            <i class="bi bi-pen-fill"></i>
+        </a>
+        <a class="btn btn-light btn-sm deleteAnnouncement-btn" data-announcementId="@Model.Id">
+            <i class="bi bi-trash-fill"></i>
+        </a>
+    </div>
+    
 </li>

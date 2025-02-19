@@ -56,6 +56,7 @@ namespace SocialNetworkingApp.Repositories
 
         public async Task<Image> GetByPathAsync(string path)
         {
+            path = path.Trim('/');
             return await _context.Images.FirstOrDefaultAsync(i => i.ImagePath == path);
         }
     }

@@ -1,0 +1,32 @@
+﻿@model SocialNetworkingApp.ViewModels.AnnouncementsBoardViewModel
+
+<div class="card mb-4">
+    <details>
+        <summary class="card-header">
+            <h5 class="d-inline">Поиск объявлений</h5>
+        </summary>
+        <div class="card-body">
+            <form asp-action="FilterAnnouncemenets" asp-controller="Project" method="post">
+                
+                <div class="col-md-12 mb-3">
+                    <label asp-for="KeyExpression">Ключевое слово</label>
+                    <input asp-for="KeyExpression" class="form-control" placeholder="Введите ключевое слово">
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label asp-for="TypeId" class="control-label">Тип проекта</label>
+                    <select asp-for="TypeId" class="form-control">
+                        <option value="">Выберите тип</option> <!-- Пустой элемент -->
+                        @foreach (var type in Model.Types)
+                        {
+                            <option value="@type.Value">@type.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TypeId" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Поиск</button>
+            </form>
+        </div>
+    </details>
+</div>

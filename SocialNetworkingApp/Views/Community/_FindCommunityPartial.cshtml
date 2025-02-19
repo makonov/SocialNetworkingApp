@@ -1,0 +1,33 @@
+﻿@using SocialNetworkingApp.ViewModels
+@model FindCommunityViewModel
+
+<!-- Карточка с фильтрами поиска -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Поиск сообществ</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="FilterCommunities" asp-controller="Community" method="post">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Title">Название</label>
+                    <input asp-for="Title" class="form-control" placeholder="Введите название">
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label asp-for="TypeId" class="control-label">Тип сообщества</label>
+                    <select asp-for="TypeId" class="form-control">
+                        <option value="">Выберите тип</option> <!-- Пустой элемент -->
+                        @foreach (var type in Model.Types)
+                        {
+                            <option value="@type.Value">@type.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TypeId" class="text-danger"></span>
+                </div>
+            </div>
+            <!-- Кнопка для отправки формы -->
+            <button type="submit" class="btn btn-primary mt-3">Найти проекты</button>
+        </form>
+    </div>
+</div>

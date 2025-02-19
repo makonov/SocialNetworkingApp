@@ -14,5 +14,6 @@ namespace SocialNetworkingApp.ViewModels
         [StringLength(50)]
         public string? Description { get; set; }
         public int? ProjectId { get; set; }
+        public int? CommunityId { get; set; }
     }
 }
