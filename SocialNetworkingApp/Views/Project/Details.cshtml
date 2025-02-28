@@ -157,13 +157,11 @@
         // Открытие модального окна для редактирования
         $(document).on('click', '.editAnnouncement-btn', function () {
             const announcementId = $(this).data('announcementid');
-            const title = $(`li[data-announcementid="${announcementId}"] .title`).text().split(':')[0].trim();
             const description = $(`li[data-announcementid="${announcementId}"] .description`).contents().filter(function () {
                 return this.nodeType === Node.TEXT_NODE;
             }).text().trim();
 
             $('#editAnnouncementId').val(announcementId);
-            $('#editAnnouncementTitle').val(title);
             $('#editAnnouncementDescription').val(description);
             $('#editAnnouncementModal').modal('show');
         });
@@ -171,21 +169,19 @@
         // Сохранение изменений после редактирования
         function submitEditAnnouncementForm() {
             const announcementId = $('#editAnnouncementId').val();
-            const title = $('#editAnnouncementTitle').val().trim();
             const description = $('#editAnnouncementDescription').val().trim();
 
-            if (!title || !description) {
-                alert('Заголовок и описание не могут быть пустыми.');
+            if (!description) {
+                alert('Описание не может быть пустым.');
                 return;
             }
 
             $.ajax({
                 url: '/Project/EditAnnouncement',
                 method: 'POST',
-                data: { announcementId, title, description },
+                data: { announcementId, description },
                 success: function (response) {
                     if (response.success) {
-                        $(`li[data-announcementid="${announcementId}"] div`).find('.title').text(response.updatedTitle + " : ");
                         $(`li[data-announcementid="${announcementId}"] div`).find('.description').text(response.updatedDescription);
                         $('#editAnnouncementModal').modal('hide');
 
@@ -444,6 +440,18 @@
                                     <input required step="1000" min="0" class="form-control" name="fundraisingGoal" value="@(Model.Project.FundraisingGoal != null ? Model.Project.FundraisingGoal : 0)" />
                                 </div>
                             </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Настройки доступа</label>
+                                <div>
+                                    <label>
+                                        <input type="radio" name="isPrivate" value="false" @(Model.Project.IsPrivate ? "" : "checked") /> Публичный
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="isPrivate" value="true" @(Model.Project.IsPrivate ? "checked" : "") /> Приватный
+                                    </label>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -493,7 +501,10 @@
                             }
                         }
                     </div>
-                    <a asp-controller="Album" asp-action="Index" asp-route-projectId="@Model.Project.Id" class="btn btn-primary mt-2">Перейти к альбомам</a>
+                    @if (!Model.Project.IsPrivate || Model.IsCurrentUserMember)
+                    {
+                        <a asp-controller="Album" asp-action="Index" asp-route-projectId="@Model.Project.Id" class="btn btn-primary mt-2">Перейти к альбомам</a>
+                    }
                 </div>
             </div>
         </div>
@@ -670,7 +681,6 @@
                             <li data-announcementId="@announcement.Id" style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <strong> @announcement.CreatedAt.ToString("dd.MM.yyyy HH:mm") </strong>
-                                    <span class="title"><string>@announcement.Title :</string></span>
                                     <span class="description">@announcement.Description</span>
                                 </div>
                                 @if (Model.IsCurrentUserMember)
@@ -694,9 +704,6 @@
                         <div id="announcementForm" style="display: none;" class="mt-3">
                             <form id="announcementFormElement" onsubmit="event.preventDefault(); submitForm('announcementFormElement', '/Project/AddAnnouncement', 'announcementList');">
                                 <input name="projectId" value="@Model.Project.Id" hidden />
-                                <div class="form-group">
-                                    <input type="text" class="form-control" name="title" maxlength="20" placeholder="Заголовок">
-                                </div>
                                 <div class="form-group mt-2">
                                     <textarea class="form-control" name="description" rows="3" placeholder="Описание"></textarea>
                                 </div>
@@ -717,9 +724,6 @@
                                         <form id="editAnnouncementForm" onsubmit="event.preventDefault(); submitEditAnnouncementForm();">
                                             <input type="hidden" id="editAnnouncementId" />
                                             <div class="form-group">
-                                                <input type="text" id="editAnnouncementTitle" class="form-control" maxlength="20" placeholder="Заголовок" />
-                                            </div>
-                                            <div class="form-group">
                                                 <textarea id="editAnnouncementDescription" class="form-control" rows="3" placeholder="Описание"></textarea>
                                             </div>
                                             <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -733,40 +737,55 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    @if (Model.IsCurrentUserMember)
+    @if (!Model.Project.IsPrivate || Model.IsCurrentUserMember)
     {
-        <div class="row">
-            @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel { From = "Project", PostTypeId = (int)PostTypeEnum.Project, ProjectId = Model.Project.Id })
+        @if (Model.IsCurrentUserMember)
+        {
+            <div class="row">
+                @await Html.PartialAsync("_CreatePostPartial", new SocialNetworkingApp.ViewModels.CreatePostViewModel { From = "Project", PostTypeId = (int)PostTypeEnum.Project, ProjectId = Model.Project.Id })
+            </div>
+            <br />
+        }
+
+        <div id="postsContainer" class="row">
+            @await Html.PartialAsync("_FeedPartial", new SocialNetworkingApp.ViewModels.FeedViewModel { CurrentUserId = Model.CurrentUserId, Posts = Model.Posts, ProjectId = Model.Project.Id, ProjectTitle = Model.Project.Title })
         </div>
-        <br />
-    }
 
-    <div id="postsContainer" class="row">
-        @await Html.PartialAsync("_FeedPartial", new SocialNetworkingApp.ViewModels.FeedViewModel { CurrentUserId = Model.CurrentUserId, Posts = Model.Posts, ProjectId = Model.Project.Id, ProjectTitle = Model.Project.Title })
-    </div>
-
-    <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog" aria-labelledby="editWarningModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editWarningModalLabel">Предупреждение</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Нельзя перейти к редактированию поста, пока другой пост находится в режиме редактирования.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+        <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog" aria-labelledby="editWarningModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editWarningModalLabel">Предупреждение</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Нельзя перейти к редактированию поста, пока другой пост находится в режиме редактирования.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="container text-center">
+            <div class="row">
+                <div class="alert alert-warning col-md-8 " role="alert">
+                    Этот проект является приватным. Доступ к нему имеют только участники.
+                </div>
+            </div>
+        </div>
+    }
+
 </div>
+
+
+
 
 <style>
     .container h2 {

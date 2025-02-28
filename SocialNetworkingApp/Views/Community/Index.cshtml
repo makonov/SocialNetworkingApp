@@ -7,17 +7,27 @@
     <h2 class="mb-4">Поддержка сообществ</h2>
 
     <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-        <a asp-controller="Community" asp-action="Index" class="btn btn-outline-secondary">Все сообщества</a>
-        <a asp-controller="Community" asp-action="MyCommunities" class="btn btn-outline-secondary">Мои сообщества</a>
-        <a asp-controller="Community" asp-action="CommunitiesWithMembership" class="btn btn-outline-secondary">Сообщества, в которых состою</a>
+        <!-- Dropdown с кнопками сообществ -->
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Сообщества
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" asp-controller="Community" asp-action="Index">Все сообщества</a></li>
+                <li><a class="dropdown-item" asp-controller="Community" asp-action="MyCommunities">Мои сообщества</a></li>
+                <li><a class="dropdown-item" asp-controller="Community" asp-action="CommunitiesWithMembership">Сообщества, в которых состою</a></li>
+            </ul>
+        </div>
+
+        <!-- Оставшаяся кнопка -->
         <a asp-controller="Community" asp-action="Create" class="btn btn-success">Создать</a>
     </div>
+
 
     <!-- Включаем partial view с фильтрами и поиском -->
     @await Html.PartialAsync("_FindCommunityPartial", new SocialNetworkingApp.ViewModels.FindCommunityViewModel { Types = Model.Types })
 
     <div class="row">
-
         @foreach (Community? community in Model.Communities)
         {
             <div class="col-md-6 mb-4">
@@ -28,7 +38,7 @@
                         </div>
                         <div class="card-body">
                             <p><strong>Тип:</strong> @community.CommunityType.Type</p>
-                            <p>
+                            <p class="description">
                                 <strong>Описание:</strong>
                                 @(community.Description.Length > 50 ? community.Description.Substring(0, 50) + "..." : community.Description)
                             </p>
@@ -38,6 +48,7 @@
             </div>
         }
     </div>
+
 </div>
 
 <style>
@@ -79,5 +90,62 @@
     .project-card:hover .more-info {
         opacity: 1;
     }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .project-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        text-decoration: none;
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .card-header {
+        padding: 15px;
+        font-size: 1.2rem;
+        background-color: #f8f9fa;
+        flex: 0 1 auto;
+        font-weight: bold;
+    }
+
+    .card-body {
+        padding: 15px;
+        flex: 1 1 auto;
+        overflow: hidden;
+        font-size: 0.9rem; /* Устанавливаем одинаковый размер шрифта для всех полей */
+    }
+
+        .card-body p {
+            margin-bottom: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        /* Обрезание текста в описании */
+        .card-body .description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Ограничиваем описание до 3 строк */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-body p:last-child {
+            margin-bottom: 0;
+        }
+
 
 </style>

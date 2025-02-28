@@ -38,12 +38,12 @@ namespace SocialNetworkingApp.Repositories
 
         public async Task<List<ProjectFollower>> GetByProjectIdAsync(int projectId)
         {
-            return await _context.ProjectFolloweres.Where(f => f.ProjectId == projectId).ToListAsync();
+            return await _context.ProjectFolloweres.Include(f => f.Project).Where(f => f.ProjectId == projectId).ToListAsync();
         }
 
         public async Task<ProjectFollower?> GetByUserIdAndProjectIdAsync(string userId, int projectId)
         {
-            return await _context.ProjectFolloweres.FirstOrDefaultAsync(f => f.UserId == userId && f.ProjectId == projectId);
+            return await _context.ProjectFolloweres.Include(f => f.Project).FirstOrDefaultAsync(f => f.UserId == userId && f.ProjectId == projectId);
         }
 
         public async Task<List<ProjectFollower>> GetMembersByProjectIdAsync(int projectId)

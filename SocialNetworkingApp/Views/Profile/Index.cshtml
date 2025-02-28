@@ -33,9 +33,10 @@
                     <div class="col-md-6">
                         <h5 class="card-title">@Model.User.FirstName @Model.User.LastName</h5>
                         <h6 class="card-title">Группа: @(Model.User.Group != null ? Model.User.Group.GroupName : "no info")</h6>
-                        <img src="@(Model.User.ProfilePicture != null ? Model.User.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img" alt="Фото профиля">
+                        <img src="~/@(Model.User.ProfilePicture != null ? Model.User.ProfilePicture : DefaultData.ProfilePic)" class="fixed-profile-img" alt="Фото профиля">
                     </div>
                     <div class="col-md-6 equal-width-btns">
+                        @* <img src="~/@post.data.Image.ImagePath" class="card-img-top" alt="Post Image"> *@
                         @switch (Model.Status)
                         {
                             case UserStatus.None:

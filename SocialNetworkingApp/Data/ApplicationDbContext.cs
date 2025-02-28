@@ -41,12 +41,10 @@ namespace SocialNetworkingApp.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectAnnouncement> ProjectAnnouncements { get; set; }
         public DbSet<ProjectChange> ProjectChanges { get; set; }
-        public DbSet<ProjectFeedback> ProjectFeedbacks { get; set; }
         public DbSet<ProjectFollower> ProjectFolloweres { get; set;}
         public DbSet<ProjectStatus> ProjectStatuses { get; set; }
         public DbSet<ProjectType> ProjectTypes { get; set; }
         public DbSet<StudentGroup> StudentGroups { get; set; }
-        public DbSet<UserRole> UserRoles {  get; set; }
 
     }
 }

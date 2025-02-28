@@ -37,7 +37,10 @@
                     }
                     else
                     {
-                        <p id="flag">Пока что у вас нет сообщений с пользователем по имени <strong>@Model.CurrentInterlocutorName</strong></p>
+                        
+                        <div id="messageContainer" data-interlocutor-name="@Model.CurrentInterlocutorName" data-interlocutor-id="@Model.CurrentInterlocutorId">
+                            <p id="flag">Пока что у вас нет сообщений с пользователем по имени <strong>@Model.CurrentInterlocutorName</strong></p>
+                        </div>
                     }
                 </div>
             </div>
@@ -64,5 +67,9 @@
 
     .message-input {
         margin-top: 20px;
+    }
+
+    .profile-link {
+        color: black;
     }
 </style>

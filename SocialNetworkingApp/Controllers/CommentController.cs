@@ -15,7 +15,6 @@ namespace SocialNetworkingApp.Controllers
     [Authorize(Roles = UserRoles.User)]
     public class CommentController : Controller
     {
-        private readonly IPostRepository _postRepository;
         private readonly ICommentRepository _commentRepository;
         private readonly UserManager<User> _userManager;
         private readonly IImageAlbumRepository _albumRepository;
@@ -24,15 +23,13 @@ namespace SocialNetworkingApp.Controllers
         private readonly IUserService _userService;
         private const int PageSize = 10;
 
-        public CommentController(IPostRepository postRepository, 
-            ICommentRepository commentRepository, 
+        public CommentController(ICommentRepository commentRepository, 
             UserManager<User> userManager, 
             IImageAlbumRepository albumRepository, 
             IPhotoService photoService, 
             IImageRepository imageRepository,
             IUserService userService)
         {
-            _postRepository = postRepository;
             _commentRepository = commentRepository;
             _userManager = userManager;
             _albumRepository = albumRepository;

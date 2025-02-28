@@ -25,7 +25,6 @@ namespace SocialNetworkingApp.Controllers
         private readonly IProjectChangeRepository _projectChangeRepository;
         private readonly IProjectAnnouncementRepository _projectAnnouncementRepository;
         private readonly IProjectFollowerRepository _followerRepository;
-        private readonly IProjectFeedbackRepository _projectFeedbackRepository;
         private readonly IUserService _userService;
         private readonly IImageAlbumRepository _albumRepository;
         private readonly IProjectService _projectService;
@@ -40,7 +39,6 @@ namespace SocialNetworkingApp.Controllers
             IProjectChangeRepository projectChangeRepository,
             IProjectAnnouncementRepository projectAnnouncementRepository,
             IProjectFollowerRepository projectFollowerRepository,
-            IProjectFeedbackRepository projectFeedbackRepository,
             IImageAlbumRepository albumRepository,
             IProjectService projectService)
         {
@@ -53,7 +51,6 @@ namespace SocialNetworkingApp.Controllers
             _projectChangeRepository = projectChangeRepository;
             _projectAnnouncementRepository = projectAnnouncementRepository;
             _followerRepository = projectFollowerRepository;
-            _projectFeedbackRepository = projectFeedbackRepository;
             _albumRepository = albumRepository;
             _projectService = projectService;
         }
@@ -67,7 +64,7 @@ namespace SocialNetworkingApp.Controllers
 
             var viewModel = new ProjectCatalogueViewModel
             {
-                Projects = await _projectService.GetProjectDataList(projects),
+                Projects = await _projectService.GetProjectDataList(currentUser.Id, projects),
                 CurrentUserId = currentUser.Id,
                 User = currentUser
             };
@@ -83,19 +80,24 @@ namespace SocialNetworkingApp.Controllers
 
             if (projectId == null) return NotFound();
 
-            var posts = await _postRepository.GetAllByProjectId((int) projectId, 1, PageSize, 0);
+            var currentProject = await _projectRepository.GetByIdAsync((int)projectId);
 
-            var postsWithLikeStatus = posts.Select(p =>
+            if (currentProject == null) return NotFound();
+
+            bool isCurrentUserMember = await _followerRepository.IsMember(currentUser.Id, (int)projectId);
+
+            var posts = !currentProject.IsPrivate || isCurrentUserMember ? await _postRepository.GetAllByProjectId((int) projectId, 1, PageSize, 0) : null;
+
+            var postsWithLikeStatus = posts != null ? posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, currentUser.Id);
                 return (p, isLikedByCurrentUser);
-            });
-
-            var currentProject = await _projectRepository.GetByIdAsync((int) projectId);
+            }) : null;
+            
             var changes = await _projectChangeRepository.GetByProjectIdAsync((int) projectId);
             var announcements = await _projectAnnouncementRepository.GetByProjectIdAsync((int)projectId);
             var members = await _followerRepository.GetMembersByProjectIdAsync((int) projectId);
-            bool isCurrentUserMember = await _followerRepository.IsMember(currentUser.Id, (int) projectId);
+            
             bool isCurrentUserOwner = await _followerRepository.IsOwner(currentUser.Id, (int)projectId);
             bool isFollower = (await _followerRepository.GetByUserIdAndProjectIdAsync(currentUser.Id, (int)projectId)) != null ? true : false;
             int FollowerCount = (await _followerRepository.GetByProjectIdAsync((int) projectId)).Count();
@@ -158,7 +160,8 @@ namespace SocialNetworkingApp.Controllers
                 FundraisingGoal = model.FundraisingGoal != null ? model.FundraisingGoal : 0,
                 FundraisingProgress = model.FundraisingProgress != null ? model.FundraisingProgress : 0,
                 CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
+                IsPrivate = model.IsPrivate
             };
 
             _projectRepository.Add(project);
@@ -196,7 +199,7 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int projectId, string title, string goal, string description, int statusId, int typeId, decimal? fundraisingProgress = null, decimal? fundraisingGoal = null)
+        public async Task<IActionResult> Edit(int projectId, string title, string goal, string description, int statusId, int typeId, bool isPrivate, decimal? fundraisingProgress = null, decimal? fundraisingGoal = null)
         {
             var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
             if (currentUser == null) return Unauthorized();
@@ -215,6 +218,7 @@ namespace SocialNetworkingApp.Controllers
             project.StatusId = statusId;
             project.FundraisingProgress = fundraisingProgress;
             project.FundraisingGoal = fundraisingGoal;
+            project.IsPrivate = isPrivate;
 
             if (project.TypeId == (int) ProjectTypeEnum.Startup && typeId != (int)ProjectTypeEnum.Startup)
             {
@@ -245,12 +249,11 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddAnnouncement(int projectId, string title, string description)
+        public IActionResult AddAnnouncement(int projectId, string description)
         {
             var newAnnouncement= new ProjectAnnouncement
             {
                 ProjectId = projectId,
-                Title = title,
                 Description = description,
                 CreatedAt = DateTime.Now
             };
@@ -298,9 +301,9 @@ namespace SocialNetworkingApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditAnnouncement(int announcementId, string title, string description)
+        public async Task<IActionResult> EditAnnouncement(int announcementId, string description)
         {
-            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description))
+            if (string.IsNullOrWhiteSpace(description))
             {
                 return Json(new { success = false, message = "Заголовок и описание не могут быть пустыми." });
             }
@@ -308,11 +311,10 @@ namespace SocialNetworkingApp.Controllers
             var announcement = await _projectAnnouncementRepository.GetByIdAsync(announcementId);
             if (announcement != null)
             {
-                announcement.Title = title;
                 announcement.Description = description;
                 _projectAnnouncementRepository.Update(announcement);
 
-                return Json(new { success = true, updatedTitle = title, updatedDescription = description });
+                return Json(new { success = true, updatedDescription = description });
             }
             return Json(new { success = false, message = "Объявление не найдено." });
         }
@@ -432,7 +434,7 @@ namespace SocialNetworkingApp.Controllers
 
             var viewModel = new ProjectCatalogueViewModel
             {
-                Projects = await _projectService.GetProjectDataList(filteredProjects),
+                Projects = await _projectService.GetProjectDataList(currentUser.Id, filteredProjects),
                 CurrentUserId = currentUser.Id,
                 User = currentUser
             };
@@ -455,7 +457,7 @@ namespace SocialNetworkingApp.Controllers
 
             var viewModel = new ProjectCatalogueViewModel
             {
-                Projects = await _projectService.GetProjectDataList(projects),
+                Projects = await _projectService.GetProjectDataList(currentUser.Id, projects),
                 CurrentUserId = currentUser.Id,
                 User = currentUser,
             };
@@ -478,7 +480,7 @@ namespace SocialNetworkingApp.Controllers
 
             var viewModel = new ProjectCatalogueViewModel
             {
-                Projects = await _projectService.GetProjectDataList(projects),
+                Projects = await _projectService.GetProjectDataList(currentUser.Id, projects),
                 CurrentUserId = currentUser.Id,
                 User = currentUser
             };
@@ -501,7 +503,7 @@ namespace SocialNetworkingApp.Controllers
 
             var viewModel = new ProjectCatalogueViewModel
             {
-                Projects = await _projectService.GetProjectDataList(projects),
+                Projects = await _projectService.GetProjectDataList(currentUser.Id, projects),
                 CurrentUserId = currentUser.Id,
                 User = currentUser
             };

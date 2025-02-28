@@ -61,7 +61,7 @@ namespace SocialNetworkingApp.Data
 
                 if (dbContext.ProjectTypes.Count() == 0)
                 {
-                    dbContext.Add(new ProjectType { Type = "Внеучебный проект" });
+                    dbContext.Add(new ProjectType { Type = "Учебный проект" });
                     dbContext.Add(new ProjectType { Type = "Стартап" });
                     dbContext.Add(new ProjectType { Type = "Научная работа" });
                 }

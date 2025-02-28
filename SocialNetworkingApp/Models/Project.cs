@@ -20,5 +20,6 @@ namespace SocialNetworkingApp.Models
         public ProjectType? Type { get; set; } 
         public decimal? FundraisingGoal { get; set; } 
         public decimal? FundraisingProgress { get; set; }
+        public bool IsPrivate { get; set; }
     }
 }

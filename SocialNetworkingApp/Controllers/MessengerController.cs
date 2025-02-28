@@ -27,7 +27,6 @@ namespace SocialNetworkingApp.Controllers
         }
 
 
-        // GET: MessengerController
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userService.GetCurrentUserAsync(HttpContext.User);
@@ -81,75 +80,6 @@ namespace SocialNetworkingApp.Controllers
             };
 
             return PartialView("~/Views/Messenger/_ShowMessagesPartial.cshtml", viewModel);
-        }
-
-        // GET: MessengerController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: MessengerController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: MessengerController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: MessengerController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: MessengerController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: MessengerController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: MessengerController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
         }
     }
 }

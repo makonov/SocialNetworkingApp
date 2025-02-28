@@ -19,5 +19,6 @@ namespace SocialNetworkingApp.ViewModels
         public decimal? FundraisingProgress { get; set; }
         public IEnumerable<SelectListItem>? Statuses { get; set; }
         public IEnumerable<SelectListItem>? Types { get; set; }
+        public bool IsPrivate { get; set; }
     }
 }

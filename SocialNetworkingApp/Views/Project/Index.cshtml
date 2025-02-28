@@ -7,19 +7,29 @@
     <h2 class="mb-4">Поддержка проектов</h2>
 
     <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-        <a asp-controller="Project" asp-action="Index" class="btn btn-outline-secondary">Все проекты</a>
-        <a asp-controller="Project" asp-action="MySubscriptions" class="btn btn-outline-secondary">Мои подписки</a>
-        <a asp-controller="Project" asp-action="ProjectsWithMembership" class="btn btn-outline-secondary">Проекты, в которых состою</a>
-        <a asp-controller="Project" asp-action="MyProjects" class="btn btn-outline-secondary">Проекты, которыми владею</a>
+        <!-- Dropdown с кнопками -->
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Проекты
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" asp-controller="Project" asp-action="Index">Все проекты</a></li>
+                <li><a class="dropdown-item" asp-controller="Project" asp-action="MySubscriptions">Мои подписки</a></li>
+                <li><a class="dropdown-item" asp-controller="Project" asp-action="ProjectsWithMembership">Проекты, в которых состою</a></li>
+                <li><a class="dropdown-item" asp-controller="Project" asp-action="MyProjects">Проекты, которыми владею</a></li>
+            </ul>
+        </div>
+
+        <!-- Оставшиеся кнопки -->
         <a asp-controller="Project" asp-action="Create" class="btn btn-success">Создать</a>
         <a asp-controller="Project" asp-action="AnnouncementsBoard" class="btn btn-primary">Доска объявлений</a>
     </div>
+
 
     <!-- Включаем partial view с фильтрами и поиском -->
     @await Html.PartialAsync("_FindProjectPartial", new SocialNetworkingApp.ViewModels.FindProjectViewModel {})
 
     <div class="row">
-
         @foreach (var (project, lastChange, lastAnnouncement) in Model.Projects)
         {
             <div class="col-md-6 mb-4">
@@ -32,6 +42,7 @@
                             <p><strong>Цель:</strong> @project.Goal</p>
                             <p>
                                 <strong>Описание:</strong>
+                                <!-- Обрезаем описание, если оно длиннее 50 символов -->
                                 @(project.Description.Length > 50 ? project.Description.Substring(0, 50) + "..." : project.Description)
                             </p>
                             <p><strong>Статус:</strong> @project.ProjectStatus.Status</p>
@@ -46,15 +57,15 @@
                             }
                             @if (lastAnnouncement != null)
                             {
-                                <p><strong>Последнее объяввление:</strong> <strong>@lastAnnouncement.Title</strong> @lastAnnouncement.Description</p>
+                                <p><strong>Последнее объявление:</strong> @lastAnnouncement.Description</p>
                             }
                         </div>
                     </div>
                 </a>
             </div>
         }
-
     </div>
+
 </div>
 
 <style>
@@ -96,6 +107,62 @@
     .project-card:hover .more-info {
         opacity: 1;
     }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .project-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        text-decoration: none;
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .card-header {
+        padding: 15px;
+        font-size: 1.2rem;
+        background-color: #f8f9fa;
+        flex: 0 1 auto;
+        font-weight: bold;
+    }
+
+    .card-body {
+        padding: 15px;
+        flex: 1 1 auto;
+        overflow: hidden;
+        font-size: 0.9rem; /* Сделать шрифт одинаковым для всех полей */
+    }
+
+        .card-body p {
+            margin-bottom: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        /* Обрезание текста в описании */
+        .card-body .description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Ограничивает описание до 3 строк */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-body p:last-child {
+            margin-bottom: 0;
+        }
 </style>
 
 

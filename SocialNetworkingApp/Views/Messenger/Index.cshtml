@@ -10,15 +10,108 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Подключение Bootstrap JS (jQuery также должен быть подключен перед ним) -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var userId = "@Model.CurrentUserId";
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chatListHub")
+                .build();
+
+            connection.on("UpdateDialogList", function (fromUserId, toUserId, messageText, sentAt, fromUserFirstName, fromUserLastName, toUserFirstName, toUserLastName) {
+                console.log("Обновление списка диалогов:", fromUserId, messageText);
+
+                var existingChat;
+
+                if (fromUserId === userId) {
+                    existingChat = $("a[href*='ShowDialogue?userId=" + toUserId + "']");
+                }
+                else {
+                    existingChat = $("a[href*='ShowDialogue?userId=" + fromUserId + "']");
+                }
+
+                console.log(existingChat);
+                if (existingChat.length > 0) {
+                    var messagePreview = existingChat.find(".message-info span");
+                    if (messagePreview.length) {
+                        messagePreview.text(messageText.length > 50 ? messageText.substring(0, 50) + "..." : messageText);
+                    }
+
+                    var messageDate = existingChat.find(".message-date");
+                    if (messageDate.length) {
+                        messageDate.text(new Date(sentAt).toLocaleString());
+                    }
+
+                    var chatCard = existingChat.closest(".card");
+                    chatCard.parent().prepend(chatCard);
+
+                    if (fromUserId !== userId) {
+                        chatCard.addClass("unread");
+
+                        // Проверка, существует ли уже badge в карточке
+                        var existingBadge = chatCard.find(".badge.bg-primary");
+
+                        // Если нет, добавляем
+                        if (existingBadge.length === 0) {
+                            chatCard.find(".card-body").append('<span class="badge bg-primary text-light">Новое</span>');
+                        }
+                    }
+                } else {
+                    console.log("Зашли в блок else")
+
+                    var alertNoMsg = $(".alert-no-msg");
+                    if (alertNoMsg.length > 0) {
+                        alertNoMsg.remove();
+                    }
+
+                    var chatList = $(".chatlist");
+                    var newChat;
+
+                    if (fromUserId === userId) {
+                        // Отправитель: имя получателя
+                        newChat = $("<div>").addClass("card mb-2 unread").html(`
+                            <div class="card-body">
+                                <a href="/Messenger/ShowDialogue?userId=${toUserId}" class="stretched-link">
+                                    <div class="message-info">
+                                        <strong>${toUserFirstName} ${toUserLastName}</strong><br>
+                                        <span>Вы: ${messageText.length > 50 ? messageText.substring(0, 50) + "..." : messageText}</span><br>
+                                        <span class="text-muted message-date">${new Date(sentAt).toLocaleString()}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        `);
+                    } else {
+                        // Получатель: имя отправителя
+                        newChat = $("<div>").addClass("card mb-2 unread").html(`
+                            <div class="card-body">
+                                <a href="/Messenger/ShowDialogue?userId=${fromUserId}" class="stretched-link">
+                                    <div class="message-info">
+                                        <strong>${fromUserFirstName} ${fromUserLastName}</strong><br>
+                                        <span>${messageText.length > 50 ? messageText.substring(0, 50) + "..." : messageText}</span><br>
+                                        <span class="text-muted message-date">${new Date(sentAt).toLocaleString()}</span>
+                                    </div>
+                                </a>
+                                <span class="badge bg-primary text-light">Новое</span>
+                            </div>
+                        `);
+                    }
+
+                    chatList.prepend(newChat);
+                }
+            });
+        });
+    </script>
+
 
 }
 
-<div class="container">
+<div class="container chatlist">
     @if (Model.LastMessages.Count() > 0)
     {
-        foreach (Message message in Model.LastMessages)
+        foreach (Message message in Model.LastMessages.OrderByDescending(m => m.SentAt).ToList())
         {
-            <div class="card mb-2">
+            <div class="card mb-2 @if (!message.IsRead && message.ToUserId == Model.CurrentUserId) { <text>unread</text> }">
                 <div class="card-body">
                     <a href="@Url.Action("ShowDialogue", "Messenger", new { userId = message.FromUserId != Model.CurrentUserId ? message.FromUserId : message.ToUserId })" class="stretched-link">
                         <div class="message-info">
@@ -28,7 +121,7 @@
                                 <br />
                                 <span>Вы: @message.Text.Substring(0, Math.Min(50, message.Text.Length))</span>
                                 <br />
-                                <span class="text-muted">@message.SentAt.ToString("g")</span>
+                                <span class="text-muted message-date">@message.SentAt.ToString("g")</span>
                             }
                             else
                             {
@@ -36,17 +129,32 @@
                                 <br />
                                 <span>@message.Text.Substring(0, Math.Min(50, message.Text.Length))</span>
                                 <br />
-                                <span class="text-muted">@message.SentAt.ToString("g")</span>
+                                <span class="text-muted message-date">@message.SentAt.ToString("g")</span>
                             }
                         </div>
                     </a>
+                    @if (!message.IsRead && message.ToUserId == Model.CurrentUserId)
+                    {
+                        <span class="badge bg-primary text-light">Новое</span> <!-- Иконка или текст для уведомления -->
+                    }
                 </div>
             </div>
         }
     }
     else
     {
-        <div class="alert alert-info">Сообщения не найдены</div>
+        <div class="alert alert-info alert-no-msg">Сообщения не найдены</div>
     }
 </div>
 
+
+<style>
+    .unread {
+        background-color: #f0f8ff; /* светлый голубой фон */
+        border-left: 5px solid #007bff; /* тонкая синяя линия слева */
+    }
+
+        .unread .message-info {
+            font-weight: bold; /* сделать текст более заметным */
+        }
+</style>

@@ -17,83 +17,95 @@
 }
 
 <div class="container mt-5">
-    
-    <h1 class="text-center mb-4">@Model.Album.Name</h1>
-    <p class="text-center">@Model.Album.Description</p>
-    @if (TempData["Error"] != null)
+    @if(!Model.IsForbidden)
     {
-        <div class="col-md-12 alert alert-danger">
-            <span><b>Извините!</b> - @TempData["Error"]</span>
-        </div>
-    }
-    <div class="text-center mb-4">
-        @if (Model.IsOwner || Model.IsProjectMember || Model.IsCommunityAdmin)
+        <h1 class="text-center mb-4">@Model.Album.Name</h1>
+        <p class="text-center">@Model.Album.Description</p>
+        @if (TempData["Error"] != null)
         {
-            <!-- Кнопка "Добавить фото" -->
-            <button class="btn btn-primary" data-toggle="modal" data-target="#addImageModal">Добавить изображение</button>
+            <div class="col-md-12 alert alert-danger">
+                <span><b>Извините!</b> - @TempData["Error"]</span>
+            </div>
         }
-        
-        <div class="modal fade" id="addImageModal" tabindex="-1" role="dialog" aria-labelledby="addImageModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addImageModalLabel">Добавление изображения</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        @await Html.PartialAsync("_AddImagePartial", new AddImageViewModel {ImageAlbumId = Model.Album.Id})
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Контейнер для изображений -->
-    <div class="row image-container">
-        <!-- Отображение изображений -->
-        @foreach (var image in Model.Images)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="image-item">
-                    <!-- Ссылка для открытия изображения в полном размере -->
-                    <a href="#" data-toggle="modal" data-target="#modal_@image.Id">
-                        <!-- Изображение -->
-                        <img src="\@image.ImagePath" class="img-square img-thumbnail" alt="Изображение">
-                    </a>
-                </div>
-            </div>
+        <div class="text-center mb-4">
+            @if (Model.IsOwner || Model.IsProjectMember || Model.IsCommunityAdmin)
+            {
+                <!-- Кнопка "Добавить фото" -->
+                <button class="btn btn-primary" data-toggle="modal" data-target="#addImageModal">Добавить изображение</button>
+            }
 
-            <!-- Модальное окно для отображения изображения в полном размере -->
-            <div class="modal fade" id="modal_@image.Id" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal fade" id="addImageModal" tabindex="-1" role="dialog" aria-labelledby="addImageModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="imageModalLabel">Полный размер</h5>
+                            <h5 class="modal-title" id="addImageModalLabel">Добавление изображения</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <img src="\@image.ImagePath" class="img-fluid" alt="Изображение">
-                            @if (image.Description != null)
-                            {
-                                <div class="mt-3">
-                                    <p>@image.Description</p>
-                                </div>
-                            }
-                            @if (Model.IsOwner || Model.IsProjectMember || Model.IsCommunityAdmin)
-                            {
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <a class="btn btn-light like-btn" asp-controller="Image" asp-action="DeleteImage" asp-route-imageId="@image.Id" asp-route-albumId="@image.ImageAlbumId"><i class="bi bi-trash-fill"></i></a>
-                                </div>
-                            }
+                            @await Html.PartialAsync("_AddImagePartial", new AddImageViewModel { ImageAlbumId = Model.Album.Id })
                         </div>
                     </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+        <!-- Контейнер для изображений -->
+        <div class="row image-container">
+            <!-- Отображение изображений -->
+            @foreach (var image in Model.Images)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="image-item">
+                        <!-- Ссылка для открытия изображения в полном размере -->
+                        <a href="#" data-toggle="modal" data-target="#modal_@image.Id">
+                            <!-- Изображение -->
+                            <img src="\@image.ImagePath" class="img-square img-thumbnail" alt="Изображение">
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Модальное окно для отображения изображения в полном размере -->
+                <div class="modal fade" id="modal_@image.Id" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="imageModalLabel">Полный размер</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="\@image.ImagePath" class="img-fluid" alt="Изображение">
+                                @if (image.Description != null)
+                                {
+                                    <div class="mt-3">
+                                        <p>@image.Description</p>
+                                    </div>
+                                }
+                                @if (Model.IsOwner || Model.IsProjectMember || Model.IsCommunityAdmin)
+                                {
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <a class="btn btn-light like-btn" asp-controller="Image" asp-action="DeleteImage" asp-route-imageId="@image.Id" asp-route-albumId="@image.ImageAlbumId"><i class="bi bi-trash-fill"></i></a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="container text-center">
+            <div class="row">
+                <div class="alert alert-warning" role="alert">
+                    Этот проект является приватным. Доступ к альбомам имеют только участники.
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 

@@ -87,5 +87,9 @@ namespace SocialNetworkingApp.Repositories
             return lastMessages;
         }
 
+        public Task<bool> HasUnreadMessages(string userId)
+        {
+            return _context.Messages.AnyAsync(m => m.ToUserId == userId && !m.IsRead);
+        }
     }
 }

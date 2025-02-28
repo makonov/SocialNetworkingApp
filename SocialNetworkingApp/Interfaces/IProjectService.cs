@@ -4,6 +4,6 @@ namespace SocialNetworkingApp.Interfaces
 {
     public interface IProjectService
     {
-        Task<IEnumerable<(Project Project, ProjectChange? LastChange, ProjectAnnouncement? LastAnnouncement)>> GetProjectDataList(IEnumerable<Project> projects);
+        Task<IEnumerable<(Project Project, ProjectChange? LastChange, ProjectAnnouncement? LastAnnouncement)>> GetProjectDataList(string userId, IEnumerable<Project> projects);
     }
 }

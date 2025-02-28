@@ -9,15 +9,22 @@ namespace SocialNetworkingApp.Services
     public class ProjectService : IProjectService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IUserService _userService;
 
-        public ProjectService(ApplicationDbContext context)
+        public ProjectService(ApplicationDbContext context, IUserService userService)
         {
             _context = context;
+            _userService = userService;
         }
 
-        public async Task<IEnumerable<(Project Project, ProjectChange? LastChange, ProjectAnnouncement? LastAnnouncement)>> GetProjectDataList(IEnumerable<Project> projects)
+        public async Task<IEnumerable<(Project Project, ProjectChange? LastChange, ProjectAnnouncement? LastAnnouncement)>> GetProjectDataList(string userId, IEnumerable<Project> projects)
         {
-            var projectIds = projects.Select(p => p.Id).ToList();
+            var projectIds = projects
+                                .Where(p => !p.IsPrivate || (_context.ProjectFolloweres
+                                    .FirstOrDefault(f => f.UserId == userId && f.ProjectId == p.Id)?.IsOwner ?? false))
+                                .Select(p => p.Id)
+                                .ToList();
+
 
             var projectData = await _context.Projects
                 .Where(p => projectIds.Contains(p.Id))

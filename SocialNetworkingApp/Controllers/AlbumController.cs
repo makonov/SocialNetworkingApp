@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -62,8 +63,9 @@ namespace SocialNetworkingApp.Controllers
 
             if (albums.Count() > 0 && albums.First().ProjectId != null)
             {
-                var projectFollower = (await _followerRepository.GetByProjectIdAsync((int)albums.First().ProjectId)).FirstOrDefault(f => f.UserId == user.Id && f.IsMember);
-                if (projectFollower != null) viewModel.IsProjectMember = true;
+                var projectFollower = await _followerRepository.GetByUserIdAndProjectIdAsync(user.Id, (int)projectId);
+                if (projectFollower != null && projectFollower.IsMember != null) viewModel.IsProjectMember = true;
+                if (projectFollower != null && projectFollower.Project.IsPrivate && !projectFollower.IsMember) viewModel.IsForbidden = true;
             }
             else if (userId == null && albums.Count > 0 && albums.First().CommunityId != null)
             {
@@ -97,8 +99,9 @@ namespace SocialNetworkingApp.Controllers
 
             if (album.ProjectId != null)
             {
-                var projectFollower = (await _followerRepository.GetByProjectIdAsync((int)album.ProjectId)).FirstOrDefault(f => f.UserId == user.Id);
-                if (projectFollower != null) viewModel.IsProjectMember = true;
+                var projectFollower = await _followerRepository.GetByUserIdAndProjectIdAsync(user.Id, (int)album.ProjectId);
+                if (projectFollower != null && projectFollower.IsMember != null) viewModel.IsProjectMember = true;
+                if (projectFollower != null && projectFollower.Project.IsPrivate && !projectFollower.IsMember) viewModel.IsForbidden = true;
             } else if (album.CommunityId != null) 
             {
                 bool isAdmin = await _communityMemberRepository.IsAdmin(user.Id,(int) album.CommunityId);

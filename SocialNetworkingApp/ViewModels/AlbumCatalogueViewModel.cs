@@ -11,5 +11,6 @@ namespace SocialNetworkingApp.ViewModels
         public bool IsOwner { get; set; }
         public bool IsCommunity { get; set; }
         public string CurrentUserId { get; set; }
+        public bool IsForbidden { get; set; }
     }
 }

@@ -49,8 +49,20 @@ namespace SocialNetworkingApp.Repositories
                .Include(p => p.Community)
                .Where(p => friendIds.Contains(p.UserId) && p.ProjectId == null && p.CommunityId == null);
 
-            var projects = _context.Posts.Include(p => p.User).Include(p => p.Image).Include(p => p.Project).Include(p => p.Community).Where(p => projectIds.Contains((int)p.ProjectId));
-            var communitites = _context.Posts.Include(p => p.User).Include(p => p.Image).Include(p => p.Project).Include(p => p.Community).Where(p => communityIds.Contains((int)p.CommunityId));
+            var projects = _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Image)
+                .Include(p => p.Project)
+                .Include(p => p.Community)
+                .Where(p => p.ProjectId.HasValue && projectIds.Contains(p.ProjectId.Value) && (!p.Project.IsPrivate || _context.ProjectFolloweres.Any(f => f.ProjectId == p.ProjectId && f.UserId == userId && f.IsMember)));
+
+
+            var communitites = _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Image)
+                .Include(p => p.Project)
+                .Include(p => p.Community)
+                .Where(p => p.CommunityId.HasValue && communityIds.Contains(p.CommunityId.Value));
 
             query = query.Union(projects).Union(communitites).OrderByDescending(p => p.UpdatedAt != default ? p.UpdatedAt : p.CreatedAt);
 

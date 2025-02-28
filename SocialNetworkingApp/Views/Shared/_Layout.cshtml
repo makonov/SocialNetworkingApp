@@ -1,4 +1,21 @@
 ﻿@using SocialNetworkingApp.Data
+@using SocialNetworkingApp.Interfaces
+@inject IMessageRepository messageRepository
+@inject IUserService userService
+
+@{
+   
+    bool hasNewMessages = false;
+
+    if (User.Identity.IsAuthenticated)
+    {
+        var user = await userService.GetUserByUserNameAsync(User.Identity.Name);
+        // Проверка на наличие новых сообщений
+        hasNewMessages = await messageRepository.HasUnreadMessages(user.Id);
+    }
+    
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,7 +73,7 @@
                     {
                         <div class="col-md-2">
                             <div class="d-flex justify-content-center justify-content-md-start sticky">
-                                @Html.Partial("_MenuPartial")
+                                @await Html.PartialAsync("_MenuPartial", hasNewMessages)
                             </div>
                         </div>
                         <div class="col-md-10">

@@ -5,7 +5,6 @@ using SocialNetworkingApp.Controllers;
 using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Hubs;
 using SocialNetworkingApp.Interfaces;
-using SocialNetworkingApp.Middleware;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.Repositories;
 using SocialNetworkingApp.Services;
@@ -35,7 +34,6 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IProjectChangeRepository, ProjectChangeRepository>();
             builder.Services.AddScoped<IProjectAnnouncementRepository, ProjectAnnouncementRepository>();
             builder.Services.AddScoped<IProjectFollowerRepository, ProjectFollowerRepository>();
-            builder.Services.AddScoped<IProjectFeedbackRepository, ProjectFeedbackRepository>();
             builder.Services.AddScoped<ICommunityRepository, CommunityRepository>();
             builder.Services.AddScoped<ICommunityTypeRepository, CommunityTypeRepository>();
             builder.Services.AddScoped<ICommunityMemberRepository, CommunityMemberRepository>();
@@ -43,7 +41,6 @@ namespace SocialNetworkingApp
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-            //builder.Services.AddScoped(typeof(AdminReferenceRepository<>));
             builder.Services.AddScoped(typeof(IAdminReferenceRepository<>), typeof(AdminReferenceRepository<>));
             builder.Services.AddScoped<AdminReferenceController>();
 
@@ -88,13 +85,12 @@ namespace SocialNetworkingApp
 
             app.UseAuthorization();
 
-            //app.UseMiddleware<RoleBasedRedirectMiddleware>();
-
-
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Redirect}/{action=Index}/{id?}");
 
+            
+            app.MapHub<ChatListHub>("/chatListHub");
             app.MapHub<ChatHub>("/chatHub");
 
             app.Run();

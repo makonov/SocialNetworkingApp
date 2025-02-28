@@ -95,6 +95,11 @@ namespace SocialNetworkingApp.Services
             return await _userManager.Users.Include(u => u.Group).FirstOrDefaultAsync(u => u.Id == userId);
         }
 
+        public async Task<User?> GetUserByUserNameAsync(string userName)
+        {
+            return await _userManager.Users.Include(u => u.Group).FirstOrDefaultAsync(u => u.UserName == userName);
+        }
+
         public async Task<List<User>> GetPagedUsers(string userId, int page, int pageSize)
         {
 

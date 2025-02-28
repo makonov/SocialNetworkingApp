@@ -1,10 +1,21 @@
-﻿<!-- В _MenuPartial.cshtml -->
+﻿@model bool
+
 <div class="list-group">
     <a asp-controller="Profile" asp-action="Index" class="list-group-item list-group-item-action">Моя страница</a>
     <a asp-controller="Feed" asp-action="Index" class="list-group-item list-group-item-action">Лента</a>
-    <a asp-controller="Messenger" asp-action="Index" class="list-group-item list-group-item-action">Сообщения</a>
+
+    <a asp-controller="Messenger" asp-action="Index" class="list-group-item list-group-item-action">
+        Сообщения
+        @if (Model)
+        {
+            <span class="badge bg-primary text-light ml-2 badge-message">!</span> 
+        }
+    </a>
+
     <a asp-controller="Friend" asp-action="Index" class="list-group-item list-group-item-action">Друзья</a>
     <a asp-controller="Album" asp-action="Index" class="list-group-item list-group-item-action">Мои альбомы</a>
     <a asp-controller="Community" asp-action="Index" class="list-group-item list-group-item-action">Сообщества</a>
     <a asp-controller="Project" asp-action="Index" class="list-group-item list-group-item-action">Проекты</a>
 </div>
+
+

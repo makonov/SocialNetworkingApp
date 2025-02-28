@@ -16,14 +16,15 @@ namespace SocialNetworkingApp.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IImageAlbumRepository _albumRepository;
         private readonly IStudentGroupRepository _groupRepository;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IImageAlbumRepository albumRepository, IStudentGroupRepository groupRepository)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IImageAlbumRepository albumRepository, IStudentGroupRepository groupRepository, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _albumRepository = albumRepository;
             _groupRepository = groupRepository;
-
+            _roleManager = roleManager;
         }
 
         public IActionResult Login()
@@ -111,6 +112,9 @@ namespace SocialNetworkingApp.Controllers
                 TempData["Error"] = "Произошла ошибка при регистрации пользователя.";
                 return View(viewModel);
             }
+
+            if (!await _roleManager.RoleExistsAsync(UserRoles.User))
+                await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
 
             await _userManager.AddToRoleAsync(newUser, UserRoles.User);
             await _signInManager.SignInAsync(newUser, isPersistent: false);

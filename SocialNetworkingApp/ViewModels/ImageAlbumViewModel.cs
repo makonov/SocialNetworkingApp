@@ -9,5 +9,6 @@ namespace SocialNetworkingApp.ViewModels
         public bool IsProjectMember { get; set; }
         public bool IsCommunityAdmin { get; set; }
         public bool IsOwner {  get; set; }
+        public bool IsForbidden { get; set; }
     }
 }

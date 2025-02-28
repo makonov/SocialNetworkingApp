@@ -16,7 +16,6 @@ namespace SocialNetworkingApp.Models
         [ForeignKey("CommunityType")]
         public int TypeId { get; set; } 
         public CommunityType? CommunityType { get; set; }
-        public virtual ICollection<CommunityMember> Members { get; set; } 
     }
 
 }
