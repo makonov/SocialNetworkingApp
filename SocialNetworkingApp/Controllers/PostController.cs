@@ -24,7 +24,6 @@ namespace SocialNetworkingApp.Controllers
         private readonly ICommentRepository _commentRepository;
         private readonly IProjectFollowerRepository _projectFollowerRepository;
         private readonly ICommunityMemberRepository _communityMemberRepository;
-        private readonly IProjectRepository _projectRepository;
         private readonly UserManager<User> _userManager;
         private const int PageSize = 10;
 
@@ -37,7 +36,6 @@ namespace SocialNetworkingApp.Controllers
             ICommentRepository commentRepository,
             UserManager<User> userManager,
             IProjectFollowerRepository projectFollowerRepository,
-            IProjectRepository projectRepository,
             ICommunityMemberRepository communityMemberRepository)
         {
             _postRepository = postRepository;
@@ -49,7 +47,6 @@ namespace SocialNetworkingApp.Controllers
             _commentRepository = commentRepository;
             _userManager = userManager;
             _projectFollowerRepository = projectFollowerRepository;
-            _projectRepository = projectRepository;
             _communityMemberRepository = communityMemberRepository;
 
         }
@@ -282,9 +279,8 @@ namespace SocialNetworkingApp.Controllers
             var post = await _postRepository.GetByIdAsync(postId);
             if (post != null)
             {
-                post.Likes = isLiked ? post.Likes + 1 : post.Likes - 1;
-                _postRepository.Update(post);
-                return Json(new { success = true, likes = post.Likes });
+                int numberOfLikes = await _likeRepository.GetNumberOfLikes(postId);
+                return Json(new { success = true, likes = numberOfLikes });
             }
 
             return Json(new { success = false, error = "Пост не найден" });

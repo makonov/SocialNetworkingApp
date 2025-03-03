@@ -60,5 +60,10 @@ namespace SocialNetworkingApp.Repositories
             }
             return isLiked;
         }
+
+        public async Task<int> GetNumberOfLikes(int postId)
+        {
+            return await _context.Likes.Where(l => l.PostId == postId).CountAsync();
+        }
     }
 }

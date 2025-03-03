@@ -221,5 +221,34 @@ namespace SocialNetworkingApp.Tests.Repositories
             updatedLike.PostId.Should().Be(2);
         }
 
+        [Fact]
+        public async Task LikeRepository_GetNumberOfLikes_Should_Return_Correct_Count()
+        {
+            // Arrange
+            var dbContext = GetDbContext();
+            var repository = new LikeRepository(dbContext);
+
+            var user1 = new User { Id = "user1", UserName = "user1" };
+            var user2 = new User { Id = "user2", UserName = "user2" };
+            dbContext.Users.AddRange(user1, user2);
+            dbContext.SaveChanges();
+
+            var post = new Post { Id = 1, Text = "Test post", UserId = user1.Id };
+            dbContext.Posts.Add(post);
+            dbContext.SaveChanges();
+
+            var like1 = new Like { PostId = post.Id, UserId = user1.Id };
+            var like2 = new Like { PostId = post.Id, UserId = user2.Id };
+            dbContext.Likes.AddRange(like1, like2);
+            dbContext.SaveChanges();
+
+            // Act
+            var likeCount = await repository.GetNumberOfLikes(post.Id);
+
+            // Assert
+            likeCount.Should().Be(2);
+        }
+
+
     }
 }

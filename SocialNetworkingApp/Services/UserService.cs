@@ -124,18 +124,15 @@ namespace SocialNetworkingApp.Services
                 return new List<User>();
             }
 
-            // Разделяем запрос на слова
             var queryParts = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             IQueryable<User> users = _userManager.Users.Where(u => u.Id != currentUserId);
 
-            // Если введено только одно слово, ищем по имени или фамилии
             if (queryParts.Length == 1)
             {
                 var searchTerm = queryParts[0];
                 users = users.Where(u => u.FirstName.Contains(searchTerm) || u.LastName.Contains(searchTerm));
             }
-            // Если введены два или больше слов, ищем по имени и фамилии
             else if (queryParts.Length >= 2)
             {
                 var firstName = queryParts[0];
@@ -156,7 +153,7 @@ namespace SocialNetworkingApp.Services
                 .Select(u => new SelectListItem
                 {
                     Value = u.Id,
-                    Text = $"{u.FirstName} {u.LastName}" // Защита от null в Group
+                    Text = $"{u.FirstName} {u.LastName}" 
                 })
                 .ToList();
 

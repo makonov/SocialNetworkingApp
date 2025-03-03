@@ -89,8 +89,7 @@ namespace SocialNetworkingApp
                 name: "default",
                 pattern: "{controller=Redirect}/{action=Index}/{id?}");
 
-            
-            app.MapHub<ChatListHub>("/chatListHub");
+           
             app.MapHub<ChatHub>("/chatHub");
 
             app.Run();

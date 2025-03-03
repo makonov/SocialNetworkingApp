@@ -375,6 +375,7 @@ namespace SocialNetworkingApp.Controllers
             {
                 if (projectFollower.IsMember) return BadRequest();
                 projectFollower.IsMember = true;
+                projectFollower.Role = role;
                 _followerRepository.Update(projectFollower);
             }
             else

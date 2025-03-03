@@ -292,7 +292,7 @@ namespace SocialNetworkingApp.Tests.Controllers
 
             // Assert
             result.Should().BeOfType<RedirectToActionResult>()
-                .Which.ActionName.Should().Be("Detail");
+                .Which.ActionName.Should().Be("Details");
             A.CallTo(() => _imageRepository.Add(A<Image>._)).MustHaveHappened();
             A.CallTo(() => _imageRepository.Add(A<Image>.That.Matches(i =>
                 i.ImageAlbumId == imageAlbumId &&
