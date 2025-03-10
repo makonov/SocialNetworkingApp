@@ -78,6 +78,8 @@ namespace SocialNetworkingApp
                 app.UseHsts();
             }
 
+            
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

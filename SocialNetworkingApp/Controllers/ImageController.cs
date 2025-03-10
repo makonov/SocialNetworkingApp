@@ -36,7 +36,7 @@ namespace SocialNetworkingApp.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["Error"] = "Ошибка при загрузке: изображение не было прикреплено";
-                return RedirectToAction("Detail", "Album", new { id = viewModel.ImageAlbumId });
+                return RedirectToAction("Details", "Album", new { id = viewModel.ImageAlbumId });
             }
 
             var currentUser = HttpContext.User;
