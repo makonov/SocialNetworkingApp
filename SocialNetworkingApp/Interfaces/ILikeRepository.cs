@@ -6,7 +6,7 @@ namespace SocialNetworkingApp.Interfaces
     {
         bool IsPostLikedByUser(int postId, string userId);
         Task<bool> ChangeLikeStatus(int postId, string userId);
-        Task<int> GetNumberOfLikes(int postId);
+        int GetNumberOfLikes(int postId);
         bool Add(Like like);
         bool Update(Like like);
         bool Delete(Like like);

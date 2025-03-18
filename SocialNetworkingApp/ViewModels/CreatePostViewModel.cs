@@ -4,7 +4,7 @@ namespace SocialNetworkingApp.ViewModels
 {
     public class CreatePostViewModel
     {
-        [StringLength(200)]
+        [StringLength(5000)]
         public string? Text { get; set; }
         public IFormFile? Image { get; set; }
         public string? ImagePath { get; set; }

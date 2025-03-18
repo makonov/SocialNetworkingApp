@@ -873,7 +873,7 @@ namespace SocialNetworkingApp.Tests.Controllers
             A.CallTo(() => _userManager.GetUserAsync(A<ClaimsPrincipal>._)).Returns(Task.FromResult(user));
             A.CallTo(() => _postRepository.GetByIdAsync(postId)).Returns(Task.FromResult(post));
             A.CallTo(() => _likeRepository.ChangeLikeStatus(postId, user.Id)).Returns(Task.FromResult(true));
-            A.CallTo(() => _likeRepository.GetNumberOfLikes(postId)).Returns(Task.FromResult(numberOfLikes));
+            A.CallTo(() => _likeRepository.GetNumberOfLikes(postId)).Returns(numberOfLikes);
 
             // Act
             var result = await _controller.LikePost(postId);

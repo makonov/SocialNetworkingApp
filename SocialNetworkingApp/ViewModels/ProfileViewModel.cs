@@ -6,7 +6,7 @@ namespace SocialNetworkingApp.ViewModels
 {
     public class ProfileViewModel
     {
-        public IEnumerable<(Post data, bool isLiked)> Posts { get; set; }
+        public IEnumerable<(Post data, bool isLiked, int likeCount)> Posts { get; set; }
         [Required]
         public User? User { get; set; }
         public string? CurrentUserId { get; set; }

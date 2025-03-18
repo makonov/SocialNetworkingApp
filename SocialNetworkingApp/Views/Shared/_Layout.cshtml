@@ -21,7 +21,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Студенческая платформа идей и общения</title>
+    <title>@ViewData["Title"] - Социальная сеть студенческих сообществ</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -34,16 +34,16 @@
             {
                 if (User.IsInRole(UserRoles.User))
                 {
-                    <a class="navbar-brand ml-auto" asp-controller="Feed" asp-action="Index">Студенческая платформа идей и общения</a>
+                    <a class="navbar-brand ml-auto" asp-controller="Feed" asp-action="Index">Социальная сеть студенческих сообществ</a>
                 }
                 else if (User.IsInRole(UserRoles.Admin))
                 {
-                    <a class="navbar-brand ml-auto" asp-controller="Admin" asp-action="Index">Студенческая платформа идей и общения</a>
+                    <a class="navbar-brand ml-auto" asp-controller="Admin" asp-action="Index">Социальная сеть студенческих сообществ</a>
                 }
             }
             else
             {
-                <a class="navbar-brand mx-auto" asp-controller="Feed" asp-action="Index">Студенческая платформа идей и общения</a>
+                <a class="navbar-brand mx-auto" asp-controller="Feed" asp-action="Index">Социальная сеть студенческих сообществ</a>
             }
             
             <div class="mr-auto">

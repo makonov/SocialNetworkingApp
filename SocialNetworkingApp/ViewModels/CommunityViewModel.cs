@@ -13,7 +13,7 @@ namespace SocialNetworkingApp.ViewModels
         public bool IsOwner { get; set; }
         public bool IsAdmin { get; set; }
         public Community? Community { get; set; }
-        public IEnumerable<(Post data, bool isLiked)> Posts { get; set; }
+        public IEnumerable<(Post data, bool isLiked, int likeCount)> Posts { get; set; }
         public int MemberCount { get; set; }
         public IEnumerable<SelectListItem>? Types { get; set; }
         public IEnumerable<CommunityMember> Admins { get; set; }

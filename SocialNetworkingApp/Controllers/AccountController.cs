@@ -7,6 +7,7 @@ using SocialNetworkingApp.Data;
 using SocialNetworkingApp.Interfaces;
 using SocialNetworkingApp.Models;
 using SocialNetworkingApp.ViewModels;
+using System.Text.RegularExpressions;
 
 namespace SocialNetworkingApp.Controllers
 {
@@ -77,12 +78,26 @@ namespace SocialNetworkingApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel viewModel)
         {
-            if (!ModelState.IsValid) return View(viewModel);
+            var groups = await _groupRepository.GetAllAsync();
+            if (!ModelState.IsValid) 
+            {
+                viewModel.Groups = groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList();
+                return View(viewModel);
+            }
 
             var user = await _userManager.FindByNameAsync(viewModel.Login);
             if (user != null)
             {
                 TempData["Error"] = "Пользователь с данным именем пользователя уже существует";
+                viewModel.Groups = groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList();
                 return View(viewModel);
             }
 
@@ -92,6 +107,11 @@ namespace SocialNetworkingApp.Controllers
                 TempData["Error"] = "Пароль не соответствует требованиям безопасности." +
                     " Минимальная длина пароля - 6 символов, он должен содержать символы " +
                     "нижнего и верхнего регистра, цифры, а также специальные символы.";
+                viewModel.Groups = groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList();
                 return View(viewModel);
             }
 
@@ -110,6 +130,11 @@ namespace SocialNetworkingApp.Controllers
             if (!result.Succeeded)
             {
                 TempData["Error"] = "Произошла ошибка при регистрации пользователя.";
+                viewModel.Groups = groups.Select(g => new SelectListItem
+                {
+                    Value = g.Id.ToString(),
+                    Text = g.GroupName
+                }).ToList();
                 return View(viewModel);
             }
 

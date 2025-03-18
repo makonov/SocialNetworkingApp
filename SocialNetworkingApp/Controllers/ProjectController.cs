@@ -91,9 +91,10 @@ namespace SocialNetworkingApp.Controllers
             var postsWithLikeStatus = posts != null ? posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, currentUser.Id);
-                return (p, isLikedByCurrentUser);
+                int likeCount = _likeRepository.GetNumberOfLikes(p.Id);
+                return (p, isLikedByCurrentUser, likeCount);
             }) : null;
-            
+
             var changes = await _projectChangeRepository.GetByProjectIdAsync((int) projectId);
             var announcements = await _projectAnnouncementRepository.GetByProjectIdAsync((int)projectId);
             var members = await _followerRepository.GetMembersByProjectIdAsync((int) projectId);

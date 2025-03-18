@@ -55,7 +55,8 @@ namespace SocialNetworkingApp.Controllers
             var postsWithLikeStatus = posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
-                return (p, isLikedByCurrentUser);
+                int likeCount = _likeRepository.GetNumberOfLikes(p.Id);
+                return (p, isLikedByCurrentUser, likeCount);
             });
 
             var viewModel = new FeedViewModel

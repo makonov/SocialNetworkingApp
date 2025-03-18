@@ -5,7 +5,10 @@
 }
 
 
+
 <div class="container mt-4">
+    <a href="@Url.Action("Index", "Project")" class="btn btn-secondary mb-3">Перейти к проектам</a>
+
     <h2 class="mb-4 text-center">Доска объявлений</h2>
 
     @await Html.PartialAsync("_FindAnnouncementPartial", Model)
@@ -19,7 +22,8 @@
                         <a asp-controller="Project" asp-action="Details" asp-route-projectId="@announcement.ProjectId" class="project-link">
                             @announcement.Project?.Title
                         </a>
-                    </strong> @announcement.Description
+                    </strong>
+                <p>@announcement.Description</p>
                 </p>
                 <small class="text-muted created-at">@announcement.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
             </div>

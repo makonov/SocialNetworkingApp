@@ -43,7 +43,7 @@
                             <p>
                                 <strong>Описание:</strong>
                                 <!-- Обрезаем описание, если оно длиннее 50 символов -->
-                                @(project.Description.Length > 50 ? project.Description.Substring(0, 50) + "..." : project.Description)
+                                @project.Description
                             </p>
                             <p><strong>Статус:</strong> @project.ProjectStatus.Status</p>
                             @if (project.Type.Type == "Стартап")
@@ -145,12 +145,22 @@
         font-size: 0.9rem; /* Сделать шрифт одинаковым для всех полей */
     }
 
-        .card-body p {
+        @* .card-body p {
             margin-bottom: 10px;
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
+        } *@
+                .card-body p {
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Ограничение в 2 строки */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal; /* Позволяет перенос строк */
         }
+
+
 
         /* Обрезание текста в описании */
         .card-body .description {

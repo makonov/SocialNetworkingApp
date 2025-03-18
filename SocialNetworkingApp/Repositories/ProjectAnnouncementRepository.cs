@@ -49,7 +49,7 @@ namespace SocialNetworkingApp.Repositories
 
             if (!string.IsNullOrEmpty(keyExpression))
             {
-                query = query.Where(a => a.Description.Contains(keyExpression));
+                query = query.Where(a => a.Description.Contains(keyExpression) || a.Project.Title.Contains(keyExpression));
             }
 
             if (projectTypeId.HasValue)

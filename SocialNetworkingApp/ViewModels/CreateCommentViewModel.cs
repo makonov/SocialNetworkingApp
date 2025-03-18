@@ -6,7 +6,7 @@ namespace SocialNetworkingApp.ViewModels
     {
         [Required(ErrorMessage = "Для комментария необходим Id поста")]
         public int PostId { get; set; }
-        [StringLength(200)]
+        [StringLength(5000)]
         public string? Text { get; set; }
         public IFormFile? Image { get; set; }
         public string? ImagePath { get; set; }

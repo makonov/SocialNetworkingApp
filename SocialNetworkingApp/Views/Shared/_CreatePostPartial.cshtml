@@ -13,15 +13,33 @@
                         <span id="imagePreview-0"></span>
                         <button type="button" class="btn btn-light btn-sm" id ="clear-image-0" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>
-                    <textarea asp-for="Text" class="form-control" rows="4" style="resize: none;"></textarea>
+                    <textarea asp-for="Text" class="form-control" rows="5" wrap="soft" style="resize: none;"></textarea>
                     <span asp-validation-for="Text" class="text-danger"></span>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
+
+                
+
+                @* <div class="d-flex justify-content-between align-items-center">
                     <button type="submit" class="btn btn-primary">Опубликовать</button>
                     <a class="btn btn-light btn-sm" data-toggle="collapse" href="#collapse-0" role="button" aria-expanded="false" aria-controls="collapse-0">
                         <i class="fas fa-camera"></i>
                     </a>
+                    <button type="button" id="emoji-btn" class="btn btn-light btn-sm">😊</button>
+                    
+                </div> *@
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Кнопка Опубликовать слева -->
+                    <button type="submit" class="btn btn-primary">Опубликовать</button>
+
+                    <!-- Контейнер для остальных кнопок справа -->
+                    <div class="ml-auto d-flex">
+                        <a class="btn btn-light btn-sm" data-toggle="collapse" href="#collapse-0" role="button" aria-expanded="false" aria-controls="collapse-0">
+                            <i class="fas fa-camera"></i>
+                        </a>
+                        <button type="button" class="btn btn-light btn-sm emoji-btn">😊</button>
+                    </div>
                 </div>
+
                 <div class="collapse" id="collapse-0">
                     <label for="input-image-0" class="btn btn-light btn-sm" style="margin-top: 5px;">
                         Загрузить фото с устройства
@@ -51,6 +69,9 @@
                     </div>
                 </div>
             </form>
+            <div class="emoji-picker" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 5px;
+                width: 250px; height: 200px; overflow-y: auto; border-radius: 5px; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); top: 100%; left: 0; z-index: 10;">
+            </div>
         </div>
     </div>
 </div>

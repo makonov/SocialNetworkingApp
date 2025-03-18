@@ -40,7 +40,7 @@
                             <p><strong>Тип:</strong> @community.CommunityType.Type</p>
                             <p class="description">
                                 <strong>Описание:</strong>
-                                @(community.Description.Length > 50 ? community.Description.Substring(0, 50) + "..." : community.Description)
+                                @community.Description
                             </p>
                         </div>
                     </div>
@@ -129,10 +129,12 @@
     }
 
         .card-body p {
-            margin-bottom: 10px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Ограничение в 2 строки */
+            -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: normal; /* Позволяет перенос строк */
         }
 
         /* Обрезание текста в описании */

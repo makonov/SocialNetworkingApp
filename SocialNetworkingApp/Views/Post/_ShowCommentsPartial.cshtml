@@ -16,7 +16,11 @@
                         <button type="button" class="btn btn-light btn-sm" id="clear-image-@comment.Id" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>
                 }
-                <p class="card-text comment-text">@comment.Text</p>
+                @if(comment.Text != null) 
+                {
+                    <p class="card-text comment-text">@Html.Raw(comment.Text.Replace("\n", "<br/>"))</p>
+                }
+                
                 @if (comment.UpdatedAt == default)
                 {
                     <span class="card-text"><small class="text-muted time-change">Опубликовано: @comment.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>

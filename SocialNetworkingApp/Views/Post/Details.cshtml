@@ -12,6 +12,7 @@
     <script src="/js/imagepreview.js"></script>
     <script src="/js/chooseexistingimage.js"></script>
     <script src="/js/deletecomment.js"></script>
+    <script src="/js/EmojiPicker.js"></script>
     @* <script src="/js/infinitescroll.js"></script> *@
     <script src="/js/loadcomments.js"></script>
 
@@ -56,7 +57,7 @@
                             <button type="button" class="btn btn-light btn-sm" id="clear-image-@Model.Post.Id" style="display:none;"><i class="bi bi-x"></i></button>
                         </div>
                     }
-                    <p class="card-text post-text">@Model.Post.Text</p>
+                    <p class="card-text post-text">@Html.Raw(Model.Post.Text.Replace("\n", "<br/>"))</p>
                     @if (Model.Post.UpdatedAt == default)
                     {
                         <span class="card-text"><small class="text-muted time-change">Опубликовано: @Model.Post.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>

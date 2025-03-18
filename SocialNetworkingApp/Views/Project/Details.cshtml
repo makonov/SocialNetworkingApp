@@ -33,6 +33,7 @@
     <script src="/js/imagepreview.js"></script>
     <script src="/js/loadprojectposts.js"></script>
     <script src="/js/chooseexistingimage.js"></script>
+    <script src="/js/EmojiPicker.js"></script>
 
     <script>
         function submitForm(formId, url, listId) {
@@ -463,14 +464,13 @@
         </div>
     }
 
-    <h2 class="col-md-8">@Model.Project.Type.Type: @Model.Project.Title</h2>
-
+    </br>
     <!-- Информация о проекте -->
     <div class="row">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h5>@Model.Project.Type.Type:</h5>
+                    <h5>@Model.Project.Type.Type: @Model.Project.Title</h5>
                 </div>
                 <div class="card-body">
                     <p><strong>Цель:</strong> @Model.Project.Goal</p>
@@ -808,5 +808,23 @@
     ul {
         padding-left: 20px;
     }
-</style>
 
+    [class*="image-preview"] {
+        text-align: center;
+        margin-bottom: 10px;
+        position: relative;
+    }
+
+        [class*="image-preview"] button {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        [class*="image-preview"] img {
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+        }
+</style>

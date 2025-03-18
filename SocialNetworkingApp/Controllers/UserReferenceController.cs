@@ -189,9 +189,6 @@ namespace SocialNetworkingApp.Controllers
             User user = await _userManager.FindByIdAsync(viewModel.UserID);
             if (user != null)
             {
-                var currentRole = await _userManager.GetRolesAsync(user);
-                await _userManager.RemoveFromRolesAsync(user, currentRole);
-                await _userManager.AddToRoleAsync(user, viewModel.UserRole);
                 user.BirthDate = viewModel.BirthDate;
                 user.FirstName = viewModel.FirstName;
                 user.LastName = viewModel.LastName;

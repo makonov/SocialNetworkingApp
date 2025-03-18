@@ -44,7 +44,7 @@ namespace SocialNetworkingApp.Controllers
             if (!ModelState.IsValid || (viewModel.Text == null && viewModel.Image == null && viewModel.ImagePath == null))
             {
                 TempData["Error"] = "Чтобы создать комментарий, введите текст или закрепите изображение.";
-                return RedirectToAction("Index", new { postId = viewModel.PostId });
+                return RedirectToAction("Details","Post", new { id = viewModel.PostId });
             }
 
             var currentUser = HttpContext.User;
@@ -55,7 +55,7 @@ namespace SocialNetworkingApp.Controllers
             {
                 UserId = user.Id,
                 PostId = viewModel.PostId,
-                Text = viewModel.Text,
+                Text = viewModel.Text != null ? viewModel.Text : " ",
                 CreatedAt = DateTime.Now,
                 UpdatedAt = default
             };
@@ -106,7 +106,7 @@ namespace SocialNetworkingApp.Controllers
             if (comment != null && user.Id == comment.UserId)
             {
                 comment.UpdatedAt = DateTime.Now;
-                comment.Text = text;
+                comment.Text = text != null ? text : " ";
 
                 if (inputFile != null)
                 {
@@ -129,8 +129,20 @@ namespace SocialNetworkingApp.Controllers
                 }
                 else if (existingImage != null)
                 {
-                    Image image = await _imageRepository.GetByPathAsync(existingImage);
-                    comment.Image = image;
+                    int dataIndex = existingImage.IndexOf("data");
+
+                    if (dataIndex != -1)
+                    {
+                        string relativePath = existingImage.Substring(dataIndex);
+
+                        Image image = await _imageRepository.GetByPathAsync(relativePath);
+                        comment.Image = image;
+                    }
+                    else
+                    {
+                        Image image = await _imageRepository.GetByPathAsync(existingImage);
+                        comment.Image = image;
+                    }
                 }
                 else if (comment.Image != null)
                 {

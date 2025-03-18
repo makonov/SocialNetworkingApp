@@ -243,7 +243,7 @@ namespace SocialNetworkingApp.Tests.Repositories
             dbContext.SaveChanges();
 
             // Act
-            var likeCount = await repository.GetNumberOfLikes(post.Id);
+            var likeCount = repository.GetNumberOfLikes(post.Id);
 
             // Assert
             likeCount.Should().Be(2);

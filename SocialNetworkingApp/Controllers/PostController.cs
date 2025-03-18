@@ -85,7 +85,7 @@ namespace SocialNetworkingApp.Controllers
             var post = new Post
             {
                 UserId = user.Id,
-                Text = viewModel.Text,
+                Text = viewModel.Text != null ? viewModel.Text : " ",
                 Likes = 0,
                 Name = $"{user.LastName} {user.FirstName}",
                 CreatedAt = DateTime.Now,
@@ -169,7 +169,8 @@ namespace SocialNetworkingApp.Controllers
             var postsWithLikeStatus = posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
-                return (p, isLikedByCurrentUser);
+                int likeCount = _likeRepository.GetNumberOfLikes(p.Id);
+                return (p, isLikedByCurrentUser, likeCount);
             });
 
             var viewModel = new FeedViewModel
@@ -194,11 +195,12 @@ namespace SocialNetworkingApp.Controllers
                 string postOwnerId = (await _postRepository.GetByIdAsync(lastPostId)).UserId;
                 posts = await _postRepository.GetAllFromProfileByUserId(user.Id, page, PageSize, lastPostId);
             }
-            
+
             var postsWithLikeStatus = posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
-                return (p, isLikedByCurrentUser);
+                int likeCount = _likeRepository.GetNumberOfLikes(p.Id);
+                return (p, isLikedByCurrentUser, likeCount);
             });
 
             var viewModel = new FeedViewModel
@@ -227,7 +229,8 @@ namespace SocialNetworkingApp.Controllers
             var postsWithLikeStatus = posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
-                return (p, isLikedByCurrentUser);
+                int likeCount = _likeRepository.GetNumberOfLikes(p.Id);
+                return (p, isLikedByCurrentUser, likeCount);
             });
 
             var viewModel = new FeedViewModel
@@ -256,7 +259,8 @@ namespace SocialNetworkingApp.Controllers
             var postsWithLikeStatus = posts.Select(p =>
             {
                 bool isLikedByCurrentUser = _likeRepository.IsPostLikedByUser(p.Id, user.Id);
-                return (p, isLikedByCurrentUser);
+                int likeCount = _likeRepository.GetNumberOfLikes(p.Id);
+                return (p, isLikedByCurrentUser, likeCount);
             });
 
             var viewModel = new FeedViewModel
@@ -279,7 +283,7 @@ namespace SocialNetworkingApp.Controllers
             var post = await _postRepository.GetByIdAsync(postId);
             if (post != null)
             {
-                int numberOfLikes = await _likeRepository.GetNumberOfLikes(postId);
+                int numberOfLikes = _likeRepository.GetNumberOfLikes(postId);
                 return Json(new { success = true, likes = numberOfLikes });
             }
 
@@ -314,7 +318,7 @@ namespace SocialNetworkingApp.Controllers
             if (post != null && user.Id == post.UserId)
             {
                 post.UpdatedAt = DateTime.Now;
-                post.Text = text;
+                post.Text = text != null ? text : " ";
 
                 if (inputFile != null)
                 {
@@ -354,8 +358,20 @@ namespace SocialNetworkingApp.Controllers
                 }
                 else if (existingImage != null)
                 {
-                    Image image = await _imageRepository.GetByPathAsync(existingImage);
-                    post.Image = image;
+                    int dataIndex = existingImage.IndexOf("data");
+
+                    if (dataIndex != -1)
+                    {
+                        string relativePath = existingImage.Substring(dataIndex);  
+
+                        Image image = await _imageRepository.GetByPathAsync(relativePath);
+                        post.Image = image;  
+                    }
+                    else
+                    {
+                        Image image = await _imageRepository.GetByPathAsync(existingImage);
+                        post.Image = image;
+                    }
                 }
                 else if (post.Image != null)
                 {

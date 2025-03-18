@@ -38,7 +38,9 @@
                         <button type="button" class="btn btn-light btn-sm" id="clear-image-@post.data.Id" style="display:none;"><i class="bi bi-x"></i></button>
                     </div>
                 }
-                <p class="card-text post-text">@post.data.Text</p>
+
+                <p class="card-text post-text">@Html.Raw(post.data.Text.Replace("\n", "<br/>"))</p>
+
                 @if (post.data.UpdatedAt == default)
                 {
                     <span class="card-text"><small class="text-muted time-change">Опубликовано: @post.data.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small></span>
@@ -56,7 +58,7 @@
                     <a class="btn btn-light btn-sm edit-btn" style="float: right; margin-top: 5px;" data-id="@post.data.Id"><i class="bi bi-pen-fill"></i></a>
                 }
                 <div style="margin-top: 5px;">
-                    <span><strong class="likes-count">@post.data.Likes</strong></span>
+                    <span><strong class="likes-count">@post.likeCount</strong></span>
                     <a asp-route-id="@post.data.Id" class="btn btn-light btn-sm like-btn" style="margin-left: 7px;" data-id="@post.data.Id" data-is-liked="@(post.isLiked ? "true" : "false")">
                         <i class="bi bi-hand-thumbs-up@(post.isLiked ? "-fill" : "")"></i>
                     </a>

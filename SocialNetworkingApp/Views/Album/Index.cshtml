@@ -1,4 +1,5 @@
 ﻿@using SocialNetworkingApp.ViewModels
+@using SocialNetworkingApp.Data
 @model AlbumCatalogueViewModel
 @{
 
@@ -55,7 +56,7 @@
             {
                 <div class="col-md-4 mb-4">
                     <div class="card album-card">
-                        <img src="@((album.CoverPath != null ? $"\\{album.CoverPath}" : "https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif"))" class="card-img-top" alt="...">
+                        <img src="@((album.CoverPath != null ? $"\\{album.CoverPath}" : DefaultData.AlbumCover ))" class="card-img-top" alt="...">
                         <div class="card-body">
                             <h5 class="card-title">@album.Name</h5>
                             <p class="card-text">@(album.Description != null ? album.Description : "нет описания")</p>

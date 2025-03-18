@@ -16,7 +16,7 @@ namespace SocialNetworkingApp.ViewModels
         public IEnumerable<ProjectChange?> Changes { get; set; }
         public IEnumerable<ProjectAnnouncement> Announcements { get; set; }
         public IEnumerable<ProjectFollower> Members { get; set; }
-        public IEnumerable<(Post data, bool isLiked)> Posts { get; set; }
+        public IEnumerable<(Post data, bool isLiked, int likeCount)> Posts { get; set; }
         public int FollowersCount { get; set; }
         public IEnumerable<SelectListItem>? Statuses { get; set; }
         public IEnumerable<SelectListItem>? Types { get; set; }
